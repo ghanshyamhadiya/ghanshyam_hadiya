@@ -1,7 +1,47 @@
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------------------
+   Design tokens. Tailwind v4 turns each of these into utilities automatically,
+   e.g. --color-accent gives text-accent / bg-accent / border-accent, and
+   --font-display gives font-display.
+   --------------------------------------------------------------------------- */
 @theme {
-  --font-sans: "Inter", "Outfit", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  /* Display face is Instrument Serif, which ships weight 400 only — never
+     apply font-bold to display text or the browser synthesises a fake bold. */
+  --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* Surfaces */
+  --color-bg: #0a0a0b;
+  --color-surface: #111113;
+  --color-surface-2: #17171a;
+  --color-line: rgba(255, 255, 255, 0.1);
+  --color-line-strong: rgba(255, 255, 255, 0.18);
+
+  /* Text. Ratios are checked against the LIGHTEST surface these sit on
+     (--color-surface-2), not just the page background — `subtle` is used on
+     cards, and an earlier #7a7a83 passed on bg (4.65) but failed on cards
+     (4.21). Worst-case ratios now: ink 15.3:1 · muted 7.0:1 · subtle 5.2:1.
+     Nothing dimmer than `subtle` may carry text.
+     Verify with: node scripts/check-contrast.mjs */
+  --color-ink: #ededef;
+  --color-muted: #a1a1a8;
+  --color-subtle: #8a8a93;
+
+  /* Copper accent */
+  --color-accent: #c98b5e;
+  --color-accent-hi: #e0a56f;
+  --color-accent-soft: rgba(201, 139, 94, 0.12);
+
+  /* Fluid type scale */
+  --text-display: clamp(2.75rem, 8vw, 6.5rem);
+  --text-title: clamp(2rem, 5vw, 3.5rem);
+  --text-card: clamp(1.5rem, 3vw, 2.25rem);
+  --text-metric: clamp(1.75rem, 4vw, 2.75rem);
+
+  /* Shared easing, mirrors EASE_OUT_EXPO in src/utils/motion.js */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @layer base {
@@ -12,7 +52,7 @@
     -webkit-text-size-adjust: 100%;
   }
 
-  /* Lenis takes over scrolling; native smooth behaviour would fight it. */
+  /* Lenis drives scrolling; native smooth behaviour would fight it. */
   html.lenis,
   html.lenis body {
     height: auto;
@@ -23,50 +63,113 @@
   }
 
   body {
-    background-color: #050505;
-    color: #ffffff;
+    background-color: var(--color-bg);
+    color: var(--color-ink);
     font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
+    overscroll-behavior-y: none;
     margin: 0;
     padding: 0;
-    /* Avoids horizontal jitter from oversized decorative elements. */
-    overscroll-behavior-y: none;
+  }
+
+  /* Display face has a single weight; normalise it everywhere. */
+  .font-display {
+    font-weight: 400;
+    letter-spacing: -0.02em;
   }
 
   ::selection {
-    background-color: #ffff00;
-    color: #000000;
+    background-color: rgba(201, 139, 94, 0.28);
+    color: var(--color-ink);
   }
 
   :focus-visible {
-    outline: 2px solid #ffffff;
+    outline: 2px solid var(--color-accent-hi);
     outline-offset: 3px;
     border-radius: 4px;
   }
 
-  img {
+  img,
+  svg {
     display: block;
     max-width: 100%;
   }
 
-  /* Thin dark scrollbar that matches the theme. */
   ::-webkit-scrollbar {
     width: 8px;
   }
 
   ::-webkit-scrollbar-track {
-    background: #050505;
+    background: var(--color-bg);
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.14);
     border-radius: 999px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(201, 139, 94, 0.55);
+  }
+}
+
+@layer components {
+  /* Mono uppercase label used for section eyebrows, dates and meta. */
+  .label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+  }
+}
+
+/* Travelling dot on the PipelineDiagram connectors. Animating top/left rather
+   than transform means the percentages resolve against the parent line, so the
+   dot always travels exactly its length at any breakpoint. */
+@keyframes flow-down {
+  0% {
+    top: 0;
+    opacity: 0;
+  }
+  20%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes flow-right {
+  0% {
+    left: 0;
+    opacity: 0;
+  }
+  20%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+@utility skip-link {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 100;
+  transform: translateY(-200%);
+  transition: transform 0.2s var(--ease-out-expo);
+
+  &:focus {
+    transform: translateY(0);
   }
 }
 

@@ -1,12 +1,15 @@
 // Nav links. `id` must match the id of the matching <section> so the floating
-// navbar can highlight the section you are currently looking at.
+// navbar can highlight whichever section you are currently looking at.
+//
+// Six items is the practical maximum for the centred desktop pill — it renders
+// from the `lg` breakpoint up, and the mobile overlay handles everything below.
 
 export const navLinks = [
-    { title: 'Home', id: 'home' },
     { title: 'About', id: 'about' },
     { title: 'Skills', id: 'skills' },
     { title: 'Experience', id: 'experience' },
-    { title: 'Projects', id: 'projects' },
+    { title: 'Work', id: 'work' },
+    { title: 'Credentials', id: 'credentials' },
     { title: 'Contact', id: 'contact' },
 ];
 

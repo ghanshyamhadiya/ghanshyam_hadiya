@@ -1,48 +1,68 @@
-// Work history, newest first. Rendered as an animated vertical timeline.
-// Use `end: 'Present'` for your current role.
+// Work history, newest first. Rendered as a scroll-driven vertical timeline.
+//
+// Write `achievements` metric-first — lead with the number or the outcome, then
+// the mechanism. "Cut nightly load from 4h to 40min by partitioning the fact
+// table" lands; "Responsible for pipeline performance" does not.
+//
+// Set `current: true` on your present role; it renders a live badge and the
+// `end` value is ignored in favour of "Present".
 
 export const experience = [
     {
-        role: 'Data Engineer',
-        company: 'Your Company',
-        location: 'Remote',
-        start: '2024',
+        role: 'TODO: Data Engineer',
+        company: 'TODO: Company Name',
+        companyNote: 'TODO: one line on what the company does',
+        location: 'TODO: City / Remote',
+        start: 'TODO: 2024',
         end: 'Present',
-        description:
-            'Designing and orchestrating ETL workflows with Oracle ODI, building reusable ingestion mappings and automating data quality checks across multiple source systems.',
-        highlights: [
-            'Built reusable ODI mappings that cut new pipeline setup time in half',
-            'Automated data quality validation across critical warehouse tables',
+        current: true,
+
+        summary:
+            'TODO: two sentences on the scope you own — which systems, which domains, and who depends on your output.',
+
+        achievements: [
+            'TODO: metric-first achievement, e.g. "Cut nightly warehouse load from 4h to 40min by partitioning the largest fact table and switching to incremental merges."',
+            'TODO: second achievement covering reliability or data quality.',
+            'TODO: third achievement covering collaboration or ownership.',
         ],
-        stack: ['Oracle ODI', 'SQL', 'Python'],
+
+        stack: ['Oracle ODI', 'SQL', 'Python', 'Airflow'],
     },
+
     {
-        role: 'Full Stack Developer',
-        company: 'Previous Company',
-        location: 'Hybrid',
-        start: '2023',
-        end: '2024',
-        description:
-            'Shipped production features across the MERN stack, owning everything from REST API design and MongoDB schema modelling to accessible, animated React interfaces.',
-        highlights: [
-            'Delivered a role-based admin dashboard used daily by internal teams',
-            'Improved page load performance through code splitting and caching',
+        role: 'TODO: Previous Role',
+        company: 'TODO: Company Name',
+        companyNote: 'TODO: one line on what the company does',
+        location: 'TODO: City / Hybrid',
+        start: 'TODO: 2023',
+        end: 'TODO: 2024',
+        current: false,
+
+        summary:
+            'TODO: two sentences on what you built and the engineering context.',
+
+        achievements: [
+            'TODO: metric-first achievement.',
+            'TODO: second achievement.',
         ],
-        stack: ['React', 'Node.js', 'Express', 'MongoDB'],
+
+        stack: ['Python', 'SQL', 'Django'],
     },
+
     {
-        role: 'Backend Developer Intern',
-        company: 'First Company',
-        location: 'On-site',
-        start: '2022',
-        end: '2023',
-        description:
-            'Built internal tooling with Python and Django, wrote integration tests and supported the migration of legacy reporting scripts into scheduled jobs.',
-        highlights: [
-            'Migrated legacy reporting scripts to scheduled Django management commands',
-            'Raised backend test coverage on the services layer',
-        ],
-        stack: ['Python', 'Django', 'PostgreSQL'],
+        role: 'TODO: First Role',
+        company: 'TODO: Company Name',
+        companyNote: 'TODO: one line on what the company does',
+        location: 'TODO: City / On-site',
+        start: 'TODO: 2022',
+        end: 'TODO: 2023',
+        current: false,
+
+        summary: 'TODO: two sentences.',
+
+        achievements: ['TODO: metric-first achievement.'],
+
+        stack: ['Python', 'SQL'],
     },
 ];
 

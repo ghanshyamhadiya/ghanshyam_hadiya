@@ -1,88 +1,105 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import SectionHeading from './SectionHeading';
-import Reveal from './Reveal';
-import { skillGroups, skillTags } from '../data';
+import Section from './Section';
+import { cn } from '../utils/cn';
+import { skillLayers, exploring } from '../data';
 import { EASE_OUT_EXPO, viewport } from '../utils/motion';
-import { usePrefersReducedMotion } from '../hooks/useMediaQuery';
 
-const SkillRow = ({ skill, index }) => (
-    <li className="group">
-        <div className="flex items-baseline justify-between gap-4">
-            <span className="text-sm sm:text-base font-bold uppercase tracking-[0.12em] text-white/80 transition-colors duration-300 group-hover:text-white">
-                {skill.name}
-            </span>
-            <span className="text-[0.65rem] font-bold tracking-[0.2em] text-white/35 tabular-nums">
-                {skill.level}
-            </span>
-        </div>
-        <div className="mt-2 h-[3px] w-full overflow-hidden rounded-full bg-white/10">
-            <motion.div
-                initial={{ scaleX: 0 }}
-                whileInView={{ scaleX: skill.level / 100 }}
-                viewport={viewport}
-                transition={{ duration: 1, delay: 0.1 + index * 0.07, ease: EASE_OUT_EXPO }}
-                className="h-full w-full origin-left rounded-full bg-white"
-            />
-        </div>
-    </li>
+const Chip = ({ item }) => (
+    <span
+        className={cn(
+            'rounded-full border px-3 py-1.5 font-mono text-[0.7rem] tracking-[0.04em] transition-colors duration-300',
+            item.primary
+                ? 'border-accent/40 bg-accent-soft text-accent'
+                : 'border-line text-muted hover:border-line-strong hover:text-ink'
+        )}
+    >
+        {item.name}
+    </span>
 );
 
-const Skills = () => {
-    const reducedMotion = usePrefersReducedMotion();
+const Layer = ({ layer, index }) => (
+    <motion.li
+        initial={{ opacity: 0, y: 14 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={viewport}
+        transition={{ duration: 0.5, delay: Math.min(index, 5) * 0.05, ease: EASE_OUT_EXPO }}
+        className="grid gap-4 py-7 md:grid-cols-12 md:gap-8"
+    >
+        <div className="flex gap-4 md:col-span-5">
+            <span className="mt-1 font-mono text-[0.7rem] text-subtle tabular-nums">
+                {String(index + 1).padStart(2, '0')}
+            </span>
+            <div className="min-w-0">
+                <h3 className="font-display text-xl leading-tight text-ink sm:text-2xl">
+                    {layer.layer}
+                </h3>
+                {layer.blurb && (
+                    <p className="mt-1.5 text-[0.8rem] leading-relaxed text-subtle">
+                        {layer.blurb}
+                    </p>
+                )}
+            </div>
+        </div>
 
-    return (
-        <section
-            id="skills"
-            className="relative scroll-mt-28 overflow-hidden border-t border-white/10 px-5 sm:px-8 md:px-12 py-20 sm:py-28 md:py-32"
-        >
-            <div className="mx-auto max-w-7xl">
-                <SectionHeading eyebrow="Toolkit" title="Skills" />
+        <div className="flex flex-wrap content-start gap-2 md:col-span-7">
+            {layer.items.map((item) => (
+                <Chip key={item.name} item={item} />
+            ))}
+        </div>
+    </motion.li>
+);
 
-                <div className="mt-14 grid gap-6 sm:gap-8 md:grid-cols-3">
-                    {skillGroups.map((group, groupIndex) => (
-                        <Reveal
-                            key={group.category}
-                            delay={groupIndex * 0.12}
-                            className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 sm:p-8 backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 hover:border-white/25 hover:bg-white/[0.06]"
+// Skills grouped by layer of the data stack, in the order data flows through
+// it — so the section reads like a platform diagram rather than a keyword list.
+// Deliberately no proficiency percentages; depth is conveyed by the `primary`
+// highlight and by what the project section actually demonstrates.
+const Skills = () => (
+    <Section
+        id="skills"
+        eyebrow="Toolkit"
+        title="The stack, layer by layer"
+        intro="Grouped the way data moves through a platform rather than as a flat keyword list. Highlighted entries are tools I have owned in production."
+    >
+        {/* Legend, so the accent highlight is unambiguous rather than decorative. */}
+        <div className="mb-2 flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-[0.65rem] uppercase tracking-[0.15em] text-subtle">
+            <span className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full border border-accent/40 bg-accent-soft" />
+                Production ownership
+            </span>
+            <span className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full border border-line" />
+                Working familiarity
+            </span>
+        </div>
+
+        <ol className="divide-y divide-line border-y border-line">
+            {skillLayers.map((layer, index) => (
+                <Layer key={layer.layer} layer={layer} index={index} />
+            ))}
+        </ol>
+
+        {exploring?.items?.length > 0 && (
+            <div className="mt-10 rounded-xl border border-dashed border-line-strong p-5 sm:p-6">
+                <h3 className="label text-subtle">{exploring.layer}</h3>
+                {exploring.blurb && (
+                    <p className="mt-2 text-[0.8rem] leading-relaxed text-subtle">
+                        {exploring.blurb}
+                    </p>
+                )}
+                <div className="mt-4 flex flex-wrap gap-2">
+                    {exploring.items.map((item) => (
+                        <span
+                            key={item.name}
+                            className="rounded-full border border-dashed border-line-strong px-3 py-1.5 font-mono text-[0.7rem] text-subtle"
                         >
-                            <h3 className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.28em] text-white/50">
-                                <span className="h-px w-6 bg-white/30" aria-hidden="true" />
-                                {group.category}
-                            </h3>
-                            <ul className="mt-7 space-y-5">
-                                {group.items.map((skill, index) => (
-                                    <SkillRow key={skill.name} skill={skill} index={index} />
-                                ))}
-                            </ul>
-                        </Reveal>
+                            {item.name}
+                        </span>
                     ))}
                 </div>
             </div>
-
-            {/* Infinite tag marquee */}
-            <div className="relative mt-16 sm:mt-20 -mx-5 sm:-mx-8 md:-mx-12 overflow-hidden border-y border-white/10 py-5">
-                <div className="pointer-events-none absolute inset-y-0 left-0 w-16 sm:w-32 bg-gradient-to-r from-[#050505] to-transparent z-10" />
-                <div className="pointer-events-none absolute inset-y-0 right-0 w-16 sm:w-32 bg-gradient-to-l from-[#050505] to-transparent z-10" />
-
-                <motion.div
-                    className="flex w-max gap-8 sm:gap-12 whitespace-nowrap"
-                    animate={reducedMotion ? undefined : { x: ['0%', '-50%'] }}
-                    transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}
-                >
-                    {[...skillTags, ...skillTags].map((tag, index) => (
-                        <span
-                            key={`${tag}-${index}`}
-                            className="text-lg sm:text-2xl font-black uppercase tracking-tighter text-white/25"
-                        >
-                            {tag}
-                            <span className="ml-8 sm:ml-12 text-white/10">/</span>
-                        </span>
-                    ))}
-                </motion.div>
-            </div>
-        </section>
-    );
-};
+        )}
+    </Section>
+);
 
 export default Skills;

@@ -7,19 +7,20 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:ssr": "vite build --ssr scripts/ssr-entry.jsx --outDir dist-ssr",
+    "check:head": "node scripts/check-head.mjs",
+    "check:contrast": "node scripts/check-contrast.mjs",
+    "check:render": "npm run build:ssr && node scripts/check-render.mjs",
+    "verify": "npm run lint && npm run build && npm run check:head && npm run check:contrast && npm run check:render"
   },
   "dependencies": {
     "clsx": "^2.1.1",
     "framer-motion": "^12.34.3",
-    "gsap": "^3.14.2",
     "lenis": "^1.3.17",
     "lucide-react": "^0.575.0",
-    "motion": "^12.34.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-icons": "^5.5.0",
-    "react-router-dom": "^7.13.0",
     "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {

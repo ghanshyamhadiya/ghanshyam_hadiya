@@ -1,123 +1,140 @@
 import React, { useRef } from 'react';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import { MapPin } from 'lucide-react';
-import SectionHeading from './SectionHeading';
-import Reveal from './Reveal';
+import Section from './Section';
 import { experience } from '../data';
 import { EASE_OUT_EXPO, viewport } from '../utils/motion';
 
 const TimelineItem = ({ item, index }) => (
-    <motion.article
-        initial={{ opacity: 0, y: 48 }}
+    <motion.li
+        initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={viewport}
-        transition={{ duration: 0.75, delay: index * 0.08, ease: EASE_OUT_EXPO }}
-        className="group relative pl-12 sm:pl-16 pb-12 last:pb-0"
+        transition={{ duration: 0.6, delay: index * 0.06, ease: EASE_OUT_EXPO }}
+        className="group relative pb-14 pl-8 last:pb-0 sm:pl-12"
     >
         {/* Node on the timeline */}
-        <motion.span
-            initial={{ scale: 0 }}
-            whileInView={{ scale: 1 }}
-            viewport={viewport}
-            transition={{ duration: 0.5, delay: 0.15 + index * 0.08, ease: EASE_OUT_EXPO }}
-            className="absolute left-0 top-2 flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full border border-white/20 bg-[#0a0a0a] transition-colors duration-500 group-hover:border-white/60"
+        <span
+            className="absolute left-0 top-1.5 flex h-4 w-4 -translate-x-1/2 items-center justify-center rounded-full border border-line-strong bg-bg transition-colors duration-500 group-hover:border-accent"
             aria-hidden="true"
         >
-            <span className="h-2 w-2 rounded-full bg-white/50 transition-all duration-500 group-hover:bg-white group-hover:shadow-[0_0_12px_3px_rgba(255,255,255,0.35)]" />
-        </motion.span>
+            <span
+                className={
+                    item.current
+                        ? 'h-1.5 w-1.5 rounded-full bg-accent'
+                        : 'h-1.5 w-1.5 rounded-full bg-subtle transition-colors duration-500 group-hover:bg-accent'
+                }
+            />
+        </span>
 
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-7 backdrop-blur-sm transition-all duration-500 group-hover:border-white/25 group-hover:bg-white/[0.06] group-hover:-translate-y-1">
-            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-                <h3 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight">
-                    {item.role}
-                </h3>
-                <span className="rounded-full border border-white/15 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-white/60">
-                    {item.start} — {item.end}
-                </span>
-            </div>
-
-            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs sm:text-sm font-bold uppercase tracking-[0.18em] text-white/50">
-                <span className="text-white/80">{item.company}</span>
-                {item.location && (
-                    <span className="inline-flex items-center gap-1">
-                        <MapPin size={13} aria-hidden="true" />
-                        {item.location}
+        <div className="grid gap-x-8 gap-y-4 md:grid-cols-12">
+            {/* Dates in the narrow mono column — the classic editorial move. */}
+            <div className="md:col-span-3">
+                <p className="font-mono text-[0.7rem] uppercase tracking-[0.12em] text-subtle tabular-nums">
+                    {item.start} — {item.current ? 'Present' : item.end}
+                </p>
+                {item.current && (
+                    <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent-soft px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-[0.12em] text-accent">
+                        <span className="h-1 w-1 rounded-full bg-accent" />
+                        Current
                     </span>
                 )}
             </div>
 
-            <p className="mt-4 text-sm sm:text-base leading-relaxed text-gray-400 transition-colors duration-500 group-hover:text-gray-300">
-                {item.description}
-            </p>
+            <div className="md:col-span-9">
+                <h3 className="font-display text-2xl leading-tight text-ink sm:text-3xl">
+                    {item.role}
+                </h3>
 
-            {item.highlights?.length > 0 && (
-                <ul className="mt-4 space-y-2">
-                    {item.highlights.map((highlight) => (
-                        <li
-                            key={highlight}
-                            className="flex gap-3 text-sm leading-relaxed text-gray-400"
-                        >
-                            <span className="mt-2 h-px w-4 shrink-0 bg-white/40" aria-hidden="true" />
-                            {highlight}
-                        </li>
-                    ))}
-                </ul>
-            )}
-
-            {item.stack?.length > 0 && (
-                <div className="mt-5 flex flex-wrap gap-2">
-                    {item.stack.map((tech) => (
-                        <span
-                            key={tech}
-                            className="rounded-full bg-white/[0.07] px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.15em] text-white/70"
-                        >
-                            {tech}
+                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <span className="text-sm font-medium text-accent">{item.company}</span>
+                    {item.location && (
+                        <span className="inline-flex items-center gap-1 font-mono text-[0.7rem] text-subtle">
+                            <MapPin size={11} aria-hidden="true" />
+                            {item.location}
                         </span>
-                    ))}
+                    )}
                 </div>
-            )}
+
+                {item.companyNote && (
+                    <p className="mt-1 text-[0.8rem] italic text-subtle">{item.companyNote}</p>
+                )}
+
+                {item.summary && (
+                    <p className="mt-4 text-sm leading-relaxed text-muted sm:text-base">
+                        {item.summary}
+                    </p>
+                )}
+
+                {item.achievements?.length > 0 && (
+                    <ul className="mt-5 space-y-2.5">
+                        {item.achievements.map((achievement) => (
+                            <li
+                                key={achievement}
+                                className="flex gap-3 text-sm leading-relaxed text-muted"
+                            >
+                                <span
+                                    className="mt-2.5 h-px w-3.5 shrink-0 bg-accent/60"
+                                    aria-hidden="true"
+                                />
+                                {achievement}
+                            </li>
+                        ))}
+                    </ul>
+                )}
+
+                {item.stack?.length > 0 && (
+                    <div className="mt-5 flex flex-wrap gap-2">
+                        {item.stack.map((tech) => (
+                            <span
+                                key={tech}
+                                className="rounded-full border border-line px-2.5 py-1 font-mono text-[0.65rem] text-subtle"
+                            >
+                                {tech}
+                            </span>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
-    </motion.article>
+    </motion.li>
 );
 
 const Experience = () => {
-    const ref = useRef(null);
+    const listRef = useRef(null);
     const { scrollYProgress } = useScroll({
-        target: ref,
+        target: listRef,
         offset: ['start 65%', 'end 65%'],
     });
     const lineScale = useSpring(scrollYProgress, { stiffness: 90, damping: 26, mass: 0.4 });
 
     return (
-        <section
+        <Section
             id="experience"
-            className="relative scroll-mt-28 border-t border-white/10 px-5 sm:px-8 md:px-12 py-20 sm:py-28 md:py-32"
+            eyebrow="Career"
+            title="Where I've done it"
+            intro="Roles, scope and the outcomes that came out of them."
         >
-            <div className="mx-auto max-w-5xl">
-                <SectionHeading eyebrow="Career Path" title="Experience" />
+            <div ref={listRef} className="relative">
+                {/* Track plus scroll-driven fill */}
+                <span className="absolute left-0 top-1.5 bottom-0 w-px bg-line" aria-hidden="true" />
+                <motion.span
+                    style={{ scaleY: lineScale }}
+                    className="absolute left-0 top-1.5 bottom-0 w-px origin-top bg-gradient-to-b from-accent via-accent/50 to-transparent"
+                    aria-hidden="true"
+                />
 
-                <Reveal delay={0.1} className="mt-4 max-w-xl text-sm sm:text-base text-gray-400 leading-relaxed">
-                    A short history of the teams I have built with and the problems I helped solve.
-                </Reveal>
-
-                <div ref={ref} className="relative mt-14 sm:mt-20">
-                    {/* Track + scroll-driven fill */}
-                    <span
-                        className="absolute left-0 top-2 bottom-0 w-px bg-white/10"
-                        aria-hidden="true"
-                    />
-                    <motion.span
-                        style={{ scaleY: lineScale }}
-                        className="absolute left-0 top-2 bottom-0 w-px origin-top bg-gradient-to-b from-white via-white/70 to-transparent"
-                        aria-hidden="true"
-                    />
-
+                <ol>
                     {experience.map((item, index) => (
-                        <TimelineItem key={`${item.company}-${item.role}`} item={item} index={index} />
+                        <TimelineItem
+                            key={`${item.company}-${item.role}-${index}`}
+                            item={item}
+                            index={index}
+                        />
                     ))}
-                </div>
+                </ol>
             </div>
-        </section>
+        </Section>
     );
 };
 

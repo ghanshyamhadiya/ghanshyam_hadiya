@@ -2,13 +2,18 @@ import React, { useEffect } from 'react';
 import Lenis from 'lenis';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
+import Stats from './components/Stats';
 import About from './components/About';
 import Skills from './components/Skills';
 import Experience from './components/Experience';
 import Projects from './components/Projects';
+import Credentials from './components/Credentials';
+import Contact from './components/Contact';
 import Footer from './components/Footer';
 import Cursor from './components/Cursor';
 import AnimatedNoise from './components/AnimatedNoise';
+import SkipLink from './components/SkipLink';
+import ErrorBoundary from './components/ErrorBoundary';
 import { registerLenis, scrollToSection } from './utils/smoothScroll';
 import { usePrefersReducedMotion } from './hooks/useMediaQuery';
 
@@ -62,21 +67,25 @@ function App() {
     }, []);
 
     return (
-        <>
+        <ErrorBoundary>
+            <SkipLink />
             <AnimatedNoise />
             <Cursor />
             <div className="min-h-screen overflow-x-clip">
                 <Navbar />
-                <main>
+                <main id="main">
                     <Hero />
+                    <Stats />
                     <About />
                     <Skills />
                     <Experience />
                     <Projects />
+                    <Credentials />
+                    <Contact />
                 </main>
                 <Footer />
             </div>
-        </>
+        </ErrorBoundary>
     );
 }
 
