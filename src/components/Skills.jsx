@@ -1,9 +1,9 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import Section from './Section';
+import Reveal from './Reveal';
 import { cn } from '../utils/cn';
 import { skillLayers, exploring } from '../data';
-import { EASE_OUT_EXPO, viewport } from '../utils/motion';
+import { stagger } from '../utils/motion';
 
 const Chip = ({ item }) => (
     <span
@@ -19,12 +19,10 @@ const Chip = ({ item }) => (
 );
 
 const Layer = ({ layer, index }) => (
-    <motion.li
-        initial={{ opacity: 0, y: 10 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={viewport}
-        transition={{ duration: 0.45, delay: Math.min(index, 5) * 0.05, ease: EASE_OUT_EXPO }}
-        className="group relative grid gap-4 border-t border-line py-6 transition-colors duration-300 hover:bg-surface/60 md:grid-cols-12 md:gap-8"
+    <Reveal
+        as="li"
+        delay={stagger(index)}
+        className="group relative grid gap-3.5 border-t border-line py-5 transition-colors duration-300 hover:bg-surface/60 sm:py-6 md:grid-cols-12 md:gap-8"
     >
         {/* Rule that draws itself across the row on hover */}
         <span
@@ -53,7 +51,7 @@ const Layer = ({ layer, index }) => (
                 <Chip key={item.name} item={item} />
             ))}
         </div>
-    </motion.li>
+    </Reveal>
 );
 
 // Skills grouped by layer of the data stack, in the order data flows through

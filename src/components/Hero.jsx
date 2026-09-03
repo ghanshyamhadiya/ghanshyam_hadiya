@@ -32,9 +32,16 @@ const Backdrop = ({ reducedMotion }) => (
             ))}
         </div>
 
+        {/* Decorative flow lines are desktop-only: on a phone the hero content
+            fills most of the height, so these rules cut straight through the
+            status bar and the intro paragraph. */}
         {!reducedMotion &&
             [30, 62].map((top, index) => (
-                <span key={top} className="absolute left-0 h-px w-full bg-line" style={{ top: `${top}%` }}>
+                <span
+                    key={top}
+                    className="absolute left-0 hidden h-px w-full bg-line md:block"
+                    style={{ top: `${top}%` }}
+                >
                     <span
                         className="absolute top-1/2 h-1 w-6 -translate-y-1/2 bg-accent/60 animate-[flow-right_9s_linear_infinite]"
                         style={{ animationDelay: `${index * 3.5}s` }}
@@ -76,32 +83,36 @@ const Hero = () => {
                 style={enableParallax ? { y, opacity } : undefined}
                 className="relative z-10 mx-auto w-full max-w-6xl"
             >
-                {/* Status bar */}
+                {/* Status bar. Stacks into rows on a phone rather than relying
+                    on ml-auto, which pushed the availability text hard against
+                    the right edge once it wrapped. */}
                 <motion.div
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.15, ease: EASE_OUT_EXPO }}
-                    className="flex flex-wrap items-center gap-x-5 gap-y-2 border-y border-line py-2.5"
+                    className="flex flex-col gap-1.5 border-y border-line py-2.5 sm:flex-row sm:items-center sm:gap-x-5"
                 >
                     <ScrambleText text={profile.role} className="label text-accent" />
                     <span className="hidden h-3 w-px bg-line-strong sm:block" aria-hidden="true" />
                     <span className="font-mono text-[0.68rem] text-subtle">{profile.location}</span>
-                    <span className="ml-auto flex items-center gap-2 font-mono text-[0.68rem] text-subtle">
-                        <span className="h-1.5 w-1.5 bg-emerald-400" aria-hidden="true" />
+                    <span className="flex items-center gap-2 font-mono text-[0.68rem] text-subtle sm:ml-auto">
+                        <span className="h-1.5 w-1.5 shrink-0 bg-emerald-400" aria-hidden="true" />
                         {profile.availability}
                     </span>
                 </motion.div>
 
-                {/* Headline — each line wipes in from behind a mask */}
-                <h1 className="mt-8 font-display text-display leading-[0.85] text-ink">
+                {/* Headline — each line wipes in from behind a mask.
+                    text-balance spreads the wrap evenly instead of leaving a
+                    one-word orphan line on narrow screens. */}
+                <h1 className="mt-7 font-display text-display leading-[0.88] text-balance text-ink sm:mt-8">
                     {lines.map((line, i) => (
-                        <span key={line} className="block overflow-hidden">
+                        <span key={line} className="block overflow-hidden pb-[0.06em]">
                             <motion.span
                                 initial={{ y: '105%' }}
                                 animate={{ y: 0 }}
                                 transition={{
-                                    duration: 1,
-                                    delay: 0.35 + i * 0.12,
+                                    duration: 0.9,
+                                    delay: 0.3 + i * 0.1,
                                     ease: EASE_OUT_EXPO,
                                 }}
                                 className={i === 1 ? 'block text-accent' : 'block'}
@@ -126,7 +137,10 @@ const Hero = () => {
                         />
                     </p>
 
-                    <div className="flex flex-wrap items-center gap-0 md:col-span-5 md:justify-end">
+                    {/* Buttons share a single joined border on wider screens;
+                        on a phone they go full width and stack so neither one
+                        ends up cramped against the edge. */}
+                    <div className="flex flex-col md:col-span-5 md:flex-row md:flex-wrap md:items-center md:justify-end">
                         <Magnetic>
                             <a
                                 href={profile.cta.href}
@@ -135,7 +149,7 @@ const Hero = () => {
                                     event.preventDefault();
                                     scrollToSection(profile.cta.href.replace('#', ''));
                                 }}
-                                className="group relative inline-flex items-center gap-3 overflow-hidden border border-accent px-6 py-3.5 font-mono text-[0.68rem] uppercase tracking-[0.15em] text-accent transition-colors duration-300 hover:text-bg"
+                                className="group relative flex items-center justify-start gap-3 overflow-hidden border border-accent px-6 py-3.5 font-mono text-[0.68rem] uppercase tracking-[0.15em] text-accent transition-colors duration-300 hover:text-bg md:inline-flex"
                             >
                                 <span className="absolute inset-0 -translate-x-full bg-accent transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0" />
                                 <span className="relative">{profile.cta.label}</span>
@@ -150,7 +164,7 @@ const Hero = () => {
                             href={profile.resume.href}
                             download
                             data-cursor="download"
-                            className="group relative inline-flex items-center gap-3 overflow-hidden border border-line-strong border-l-0 px-6 py-3.5 font-mono text-[0.68rem] uppercase tracking-[0.15em] text-muted transition-colors duration-300 hover:text-ink"
+                            className="group relative flex items-center justify-start gap-3 overflow-hidden border border-t-0 border-line-strong px-6 py-3.5 font-mono text-[0.68rem] uppercase tracking-[0.15em] text-muted transition-colors duration-300 hover:text-ink md:inline-flex md:border-l-0 md:border-t"
                         >
                             <span className="absolute inset-0 -translate-x-full bg-surface-2 transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0" />
                             <Download size={14} className="relative" />

@@ -1,11 +1,10 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Github, Linkedin, Mail, Download, ArrowUpRight, Phone } from 'lucide-react';
 import Magnetic from './Magnetic';
 import CopyButton from './CopyButton';
 import ScrambleText from './ScrambleText';
+import Reveal from './Reveal';
 import { profile, socials } from '../data';
-import { EASE_OUT_EXPO, viewport } from '../utils/motion';
 
 const ICONS = {
     github: Github,
@@ -49,48 +48,46 @@ const Contact = () => (
         <div className="relative mx-auto max-w-6xl px-5 py-24 sm:px-8 sm:py-32 md:py-40">
             <ScrambleText text="Contact" className="label block text-accent" rescanOnHover />
 
+            {/* Each line reveals through the shared system. These two lines
+                previously used whileInView and were measured sitting 36px and
+                71px below their masks after a full scroll — never revealed. */}
             <h2
                 id="contact-title"
-                className="mt-6 max-w-4xl font-display text-display leading-[0.85] text-ink"
+                className="mt-6 max-w-4xl font-display text-display leading-[0.88] text-balance text-ink"
             >
                 {['Let\u2019s talk', 'about your data.'].map((line, i) => (
-                    <span key={line} className="block overflow-hidden">
-                        <motion.span
-                            initial={{ y: '105%' }}
-                            whileInView={{ y: 0 }}
-                            viewport={viewport}
-                            transition={{ duration: 0.9, delay: i * 0.1, ease: EASE_OUT_EXPO }}
+                    <span key={line} className="block overflow-hidden pb-[0.06em]">
+                        <Reveal
+                            variant="mask"
+                            duration={0.8}
+                            delay={i * 0.09}
                             className={i === 1 ? 'block text-accent' : 'block'}
                         >
                             {line}
-                        </motion.span>
+                        </Reveal>
                     </span>
                 ))}
             </h2>
 
-            <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={viewport}
-                transition={{ duration: 0.5, delay: 0.15, ease: EASE_OUT_EXPO }}
-                className="mt-8 max-w-xl border-l border-accent/40 pl-4 text-sm leading-relaxed text-muted sm:text-base"
+            <Reveal
+                as="p"
+                delay={0.12}
+                className="mt-7 max-w-xl border-l border-accent/40 pl-4 text-sm leading-relaxed text-muted sm:mt-8 sm:text-base"
             >
                 Open to data engineering roles and interesting pipeline problems. The fastest way to
                 reach me is email — I reply to everything.
-            </motion.p>
+            </Reveal>
 
-            <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={viewport}
-                transition={{ duration: 0.5, delay: 0.22, ease: EASE_OUT_EXPO }}
-                className="mt-10 flex flex-wrap items-center gap-3"
+            {/* Full-width stacked buttons on a phone; inline from sm up. */}
+            <Reveal
+                delay={0.18}
+                className="mt-8 flex flex-col gap-2.5 sm:mt-10 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3"
             >
                 <Magnetic>
                     <a
                         href={`mailto:${profile.email}`}
                         data-cursor="write to me"
-                        className="group relative inline-flex items-center gap-2.5 overflow-hidden border border-accent bg-accent px-6 py-3.5 font-mono text-[0.68rem] uppercase tracking-[0.14em] text-bg transition-colors duration-300 hover:text-accent"
+                        className="group relative inline-flex items-center justify-start gap-2.5 overflow-hidden border border-accent bg-accent px-6 py-3.5 font-mono text-[0.68rem] uppercase tracking-[0.14em] text-bg transition-colors duration-300 hover:text-accent"
                     >
                         <span className="absolute inset-0 translate-y-full bg-bg transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-y-0" />
                         <Mail size={14} aria-hidden="true" className="relative" />
@@ -104,7 +101,7 @@ const Contact = () => (
                     href={profile.resume.href}
                     download
                     data-cursor="download cv"
-                    className="group relative inline-flex items-center gap-2.5 overflow-hidden border border-line-strong px-5 py-3 font-mono text-[0.68rem] uppercase tracking-[0.14em] text-muted transition-colors duration-300 hover:text-ink"
+                    className="group relative inline-flex items-center justify-start gap-2.5 overflow-hidden border border-line-strong px-5 py-3 font-mono text-[0.68rem] uppercase tracking-[0.14em] text-muted transition-colors duration-300 hover:text-ink"
                 >
                     <span className="absolute inset-0 -translate-x-full bg-surface-2 transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0" />
                     <Download size={14} aria-hidden="true" className="relative" />
@@ -114,25 +111,22 @@ const Contact = () => (
                 {profile.phone && (
                     <a
                         href={`tel:${profile.phone.replace(/\s/g, '')}`}
-                        className="inline-flex items-center gap-2.5 border border-line px-5 py-3 font-mono text-[0.68rem] tracking-[0.06em] text-muted transition-colors duration-300 hover:border-accent/50 hover:text-accent"
+                        className="inline-flex items-center justify-start gap-2.5 border border-line px-5 py-3 font-mono text-[0.68rem] tracking-[0.06em] text-muted transition-colors duration-300 hover:border-accent/50 hover:text-accent"
                     >
                         <Phone size={14} aria-hidden="true" />
                         {profile.phone}
                     </a>
                 )}
-            </motion.div>
+            </Reveal>
 
-            <motion.div
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={viewport}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="mt-12 flex flex-wrap gap-2 border-t border-line pt-10"
+            <Reveal
+                delay={0.24}
+                className="mt-10 flex flex-wrap gap-2 border-t border-line pt-8 sm:mt-12 sm:pt-10"
             >
                 {socials.map((social) => (
                     <SocialLink key={social.label} {...social} />
                 ))}
-            </motion.div>
+            </Reveal>
         </div>
     </section>
 );

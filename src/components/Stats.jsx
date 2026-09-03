@@ -1,23 +1,20 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import Reveal from './Reveal';
 import { stats } from '../data';
-import { EASE_OUT_EXPO, viewport } from '../utils/motion';
+import { stagger } from '../utils/motion';
 import useCountUp from '../hooks/useCountUp';
 
 const Stat = ({ stat, index }) => {
     const [ref, display] = useCountUp(stat.value);
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={viewport}
-            transition={{ duration: 0.5, delay: index * 0.07, ease: EASE_OUT_EXPO }}
+        <Reveal
+            delay={stagger(index)}
             // flex-col-reverse keeps the value visually above the label while
             // preserving the required dt-before-dd document order.
-            className="group relative flex flex-col-reverse px-4 py-6 sm:px-6"
+            className="group relative flex flex-col-reverse px-4 py-5 sm:px-6 sm:py-6"
         >
-            <dt className="mt-2.5 font-mono text-[0.62rem] uppercase leading-relaxed tracking-[0.1em] text-subtle">
+            <dt className="mt-2 font-mono text-[0.6rem] uppercase leading-relaxed tracking-[0.08em] text-subtle sm:text-[0.62rem] sm:tracking-[0.1em]">
                 {stat.label}
             </dt>
             <dd
@@ -31,22 +28,28 @@ const Stat = ({ stat, index }) => {
                 aria-hidden="true"
                 className="absolute left-0 top-0 h-px w-0 bg-accent transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-full"
             />
-        </motion.div>
+        </Reveal>
     );
 };
 
 // Impact readout directly under the hero. Divided by hairlines rather than
 // boxed, so it reads as a single instrument panel.
+//
+// The grid sits inside the same px-5/px-8 gutter as every other section; it
+// previously ran edge to edge on a phone, which made it the one block that
+// didn't line up with anything above or below it.
 const Stats = () => {
     if (!stats.length) return null;
 
     return (
         <section id="impact" aria-label="Impact at a glance" className="border-t border-line">
-            <dl className="mx-auto grid max-w-6xl grid-cols-2 divide-x divide-y divide-line border-x border-line px-0 sm:divide-y-0 md:grid-cols-4">
-                {stats.map((stat, index) => (
-                    <Stat key={stat.label} stat={stat} index={index} />
-                ))}
-            </dl>
+            <div className="mx-auto max-w-6xl px-5 sm:px-8">
+                <dl className="grid grid-cols-2 divide-x divide-y divide-line border-x border-b border-line md:grid-cols-4 md:divide-y-0 md:border-b-0">
+                    {stats.map((stat, index) => (
+                        <Stat key={stat.label} stat={stat} index={index} />
+                    ))}
+                </dl>
+            </div>
         </section>
     );
 };

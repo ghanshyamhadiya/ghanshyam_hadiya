@@ -4,6 +4,7 @@ import Section from './Section';
 import Panel from './Panel';
 import { cn } from '../utils/cn';
 import { certifications, education } from '../data';
+import { stagger } from '../utils/motion';
 
 const StatusBadge = ({ status }) => {
     const inProgress = status === 'in-progress';
@@ -28,7 +29,7 @@ const Certification = ({ item, index }) => {
         <li>
             <Panel
                 as={hasLink ? 'a' : 'div'}
-                delay={index * 0.06}
+                delay={stagger(index)}
                 hover={hasLink}
                 className="block p-5"
                 {...(hasLink
@@ -102,7 +103,7 @@ const Credentials = () => {
                         <ul className="mt-6 space-y-3">
                             {education.map((item, index) => (
                                 <li key={item.degree}>
-                                    <Panel delay={index * 0.06} className="p-5">
+                                    <Panel delay={stagger(index)} className="p-5">
                                         <div className="flex items-start justify-between gap-3">
                                             <h4 className="text-[0.92rem] font-medium leading-snug text-ink">
                                                 {item.degree}

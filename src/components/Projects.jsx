@@ -74,27 +74,30 @@ const ProjectCard = ({ project, index, total, progress, reducedMotion }) => {
                     {project.tagline}
                 </p>
 
-                {/* Problem / Approach — the two things a reviewer looks for
-                    first. Approach is hidden on the smallest screens so the
-                    card still fits one viewport in the sticky stack. */}
-                <div className="mt-5 grid gap-x-8 gap-y-4 sm:mt-6 md:grid-cols-2">
+                {/* Problem / Approach.
+                    Approach and the full problem text only appear at lg. The
+                    sticky stack requires a card to fit one viewport, and at
+                    768x900 the cards were overflowing by up to 188px with this
+                    content shown — the bottom of every card was cut off.
+                    Verified with scripts/measure.mjs. */}
+                <div className="mt-4 grid gap-x-8 gap-y-4 sm:mt-5 lg:grid-cols-2">
                     <div className="border-l border-accent/40 pl-3.5">
                         <h4 className="label text-[0.56rem] text-subtle">Problem</h4>
-                        <p className="mt-2 line-clamp-3 text-[0.82rem] leading-relaxed text-muted md:line-clamp-none">
+                        <p className="mt-2 line-clamp-3 text-[0.8rem] leading-relaxed text-muted lg:line-clamp-none">
                             {project.problem}
                         </p>
                     </div>
-                    <div className="hidden border-l border-line pl-3.5 sm:block">
+                    <div className="hidden border-l border-line pl-3.5 lg:block">
                         <h4 className="label text-[0.56rem] text-subtle">Approach</h4>
-                        <p className="mt-2 text-[0.82rem] leading-relaxed text-muted">
+                        <p className="mt-2 text-[0.8rem] leading-relaxed text-muted">
                             {project.solution}
                         </p>
                     </div>
                 </div>
 
-                <PipelineDiagram architecture={project.architecture} className="mt-5 sm:mt-6" />
+                <PipelineDiagram architecture={project.architecture} className="mt-4 sm:mt-5" />
 
-                <div className="mt-5 grid gap-5 border-t border-line pt-5 sm:mt-6 md:grid-cols-12 md:items-end md:gap-8">
+                <div className="mt-4 grid gap-4 border-t border-line pt-4 sm:mt-5 sm:pt-5 md:grid-cols-12 md:items-end md:gap-8">
                     {project.metrics?.length > 0 && (
                         // flex-col-reverse on each pair shows the value above
                         // the label while keeping dt before dd in the DOM.
@@ -140,7 +143,7 @@ const ProjectCard = ({ project, index, total, progress, reducedMotion }) => {
                 </div>
 
                 {project.stack?.length > 0 && (
-                    <div className="mt-5 hidden flex-wrap gap-1.5 border-t border-line pt-4 md:flex">
+                    <div className="mt-5 hidden flex-wrap gap-1.5 border-t border-line pt-4 lg:flex">
                         {project.stack.map((tech) => (
                             <span
                                 key={tech}

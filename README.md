@@ -28,6 +28,24 @@ npm run verify   # lint + build + all checks below
 The render check exists because this is a type-less codebase: SSR-rendering the tree catches
 missing data exports and undefined property access that would otherwise only show up in a browser.
 
+### Visual checks (need `npm run dev` running)
+
+These drive a real headless browser, so they catch layout and motion problems that no amount of
+reading the source will surface.
+
+| Command | Purpose |
+|---|---|
+| `npm run shots -- http://localhost:5173` | Screenshots every section at 360/390/768/1440 into `shots/`, and reports horizontal overflow |
+| `npm run check:reveals -- http://localhost:5173 390` | Scrolls the whole page like a person, then fails if **any element is still hidden** — zero opacity or parked outside its mask |
+| `npm run check:cards -- http://localhost:5173` | Measures each project card against the viewport; the sticky stack silently clips anything taller |
+
+`check:reveals` earned its place immediately: it found 29 words in About and the entire Contact
+headline that never appeared after a full scroll. `check:cards` found project cards overflowing by
+up to 188px at 768px, cutting off the diagram, metrics and repo link.
+
+Playwright is a dev dependency only. If you'd rather not carry it, `npm rm -D playwright` — the
+five checks in the table above it still run without a browser.
+
 ## Editing content
 
 **All visitor-facing copy lives in `src/data/`.** No text is hardcoded in components, so you
@@ -150,11 +168,30 @@ the hard-edged container: a 1px rule plus four corner brackets and a scanline sw
 |---|---|
 | Boot sequence | `Preloader.jsx` — counter to 100 then panel wipe. Session-scoped so it plays once per tab, dismissible by click or keypress, skipped under reduced motion |
 | Text decode | `ScrambleText.jsx` / `useScramble.js` — glyph scramble on scroll-in and hover. The real string stays in the DOM for screen readers |
-| Section transitions | `Section.jsx` — headings uncover via `clip-path` wipe rather than fading |
+| Scroll reveals | `useReveal.js` / `Reveal.jsx` — **one shared system for the whole site** |
 | Crosshair cursor | `Cursor.jsx` — viewport-spanning crosshair, corner-bracket reticle, live coordinate readout. Driven by motion values, so pointer movement causes **no React re-renders**. Add `data-cursor="label"` to any element to change the readout on hover |
 | Hover micro-interactions | Buttons fill from the left, nav underlines wipe, panel brackets fade in, rows draw a rule across on hover |
 
 All of it is client-side; there is no backend or proxy.
+
+#### Why reveals go through `useReveal`, not `whileInView`
+
+Every scroll reveal uses the shared hook. Do not reintroduce per-element `whileInView` — it failed
+in two ways that were very visible on a phone:
+
+1. **It fails closed.** If the observer misses — fast flick scrolling, Lenis smoothing, a hash jump
+   — the element keeps its hidden state forever while still occupying layout, so you get a blank
+   gap rather than an obvious error.
+2. **One observer per element.** Word-by-word text meant ~200 observers on one page, which is both
+   slow and where most of the misses happened. `AnimatedText` now reveals a paragraph as a block;
+   per-word motion is not worth a sentence with holes in it.
+
+`useReveal` uses a single shared observer plus three fail-safes — reveal on intersection, reveal
+immediately if already at or above the fold at mount, and a scroll-driven sweep that reveals
+anything the observer never fired for. `npm run check:reveals` enforces the result.
+
+All reveals share one distance, duration and easing from `utils/motion.js`, so the page moves with
+a single rhythm. Values had previously drifted to four different distances and four durations.
 
 ## Deployment (Vercel)
 

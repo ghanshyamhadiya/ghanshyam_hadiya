@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import {
     Database,
     ArrowRightLeft,
@@ -10,7 +9,6 @@ import {
     ChevronRight,
 } from 'lucide-react';
 import { cn } from '../utils/cn';
-import { viewport, EASE_OUT_EXPO } from '../utils/motion';
 import { usePrefersReducedMotion } from '../hooks/useMediaQuery';
 
 // Data-driven architecture diagram, built from `project.architecture`.
@@ -22,12 +20,10 @@ import { usePrefersReducedMotion } from '../hooks/useMediaQuery';
 //    aria labels. HTML keeps the labels selectable, screen-reader-native and
 //    user-scalable; only the connectors are decorative.
 //
-// 2. One DOM serves both layouts, switched purely with CSS. A six-node vertical
-//    stack is ~580px tall, which would blow out the sticky project card on a
-//    phone — so below `md` the nodes collapse to a compact wrapped chip flow
-//    with chevrons, and from `md` up they expand into full boxes with notes and
-//    travelling flow dots. Rendering two trees would duplicate every label for
-//    assistive tech.
+// 2. One DOM serves both layouts, switched purely with CSS. Below `md` the
+//    nodes form a single swipeable strip; from `md` up they expand into full
+//    boxes with notes and travelling flow dots. Rendering two trees would
+//    duplicate every label for assistive tech.
 
 const KINDS = {
     source: { Icon: Database, tag: 'Source' },
@@ -38,8 +34,11 @@ const KINDS = {
 };
 
 const Connector = ({ index, reducedMotion }) => (
-    <li aria-hidden="true" className="flex shrink-0 items-center justify-center md:w-7">
-        <ChevronRight size={12} className="text-subtle md:hidden" />
+    <li
+        aria-hidden="true"
+        className="flex shrink-0 items-center justify-center px-1 md:w-7 md:px-0"
+    >
+        <ChevronRight size={12} className="shrink-0 text-subtle md:hidden" />
 
         <span className="relative hidden h-px w-full bg-line-strong md:block">
             {!reducedMotion && (
@@ -52,19 +51,18 @@ const Connector = ({ index, reducedMotion }) => (
     </li>
 );
 
-const Node = ({ node, index, reducedMotion }) => {
+// Nodes render statically rather than each running its own scroll reveal. They
+// live inside a card that already reveals as a unit, and inside the sticky
+// project stack per-node triggers fired unreliably — some nodes stayed blank.
+const Node = ({ node }) => {
     const { Icon, tag } = KINDS[node.kind] ?? KINDS.transform;
 
     return (
-        <motion.li
-            initial={reducedMotion ? undefined : { opacity: 0, y: 6 }}
-            whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
-            viewport={viewport}
-            transition={{ duration: 0.4, delay: index * 0.05, ease: EASE_OUT_EXPO }}
+        <li
             className={cn(
-                'flex min-w-0 items-center gap-2 border border-line bg-surface-2/80 px-2.5 py-1.5',
+                'flex shrink-0 snap-start items-center gap-2 border border-line bg-surface-2/80 px-2.5 py-1.5',
                 'transition-colors duration-300 hover:border-accent/45',
-                'md:flex-1 md:flex-col md:items-stretch md:px-3 md:py-3 md:text-center'
+                'md:min-w-0 md:flex-1 md:shrink md:flex-col md:items-stretch md:px-3 md:py-3 md:text-center'
             )}
         >
             <Icon
@@ -78,7 +76,7 @@ const Node = ({ node, index, reducedMotion }) => {
                 {tag}
             </span>
 
-            <span className="truncate font-mono text-[0.7rem] leading-snug text-ink md:mt-1 md:whitespace-normal md:text-[0.75rem]">
+            <span className="whitespace-nowrap font-mono text-[0.7rem] leading-snug text-ink md:mt-1 md:truncate md:whitespace-normal md:text-[0.75rem]">
                 {node.label}
             </span>
 
@@ -87,7 +85,7 @@ const Node = ({ node, index, reducedMotion }) => {
                     {node.note}
                 </span>
             )}
-        </motion.li>
+        </li>
     );
 };
 
@@ -102,7 +100,9 @@ const PipelineDiagram = ({ architecture, className }) => {
         .join(', then ')}.${orchestrator ? ` Orchestrated by ${orchestrator}.` : ''}`;
 
     return (
-        <figure className={cn('grid-bg-sm border border-line bg-surface/50 p-3.5 sm:p-5', className)}>
+        <figure
+            className={cn('grid-bg-sm border border-line bg-surface/50 p-3.5 sm:p-5', className)}
+        >
             {orchestrator && (
                 <div className="mb-3.5 flex items-center gap-2 border border-dashed border-accent/35 bg-accent-soft px-3 py-1.5 sm:py-2">
                     <Workflow size={13} className="shrink-0 text-accent" aria-hidden="true" />
@@ -115,19 +115,32 @@ const PipelineDiagram = ({ architecture, className }) => {
                 </div>
             )}
 
-            <ol
-                className="flex flex-wrap items-center gap-1.5 md:flex-nowrap md:items-stretch md:gap-0"
-                aria-label={description}
-            >
-                {nodes.map((node, index) => (
-                    <React.Fragment key={node.id}>
-                        <Node node={node} index={index} reducedMotion={reducedMotion} />
-                        {index < nodes.length - 1 && (
-                            <Connector index={index} reducedMotion={reducedMotion} />
-                        )}
-                    </React.Fragment>
-                ))}
-            </ol>
+            {/* On a phone this is a single horizontal strip you can swipe,
+                rather than a wrapped grid. Wrapping stranded connector chevrons
+                at the start of new lines and made the block three or four rows
+                tall, which was a large part of why the project cards no longer
+                fit one screen. */}
+            <div className="relative">
+                {/* Fade on the trailing edge so it's obvious the strip scrolls. */}
+                <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-surface to-transparent md:hidden"
+                />
+
+                <ol
+                    className="no-scrollbar -mx-1 flex snap-x snap-mandatory items-stretch gap-0 overflow-x-auto px-1 md:mx-0 md:overflow-visible md:px-0"
+                    aria-label={description}
+                >
+                    {nodes.map((node, index) => (
+                        <React.Fragment key={node.id}>
+                            <Node node={node} />
+                            {index < nodes.length - 1 && (
+                                <Connector index={index} reducedMotion={reducedMotion} />
+                            )}
+                        </React.Fragment>
+                    ))}
+                </ol>
+            </div>
 
             {note && (
                 <figcaption className="mt-3.5 hidden border-t border-line pt-3 text-[0.72rem] leading-relaxed text-subtle sm:block">

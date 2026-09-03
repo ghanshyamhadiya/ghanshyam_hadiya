@@ -2,16 +2,15 @@ import React, { useRef } from 'react';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import { MapPin } from 'lucide-react';
 import Section from './Section';
+import Reveal from './Reveal';
 import { experience } from '../data';
-import { EASE_OUT_EXPO, viewport } from '../utils/motion';
+import { stagger } from '../utils/motion';
 
 const TimelineItem = ({ item, index }) => (
-    <motion.li
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={viewport}
-        transition={{ duration: 0.55, delay: index * 0.06, ease: EASE_OUT_EXPO }}
-        className="group relative pb-14 pl-8 last:pb-0 sm:pl-12"
+    <Reveal
+        as="li"
+        delay={stagger(index)}
+        className="group relative pb-11 pl-7 last:pb-0 sm:pb-14 sm:pl-12"
     >
         {/* Square node, rotated to a diamond on the current role */}
         <span
@@ -94,7 +93,7 @@ const TimelineItem = ({ item, index }) => (
                 )}
             </div>
         </div>
-    </motion.li>
+    </Reveal>
 );
 
 const Experience = () => {

@@ -44,11 +44,13 @@
   --color-accent-hi: #e0a56f;
   --color-accent-soft: rgba(201, 139, 94, 0.1);
 
-  /* Fluid type scale */
-  --text-display: clamp(2.5rem, 9vw, 7rem);
-  --text-title: clamp(1.9rem, 5.5vw, 4rem);
-  --text-card: clamp(1.4rem, 3vw, 2.1rem);
-  --text-metric: clamp(1.6rem, 4vw, 2.6rem);
+  /* Fluid type scale. The display minimum is deliberately low: uppercase
+     Archivo 800 is wide, and at the previous 2.5rem floor the hero headline
+     broke into five ragged lines on a 390px screen. */
+  --text-display: clamp(1.95rem, 7.6vw, 7rem);
+  --text-title: clamp(1.6rem, 5.2vw, 4rem);
+  --text-card: clamp(1.25rem, 3vw, 2.1rem);
+  --text-metric: clamp(1.5rem, 4vw, 2.6rem);
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -181,6 +183,16 @@
     transparent 1px,
     transparent 7px
   );
+}
+
+/* Horizontal scroller for the mobile pipeline diagram, without a visible bar. */
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @utility skip-link {

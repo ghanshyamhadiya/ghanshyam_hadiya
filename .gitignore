@@ -14,6 +14,9 @@ dist-ssr
 *.orig
 *.bak
 
+# Playwright layout screenshots (scripts/shoot.mjs)
+shots
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

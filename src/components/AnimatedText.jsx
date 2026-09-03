@@ -1,43 +1,18 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { cn } from '../utils/cn';
-import { EASE_OUT_EXPO, viewport } from '../utils/motion';
-import { usePrefersReducedMotion } from '../hooks/useMediaQuery';
+import Reveal from './Reveal';
+import { stagger } from '../utils/motion';
 
-// Splits a string into words and reveals them one by one on scroll.
-const AnimatedText = ({
-    text,
-    className,
-    wordClassName,
-    delay = 0,
-    stagger = 0.03,
-    as = 'p',
-}) => {
-    const reducedMotion = usePrefersReducedMotion();
-    const Tag = as;
-
-    if (reducedMotion) return <Tag className={className}>{text}</Tag>;
-
-    return (
-        <Tag className={className}>
-            {text.split(' ').map((word, index) => (
-                <motion.span
-                    key={`${word}-${index}`}
-                    initial={{ opacity: 0, y: 12 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={viewport}
-                    transition={{
-                        duration: 0.5,
-                        delay: delay + index * stagger,
-                        ease: EASE_OUT_EXPO,
-                    }}
-                    className={cn('inline-block mr-[0.28em]', wordClassName)}
-                >
-                    {word}
-                </motion.span>
-            ))}
-        </Tag>
-    );
-};
+// Reveals a paragraph as one block.
+//
+// This previously animated word by word, giving every word its own
+// IntersectionObserver — roughly 200 on this page. Under fast scrolling a large
+// share of them never fired, leaving individual words permanently invisible
+// mid-sentence (29 of them, measured at 390px). Per-word motion is not worth a
+// paragraph with holes in it, and the block reveal reads calmer anyway.
+const AnimatedText = ({ text, className, delay = 0, index = 0, as = 'p' }) => (
+    <Reveal as={as} delay={delay || stagger(index)} className={className}>
+        {text}
+    </Reveal>
+);
 
 export default AnimatedText;
