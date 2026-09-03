@@ -9,33 +9,40 @@ const Stat = ({ stat, index }) => {
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={viewport}
-            transition={{ duration: 0.55, delay: index * 0.08, ease: EASE_OUT_EXPO }}
+            transition={{ duration: 0.5, delay: index * 0.07, ease: EASE_OUT_EXPO }}
             // flex-col-reverse keeps the value visually above the label while
             // preserving the required dt-before-dd document order.
-            className="flex flex-col-reverse border-t border-line pt-5"
+            className="group relative flex flex-col-reverse px-4 py-6 sm:px-6"
         >
-            <dt className="mt-3 text-sm leading-snug text-muted">{stat.label}</dt>
+            <dt className="mt-2.5 font-mono text-[0.62rem] uppercase leading-relaxed tracking-[0.1em] text-subtle">
+                {stat.label}
+            </dt>
             <dd
                 ref={ref}
-                className="font-mono text-metric font-medium leading-none tabular-nums text-accent"
+                className="font-display text-metric leading-none tabular-nums text-accent"
             >
                 {display}
             </dd>
+
+            <span
+                aria-hidden="true"
+                className="absolute left-0 top-0 h-px w-0 bg-accent transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-full"
+            />
         </motion.div>
     );
 };
 
-// Impact bar directly under the hero. The strongest single credibility signal
-// on the page, which is why it sits above everything except the introduction.
+// Impact readout directly under the hero. Divided by hairlines rather than
+// boxed, so it reads as a single instrument panel.
 const Stats = () => {
     if (!stats.length) return null;
 
     return (
-        <section id="impact" aria-label="Impact at a glance" className="px-5 pb-4 sm:px-8">
-            <dl className="mx-auto grid max-w-6xl grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-4 md:gap-x-10">
+        <section id="impact" aria-label="Impact at a glance" className="border-t border-line">
+            <dl className="mx-auto grid max-w-6xl grid-cols-2 divide-x divide-y divide-line border-x border-line px-0 sm:divide-y-0 md:grid-cols-4">
                 {stats.map((stat, index) => (
                     <Stat key={stat.label} stat={stat} index={index} />
                 ))}

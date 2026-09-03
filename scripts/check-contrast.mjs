@@ -15,11 +15,11 @@ const ratio = (a, b) => {
     return (hi + 0.05) / (lo + 0.05);
 };
 
-const surfaces = { bg: '#0a0a0b', surface: '#111113', 'surface-2': '#17171a' };
+const surfaces = { bg: '#08080a', surface: '#0e0e11', 'surface-2': '#141418' };
 const texts = {
-    ink: '#ededef',
-    muted: '#a1a1a8',
-    subtle: '#8a8a93',
+    ink: '#f0f0f2',
+    muted: '#a3a3aa',
+    subtle: '#8b8b94',
     accent: '#c98b5e',
     'accent-hi': '#e0a56f',
 };

@@ -2,21 +2,22 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '../utils/cn';
 import { EASE_OUT_EXPO, viewport } from '../utils/motion';
+import ScrambleText from './ScrambleText';
 
-// The single owner of section rhythm and the editorial two-column header:
-// a mono eyebrow pinned in the narrow left column, serif title and copy on the
-// right. Every section goes through here so spacing can never drift again.
+// Owns section rhythm and the technical header: a mono index and eyebrow in the
+// narrow left column, a grotesk title on the right, hairline rules top and
+// bottom. Every section goes through here so spacing can never drift.
 //
 // `bleed` renders children full-width below the header instead of inside the
-// 9-column content track — used by the project card stack.
+// content track — used by the project card stack.
 const Section = ({
     id,
+    index,
     eyebrow,
     title,
     intro,
     children,
     bleed = false,
-    bordered = true,
     className,
     contentClassName,
 }) => {
@@ -26,49 +27,54 @@ const Section = ({
         <section
             id={id}
             aria-labelledby={titleId}
-            className={cn(
-                'scroll-mt-28 py-24 sm:py-32 md:py-40',
-                bordered && 'border-t border-line',
-                className
-            )}
+            className={cn('relative scroll-mt-28 border-t border-line', className)}
         >
-            <div className="mx-auto max-w-6xl px-5 sm:px-8">
-                <div className="grid gap-y-6 md:grid-cols-12 md:gap-x-10">
-                    {eyebrow && (
-                        <div className="md:col-span-3">
-                            <motion.p
-                                initial={{ opacity: 0, x: -8 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={viewport}
-                                transition={{ duration: 0.5, ease: EASE_OUT_EXPO }}
-                                className="label text-accent md:sticky md:top-32"
-                            >
-                                {eyebrow}
-                            </motion.p>
-                        </div>
-                    )}
+            <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28 md:py-36">
+                <div className="grid gap-y-8 md:grid-cols-12 md:gap-x-10">
+                    <div className="md:col-span-3">
+                        <motion.div
+                            initial={{ opacity: 0, x: -8 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={viewport}
+                            transition={{ duration: 0.5, ease: EASE_OUT_EXPO }}
+                            className="flex items-baseline gap-3 md:sticky md:top-32 md:flex-col md:gap-2"
+                        >
+                            {index && (
+                                <span className="font-mono text-[0.65rem] tracking-[0.2em] text-subtle tabular-nums">
+                                    [{index}]
+                                </span>
+                            )}
+                            {eyebrow && (
+                                <ScrambleText
+                                    text={eyebrow}
+                                    className="label block text-accent"
+                                    rescanOnHover
+                                />
+                            )}
+                        </motion.div>
+                    </div>
 
-                    <div className={cn(eyebrow ? 'md:col-span-9' : 'md:col-span-12')}>
-                        <span className="block overflow-hidden pb-1">
-                            <motion.h2
-                                id={titleId}
-                                initial={{ y: '110%' }}
-                                whileInView={{ y: '0%' }}
-                                viewport={viewport}
-                                transition={{ duration: 0.8, ease: EASE_OUT_EXPO }}
-                                className="font-display text-title leading-[1.05] text-ink"
-                            >
-                                {title}
-                            </motion.h2>
-                        </span>
+                    <div className="md:col-span-9">
+                        {/* Clip-path wipe: the heading is uncovered rather than
+                            faded, which suits the hard-edged language. */}
+                        <motion.h2
+                            id={titleId}
+                            initial={{ clipPath: 'inset(0 100% 0 0)' }}
+                            whileInView={{ clipPath: 'inset(0 0% 0 0)' }}
+                            viewport={viewport}
+                            transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
+                            className="font-display text-title leading-[0.92] text-ink"
+                        >
+                            {title}
+                        </motion.h2>
 
                         {intro && (
                             <motion.p
-                                initial={{ opacity: 0, y: 12 }}
+                                initial={{ opacity: 0, y: 10 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={viewport}
-                                transition={{ duration: 0.55, delay: 0.1, ease: EASE_OUT_EXPO }}
-                                className="mt-5 max-w-2xl text-base leading-relaxed text-muted sm:text-lg"
+                                transition={{ duration: 0.5, delay: 0.15, ease: EASE_OUT_EXPO }}
+                                className="mt-6 max-w-2xl border-l border-accent/40 pl-4 text-sm leading-relaxed text-muted sm:text-base"
                             >
                                 {intro}
                             </motion.p>
@@ -81,9 +87,7 @@ const Section = ({
                 </div>
             </div>
 
-            {bleed && children && (
-                <div className={cn('mt-12 sm:mt-16', contentClassName)}>{children}</div>
-            )}
+            {bleed && children && <div className={cn(contentClassName)}>{children}</div>}
         </section>
     );
 };

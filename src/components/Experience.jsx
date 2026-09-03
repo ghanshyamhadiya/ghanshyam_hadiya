@@ -7,49 +7,48 @@ import { EASE_OUT_EXPO, viewport } from '../utils/motion';
 
 const TimelineItem = ({ item, index }) => (
     <motion.li
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={viewport}
-        transition={{ duration: 0.6, delay: index * 0.06, ease: EASE_OUT_EXPO }}
+        transition={{ duration: 0.55, delay: index * 0.06, ease: EASE_OUT_EXPO }}
         className="group relative pb-14 pl-8 last:pb-0 sm:pl-12"
     >
-        {/* Node on the timeline */}
+        {/* Square node, rotated to a diamond on the current role */}
         <span
-            className="absolute left-0 top-1.5 flex h-4 w-4 -translate-x-1/2 items-center justify-center rounded-full border border-line-strong bg-bg transition-colors duration-500 group-hover:border-accent"
+            className="absolute left-0 top-1 flex h-3.5 w-3.5 -translate-x-1/2 items-center justify-center border border-line-strong bg-bg transition-colors duration-400 group-hover:border-accent"
             aria-hidden="true"
         >
             <span
                 className={
                     item.current
-                        ? 'h-1.5 w-1.5 rounded-full bg-accent'
-                        : 'h-1.5 w-1.5 rounded-full bg-subtle transition-colors duration-500 group-hover:bg-accent'
+                        ? 'h-1.5 w-1.5 rotate-45 bg-accent'
+                        : 'h-1.5 w-1.5 bg-subtle transition-colors duration-400 group-hover:bg-accent'
                 }
             />
         </span>
 
         <div className="grid gap-x-8 gap-y-4 md:grid-cols-12">
-            {/* Dates in the narrow mono column — the classic editorial move. */}
             <div className="md:col-span-3">
-                <p className="font-mono text-[0.7rem] uppercase tracking-[0.12em] text-subtle tabular-nums">
-                    {item.start} — {item.current ? 'Present' : item.end}
+                <p className="font-mono text-[0.68rem] uppercase tracking-[0.1em] text-subtle tabular-nums">
+                    {item.start} → {item.current ? 'Present' : item.end}
                 </p>
                 {item.current && (
-                    <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent-soft px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-[0.12em] text-accent">
-                        <span className="h-1 w-1 rounded-full bg-accent" />
+                    <span className="mt-2 inline-flex items-center gap-1.5 border border-accent/45 bg-accent-soft px-2 py-1 font-mono text-[0.58rem] uppercase tracking-[0.12em] text-accent">
+                        <span className="h-1 w-1 bg-accent" />
                         Current
                     </span>
                 )}
             </div>
 
             <div className="md:col-span-9">
-                <h3 className="font-display text-2xl leading-tight text-ink sm:text-3xl">
+                <h3 className="font-display text-xl leading-tight text-ink sm:text-2xl">
                     {item.role}
                 </h3>
 
                 <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <span className="text-sm font-medium text-accent">{item.company}</span>
+                    <span className="font-mono text-[0.8rem] text-accent">{item.company}</span>
                     {item.location && (
-                        <span className="inline-flex items-center gap-1 font-mono text-[0.7rem] text-subtle">
+                        <span className="inline-flex items-center gap-1 font-mono text-[0.68rem] text-subtle">
                             <MapPin size={11} aria-hidden="true" />
                             {item.location}
                         </span>
@@ -57,13 +56,11 @@ const TimelineItem = ({ item, index }) => (
                 </div>
 
                 {item.companyNote && (
-                    <p className="mt-1 text-[0.8rem] italic text-subtle">{item.companyNote}</p>
+                    <p className="mt-1 text-[0.78rem] text-subtle">{item.companyNote}</p>
                 )}
 
                 {item.summary && (
-                    <p className="mt-4 text-sm leading-relaxed text-muted sm:text-base">
-                        {item.summary}
-                    </p>
+                    <p className="mt-4 text-sm leading-relaxed text-muted">{item.summary}</p>
                 )}
 
                 {item.achievements?.length > 0 && (
@@ -74,7 +71,7 @@ const TimelineItem = ({ item, index }) => (
                                 className="flex gap-3 text-sm leading-relaxed text-muted"
                             >
                                 <span
-                                    className="mt-2.5 h-px w-3.5 shrink-0 bg-accent/60"
+                                    className="mt-2 h-1.5 w-1.5 shrink-0 bg-accent/70"
                                     aria-hidden="true"
                                 />
                                 {achievement}
@@ -84,11 +81,11 @@ const TimelineItem = ({ item, index }) => (
                 )}
 
                 {item.stack?.length > 0 && (
-                    <div className="mt-5 flex flex-wrap gap-2">
+                    <div className="mt-5 flex flex-wrap gap-1.5">
                         {item.stack.map((tech) => (
                             <span
                                 key={tech}
-                                className="rounded-full border border-line px-2.5 py-1 font-mono text-[0.65rem] text-subtle"
+                                className="border border-line px-2 py-1 font-mono text-[0.62rem] text-subtle"
                             >
                                 {tech}
                             </span>
@@ -111,16 +108,16 @@ const Experience = () => {
     return (
         <Section
             id="experience"
+            index="03"
             eyebrow="Career"
             title="Where I've done it"
             intro="Roles, scope and the outcomes that came out of them."
         >
             <div ref={listRef} className="relative">
-                {/* Track plus scroll-driven fill */}
-                <span className="absolute left-0 top-1.5 bottom-0 w-px bg-line" aria-hidden="true" />
+                <span className="absolute bottom-0 left-0 top-1 w-px bg-line" aria-hidden="true" />
                 <motion.span
                     style={{ scaleY: lineScale }}
-                    className="absolute left-0 top-1.5 bottom-0 w-px origin-top bg-gradient-to-b from-accent via-accent/50 to-transparent"
+                    className="absolute bottom-0 left-0 top-1 w-px origin-top bg-accent"
                     aria-hidden="true"
                 />
 

@@ -11,8 +11,9 @@
     "build:ssr": "vite build --ssr scripts/ssr-entry.jsx --outDir dist-ssr",
     "check:head": "node scripts/check-head.mjs",
     "check:contrast": "node scripts/check-contrast.mjs",
+    "check:radius": "node scripts/check-radius.mjs && node scripts/check-built-css.mjs",
     "check:render": "npm run build:ssr && node scripts/check-render.mjs",
-    "verify": "npm run lint && npm run build && npm run check:head && npm run check:contrast && npm run check:render"
+    "verify": "npm run lint && npm run build && npm run check:head && npm run check:contrast && npm run check:radius && npm run check:render"
   },
   "dependencies": {
     "clsx": "^2.1.1",

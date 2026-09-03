@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Lenis from 'lenis';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -12,6 +12,7 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import Cursor from './components/Cursor';
 import AnimatedNoise from './components/AnimatedNoise';
+import Preloader from './components/Preloader';
 import SkipLink from './components/SkipLink';
 import ErrorBoundary from './components/ErrorBoundary';
 import { registerLenis, scrollToSection } from './utils/smoothScroll';
@@ -19,6 +20,7 @@ import { usePrefersReducedMotion } from './hooks/useMediaQuery';
 
 function App() {
     const reducedMotion = usePrefersReducedMotion();
+    const [booted, setBooted] = useState(false);
 
     useEffect(() => {
         if (reducedMotion) {
@@ -69,11 +71,19 @@ function App() {
     return (
         <ErrorBoundary>
             <SkipLink />
+            <Preloader onDone={() => setBooted(true)} />
             <AnimatedNoise />
             <Cursor />
-            <div className="min-h-screen overflow-x-clip">
+
+            {/* Page-wide blueprint grid sitting behind everything. */}
+            <div
+                aria-hidden="true"
+                className="grid-bg pointer-events-none fixed inset-0 z-0 opacity-40"
+            />
+
+            <div className="relative z-10 min-h-screen overflow-x-clip">
                 <Navbar />
-                <main id="main">
+                <main id="main" data-booted={booted}>
                     <Hero />
                     <Stats />
                     <About />

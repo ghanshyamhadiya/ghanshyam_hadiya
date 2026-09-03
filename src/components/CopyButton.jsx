@@ -10,11 +10,14 @@ const CopyButton = ({ value, label = 'Copy', className }) => {
         <button
             type="button"
             onClick={() => copy(value)}
+            data-cursor={copied ? 'copied' : 'copy'}
             aria-label={copied ? 'Copied to clipboard' : `${label} ${value}`}
             className={cn(
-                'group inline-flex items-center gap-2 rounded-full border border-line px-4 py-2',
-                'font-mono text-[0.7rem] uppercase tracking-[0.15em] text-muted',
-                'transition-colors duration-300 hover:border-accent/50 hover:text-accent',
+                'group relative inline-flex items-center gap-2 overflow-hidden border px-5 py-3',
+                'font-mono text-[0.68rem] uppercase tracking-[0.14em] transition-colors duration-300',
+                copied
+                    ? 'border-accent text-accent'
+                    : 'border-line text-muted hover:border-accent/50 hover:text-accent',
                 className
             )}
         >

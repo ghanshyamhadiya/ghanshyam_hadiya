@@ -1,20 +1,19 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { ExternalLink, GraduationCap, ShieldCheck } from 'lucide-react';
 import Section from './Section';
+import Panel from './Panel';
 import { cn } from '../utils/cn';
 import { certifications, education } from '../data';
-import { EASE_OUT_EXPO, viewport } from '../utils/motion';
 
 const StatusBadge = ({ status }) => {
     const inProgress = status === 'in-progress';
     return (
         <span
             className={cn(
-                'inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-[0.12em]',
+                'inline-flex shrink-0 items-center gap-1.5 px-2 py-1 font-mono text-[0.56rem] uppercase tracking-[0.1em]',
                 inProgress
                     ? 'border border-dashed border-line-strong text-subtle'
-                    : 'border border-accent/40 bg-accent-soft text-accent'
+                    : 'border border-accent/45 bg-accent-soft text-accent'
             )}
         >
             {inProgress ? 'In progress' : 'Certified'}
@@ -23,33 +22,27 @@ const StatusBadge = ({ status }) => {
 };
 
 const Certification = ({ item, index }) => {
-    const hasLink = item.url && !item.url.startsWith('TODO:');
-    const Wrapper = hasLink ? 'a' : 'div';
+    const hasLink = Boolean(item.url);
 
     return (
-        <motion.li
-            initial={{ opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={viewport}
-            transition={{ duration: 0.5, delay: index * 0.06, ease: EASE_OUT_EXPO }}
-        >
-            <Wrapper
+        <li>
+            <Panel
+                as={hasLink ? 'a' : 'div'}
+                delay={index * 0.06}
+                hover={hasLink}
+                className="block p-5"
                 {...(hasLink
                     ? { href: item.url, target: '_blank', rel: 'noopener noreferrer' }
                     : {})}
-                className={cn(
-                    'group block rounded-xl border border-line bg-surface/50 p-5 transition-colors duration-300',
-                    hasLink && 'hover:border-accent/40 hover:bg-surface-2/60'
-                )}
             >
                 <div className="flex items-start justify-between gap-3">
-                    <h4 className="text-[0.95rem] font-medium leading-snug text-ink">
+                    <h4 className="text-[0.92rem] font-medium leading-snug text-ink">
                         {item.name}
                     </h4>
                     <StatusBadge status={item.status} />
                 </div>
 
-                <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[0.7rem] text-subtle">
+                <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[0.66rem] text-subtle">
                     <span className="text-muted">{item.issuer}</span>
                     {item.issued && <span>· {item.issued}</span>}
                     {item.credentialId && <span>· {item.credentialId}</span>}
@@ -60,8 +53,8 @@ const Certification = ({ item, index }) => {
                         </span>
                     )}
                 </div>
-            </Wrapper>
-        </motion.li>
+            </Panel>
+        </li>
     );
 };
 
@@ -73,10 +66,11 @@ const Credentials = () => {
     return (
         <Section
             id="credentials"
+            index="05"
             eyebrow="Credentials"
             // Heading and intro follow the data: with no certifications yet the
-            // section presents itself as education rather than showing an
-            // empty "Certifications" column.
+            // section presents itself as education rather than showing an empty
+            // "Certifications" column.
             title={hasCerts ? 'Certifications & education' : 'Education'}
             intro={
                 hasCerts
@@ -84,10 +78,10 @@ const Credentials = () => {
                     : 'Formal training behind the production work.'
             }
         >
-            <div className={cn('grid gap-12 md:gap-10', hasCerts && 'md:grid-cols-2')}>
+            <div className={cn('grid gap-10', hasCerts && 'md:grid-cols-2')}>
                 {hasCerts && (
                     <div>
-                        <h3 className="flex items-center gap-2.5 label text-subtle">
+                        <h3 className="label flex items-center gap-2.5 text-subtle">
                             <ShieldCheck size={14} className="text-accent" aria-hidden="true" />
                             Certifications
                         </h3>
@@ -101,39 +95,32 @@ const Credentials = () => {
 
                 {hasEducation && (
                     <div>
-                        <h3 className="flex items-center gap-2.5 label text-subtle">
+                        <h3 className="label flex items-center gap-2.5 text-subtle">
                             <GraduationCap size={14} className="text-accent" aria-hidden="true" />
                             Education
                         </h3>
                         <ul className="mt-6 space-y-3">
                             {education.map((item, index) => (
-                                <motion.li
-                                    key={item.degree}
-                                    initial={{ opacity: 0, y: 14 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={viewport}
-                                    transition={{
-                                        duration: 0.5,
-                                        delay: index * 0.06,
-                                        ease: EASE_OUT_EXPO,
-                                    }}
-                                    className="rounded-xl border border-line bg-surface/50 p-5"
-                                >
-                                    <div className="flex items-start justify-between gap-3">
-                                        <h4 className="text-[0.95rem] font-medium leading-snug text-ink">
-                                            {item.degree}
-                                        </h4>
-                                        <span className="shrink-0 font-mono text-[0.7rem] text-subtle tabular-nums">
-                                            {item.start} — {item.end}
-                                        </span>
-                                    </div>
-                                    <p className="mt-2 text-sm text-muted">{item.institution}</p>
-                                    {item.note && (
-                                        <p className="mt-2 text-[0.8rem] leading-relaxed text-subtle">
-                                            {item.note}
+                                <li key={item.degree}>
+                                    <Panel delay={index * 0.06} className="p-5">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <h4 className="text-[0.92rem] font-medium leading-snug text-ink">
+                                                {item.degree}
+                                            </h4>
+                                            <span className="shrink-0 font-mono text-[0.66rem] text-subtle tabular-nums">
+                                                {item.start} → {item.end}
+                                            </span>
+                                        </div>
+                                        <p className="mt-2 text-sm text-muted">
+                                            {item.institution}
                                         </p>
-                                    )}
-                                </motion.li>
+                                        {item.note && (
+                                            <p className="mt-2 text-[0.78rem] leading-relaxed text-subtle">
+                                                {item.note}
+                                            </p>
+                                        )}
+                                    </Panel>
+                                </li>
                             ))}
                         </ul>
                     </div>

@@ -22,6 +22,7 @@ npm run verify   # lint + build + all checks below
 |---|---|
 | `npm run check:head` | Built `index.html` metadata is coherent, JSON-LD parses, and no `%SITE_*%` token or placeholder URL leaked through |
 | `npm run check:contrast` | Every text colour clears WCAG AA against the lightest surface it sits on |
+| `npm run check:radius` | **No curves** — no `rounded-*` utility in source, and no non-zero `border-radius` in the shipped stylesheet |
 | `npm run check:render` | The whole tree server-renders without throwing, every section is present, there are **no nested `<a>` elements**, and `dt` precedes `dd` in all definition lists |
 
 The render check exists because this is a type-less codebase: SSR-rendering the tree catches
@@ -112,18 +113,48 @@ for screen readers.
 
 ## Design system
 
-Tokens live in one place: the `@theme` block in `src/index.css`. Tailwind generates the utilities
-from them (`text-accent`, `font-display`, `bg-surface`, `text-title`).
+Technical grid / terminal. Tokens live in one place: the `@theme` block in `src/index.css`.
+Tailwind generates the utilities from them (`text-accent`, `font-display`, `bg-surface`,
+`text-title`, `grid-bg`).
 
-- **Display** Instrument Serif — **weight 400 only.** Never apply `font-bold` to display text or
-  the browser synthesises a fake bold.
-- **Body** Inter · **Labels/metrics** JetBrains Mono
+### Zero curves — how it's enforced
+
+Every corner is square, and three mechanisms keep it that way:
+
+1. All `--radius-*` tokens are `0`.
+2. `.rounded-full` is explicitly neutralised, because Tailwind hardcodes it as
+   `calc(infinity * 1px)` instead of reading a token, so the scale can't reach it.
+3. `npm run check:radius` fails on any `rounded-*` in source **or** any non-zero `border-radius`
+   in the built CSS.
+
+⚠️ **Never write the literal utility name for a corner radius anywhere in `src/`, even in a
+comment.** Tailwind scans raw file text and does not skip comments, so merely mentioning it makes
+Tailwind emit that utility and puts a curve back in the bundle. This actually happened — a comment
+in `Panel.jsx` shipped a `.25rem` radius. For the same reason `index.css` uses
+`@import "tailwindcss" source(none)` with explicit `@source` globs, so `scripts/` and `README.md`
+are not scanned.
+
+- **Display** Archivo 800, uppercase, tight tracking
+- **Body** Inter · **Labels/readouts** JetBrains Mono
 - **Accent** copper `#C98B5E`
 - Text colours are contrast-checked against the **lightest surface they sit on**, not just the page
   background. Worst case: `ink` 15.3:1, `muted` 7.0:1, `subtle` 5.2:1 — all clear WCAG AA for body
   text. Nothing dimmer than `subtle` may carry text. Verify with `node scripts/check-contrast.mjs`.
 
-`Section.jsx` owns section rhythm and the two-column editorial header, so spacing can't drift.
+`Section.jsx` owns section rhythm and the two-column header, so spacing can't drift. `Panel.jsx` is
+the hard-edged container: a 1px rule plus four corner brackets and a scanline sweep on hover.
+
+### Motion
+
+| Piece | Where |
+|---|---|
+| Boot sequence | `Preloader.jsx` — counter to 100 then panel wipe. Session-scoped so it plays once per tab, dismissible by click or keypress, skipped under reduced motion |
+| Text decode | `ScrambleText.jsx` / `useScramble.js` — glyph scramble on scroll-in and hover. The real string stays in the DOM for screen readers |
+| Section transitions | `Section.jsx` — headings uncover via `clip-path` wipe rather than fading |
+| Crosshair cursor | `Cursor.jsx` — viewport-spanning crosshair, corner-bracket reticle, live coordinate readout. Driven by motion values, so pointer movement causes **no React re-renders**. Add `data-cursor="label"` to any element to change the readout on hover |
+| Hover micro-interactions | Buttons fill from the left, nav underlines wipe, panel brackets fade in, rows draw a rule across on hover |
+
+All of it is client-side; there is no backend or proxy.
 
 ## Deployment (Vercel)
 

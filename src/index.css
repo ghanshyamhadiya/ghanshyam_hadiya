@@ -1,58 +1,75 @@
-@import "tailwindcss";
+@import "tailwindcss" source(none);
+
+/* Scan only real UI source. Auto-detection also reads scripts/ and README.md,
+   where the literal strings "rounded" and "rounded-full" appear in the
+   no-curve guard and its documentation — Tailwind treated those as class
+   candidates and emitted .rounded{border-radius:.25rem} and
+   .rounded-full{border-radius:calc(infinity*1px)} into the shipped stylesheet.
+   Verified by scripts/check-built-css.mjs. */
+@source "./**/*.{js,jsx}";
+@source "../index.html";
 
 /* ---------------------------------------------------------------------------
-   Design tokens. Tailwind v4 turns each of these into utilities automatically,
-   e.g. --color-accent gives text-accent / bg-accent / border-accent, and
-   --font-display gives font-display.
+   Technical grid / terminal design system.
+
+   Two hard rules this file enforces:
+   1. ZERO curves. Every radius token is 0, and `rounded-full` is neutralised
+      below because its value is hardcoded in Tailwind, not tokenised.
+   2. Structure comes from rules and grids, never from boxes with soft edges.
    --------------------------------------------------------------------------- */
 @theme {
-  /* Display face is Instrument Serif, which ships weight 400 only — never
-     apply font-bold to display text or the browser synthesises a fake bold. */
-  --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
+  /* Grotesk display, neutral body, mono for every label and readout. */
+  --font-display: "Archivo", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 
   /* Surfaces */
-  --color-bg: #0a0a0b;
-  --color-surface: #111113;
-  --color-surface-2: #17171a;
-  --color-line: rgba(255, 255, 255, 0.1);
-  --color-line-strong: rgba(255, 255, 255, 0.18);
+  --color-bg: #08080a;
+  --color-surface: #0e0e11;
+  --color-surface-2: #141418;
+  --color-line: rgba(255, 255, 255, 0.11);
+  --color-line-strong: rgba(255, 255, 255, 0.2);
+  --color-grid: rgba(255, 255, 255, 0.035);
 
-  /* Text. Ratios are checked against the LIGHTEST surface these sit on
-     (--color-surface-2), not just the page background — `subtle` is used on
-     cards, and an earlier #7a7a83 passed on bg (4.65) but failed on cards
-     (4.21). Worst-case ratios now: ink 15.3:1 · muted 7.0:1 · subtle 5.2:1.
-     Nothing dimmer than `subtle` may carry text.
+  /* Text. Ratios checked against the LIGHTEST surface these sit on
+     (--color-surface-2), not just the page background.
+     Worst case: ink 15.6:1 · muted 7.1:1 · subtle 5.3:1 — all clear WCAG AA.
      Verify with: node scripts/check-contrast.mjs */
-  --color-ink: #ededef;
-  --color-muted: #a1a1a8;
-  --color-subtle: #8a8a93;
+  --color-ink: #f0f0f2;
+  --color-muted: #a3a3aa;
+  --color-subtle: #8b8b94;
 
   /* Copper accent */
   --color-accent: #c98b5e;
   --color-accent-hi: #e0a56f;
-  --color-accent-soft: rgba(201, 139, 94, 0.12);
+  --color-accent-soft: rgba(201, 139, 94, 0.1);
 
   /* Fluid type scale */
-  --text-display: clamp(2.75rem, 8vw, 6.5rem);
-  --text-title: clamp(2rem, 5vw, 3.5rem);
-  --text-card: clamp(1.5rem, 3vw, 2.25rem);
-  --text-metric: clamp(1.75rem, 4vw, 2.75rem);
+  --text-display: clamp(2.5rem, 9vw, 7rem);
+  --text-title: clamp(1.9rem, 5.5vw, 4rem);
+  --text-card: clamp(1.4rem, 3vw, 2.1rem);
+  --text-metric: clamp(1.6rem, 4vw, 2.6rem);
 
-  /* Shared easing, mirrors EASE_OUT_EXPO in src/utils/motion.js */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* No curves anywhere. */
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
-    /* Keeps anchored sections clear of the floating navbar. */
     scroll-padding-top: 7rem;
     -webkit-text-size-adjust: 100%;
   }
 
-  /* Lenis drives scrolling; native smooth behaviour would fight it. */
   html.lenis,
   html.lenis body {
     height: auto;
@@ -66,7 +83,6 @@
     background-color: var(--color-bg);
     color: var(--color-ink);
     font-family: var(--font-sans);
-    font-feature-settings: "cv11", "ss01";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
@@ -75,21 +91,28 @@
     padding: 0;
   }
 
-  /* Display face has a single weight; normalise it everywhere. */
+  /* Tailwind hardcodes rounded-full as calc(infinity * 1px) rather than reading
+     a token, so the radius scale above cannot reach it. Neutralised here so a
+     stray rounded-full can never reintroduce a curve. scripts/check-radius.mjs
+     fails the build if one is committed. */
+  .rounded-full {
+    border-radius: 0 !important;
+  }
+
   .font-display {
-    font-weight: 400;
-    letter-spacing: -0.02em;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
   }
 
   ::selection {
-    background-color: rgba(201, 139, 94, 0.28);
-    color: var(--color-ink);
+    background-color: var(--color-accent);
+    color: var(--color-bg);
   }
 
   :focus-visible {
     outline: 2px solid var(--color-accent-hi);
-    outline-offset: 3px;
-    border-radius: 4px;
+    outline-offset: 2px;
   }
 
   img,
@@ -99,37 +122,83 @@
   }
 
   ::-webkit-scrollbar {
-    width: 8px;
+    width: 10px;
   }
 
   ::-webkit-scrollbar-track {
     background: var(--color-bg);
+    border-left: 1px solid var(--color-line);
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.14);
-    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.16);
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(201, 139, 94, 0.55);
+    background: var(--color-accent);
+  }
+
+  /* The custom crosshair replaces the pointer on precise-pointer devices. */
+  @media (hover: hover) and (pointer: fine) {
+    body.has-crosshair,
+    body.has-crosshair * {
+      cursor: none;
+    }
   }
 }
 
 @layer components {
-  /* Mono uppercase label used for section eyebrows, dates and meta. */
   .label {
     font-family: var(--font-mono);
     font-size: 0.7rem;
     font-weight: 500;
-    letter-spacing: 0.25em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
   }
 }
 
+/* Blueprint grid, used as a page-wide backdrop and inside panels. */
+@utility grid-bg {
+  background-image:
+    linear-gradient(to right, var(--color-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-grid) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+@utility grid-bg-sm {
+  background-image:
+    linear-gradient(to right, var(--color-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-grid) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* Diagonal hatch for "empty"/pending states. */
+@utility hatch {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--color-grid),
+    var(--color-grid) 1px,
+    transparent 1px,
+    transparent 7px
+  );
+}
+
+@utility skip-link {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 100;
+  transform: translateY(-200%);
+  transition: transform 0.2s var(--ease-out-expo);
+
+  &:focus {
+    transform: translateY(0);
+  }
+}
+
 /* Travelling dot on the PipelineDiagram connectors. Animating top/left rather
-   than transform means the percentages resolve against the parent line, so the
-   dot always travels exactly its length at any breakpoint. */
+   than transform means percentages resolve against the parent line, so the dot
+   always travels exactly its length at any breakpoint. */
 @keyframes flow-down {
   0% {
     top: 0;
@@ -160,16 +229,31 @@
   }
 }
 
-@utility skip-link {
-  position: fixed;
-  top: 0.5rem;
-  left: 0.5rem;
-  z-index: 100;
-  transform: translateY(-200%);
-  transition: transform 0.2s var(--ease-out-expo);
+/* Terminal caret. */
+@keyframes blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
 
-  &:focus {
-    transform: translateY(0);
+/* Scanline sweep across panels on reveal. */
+@keyframes scan {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  30%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
   }
 }
 
