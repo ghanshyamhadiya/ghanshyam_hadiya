@@ -16,15 +16,15 @@ export const experience = [
         current: true,
 
         summary:
-            'Building data pipelines and analytics layers on Oracle Cloud Infrastructure and Oracle Analytics Cloud for enterprise reporting, alongside Spark-based migration work.',
+            'Building and maintaining cloud data pipelines on AWS, owning delivery end to end from raw ingestion through transformation to validated reporting output.',
 
         achievements: [
-            'Working on Oracle OCI and OAC implementations, building the data pipelines and analytics layers that sit on top of them for enterprise reporting.',
-            'Writing Spark SQL and PySpark transformation logic for data migration and ETL workflows, including AWS Glue jobs for cloud-based pipeline orchestration across source systems.',
-            'Designing and reviewing ODI mappings and session flows for ongoing Oracle Fusion ERP integrations, owning data validation, reconciliation and quality checks before delivery to downstream consumers.',
+            'Building and maintaining data pipelines using AWS Glue, PySpark and Python, responsible for end-to-end pipeline delivery from raw ingestion through transformation to validated reporting outputs.',
+            'Writing PySpark and Spark SQL transformation logic for data migration, cleansing and validation workflows, with AWS Glue handling pipeline orchestration and scheduling across cloud source systems.',
+            'Running SQL-based data validation checks and reconciliation across source and target systems, catching schema mismatches, null violations and business rule failures before data reaches downstream consumers.',
         ],
 
-        stack: ['Oracle ODI', 'OCI', 'OAC', 'PySpark', 'Spark SQL', 'AWS Glue'],
+        stack: ['AWS Glue', 'PySpark', 'Python', 'Spark SQL', 'SQL'],
     },
 
     {

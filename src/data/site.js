@@ -14,7 +14,7 @@ export const site = {
     jobTitle: 'Data Engineer',
 
     description:
-        'Data engineer building Oracle ODI pipelines and Databricks medallion architectures — from Oracle Fusion ERP ingestion and PL/SQL transformation through to OAC analytics delivery.',
+        'Data engineer building cloud data pipelines with AWS Glue, PySpark, Python and SQL — end-to-end delivery from raw ingestion through transformation to validated reporting output.',
 
     // 1200x630 link-preview image in /public.
     ogImage: '/og.png',

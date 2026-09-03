@@ -1,9 +1,10 @@
 // Identity, hero copy and contact details.
+// Content tracks GhanshyamHadiya_DataEngineer.pdf.
 
 export const profile = {
     name: 'Ghanshyam M. Hadiya',
     role: 'Data Engineer',
-    roleLong: 'Data Engineer — Oracle ODI, PySpark & Analytics Delivery',
+    roleLong: 'Data Engineer — AWS, Spark & End-to-End Pipeline Delivery',
 
     location: 'Ahmedabad, India',
 
@@ -11,25 +12,26 @@ export const profile = {
     // if you would rather not signal that publicly.
     availability: 'Open to data engineering roles',
 
-    // Renders as one serif sentence; `emphasis` is set in italic copper.
+    // Renders as one line each; the second renders in copper.
     headline: {
         lead: 'I build the data pipelines',
         emphasis: 'teams actually trust.',
     },
 
     intro:
-        'Data consultant at Flytics building Oracle ODI pipelines and Databricks medallion architectures — from Oracle Fusion ERP ingestion and PL/SQL transformation through to OAC analytics delivery.',
+        'Data consultant at Flytics building cloud pipelines with AWS Glue, PySpark and Python — owning delivery end to end, from raw ingestion through transformation to validated reporting output.',
 
     // One animated paragraph per entry in the About section.
     about: [
-        'I work across the Oracle data stack in production: designing and reviewing ODI mappings and session flows for Oracle Fusion ERP integrations, writing the SQL and PL/SQL that shapes those extracts into reporting layers, and building the analytics surfaces on OCI and OAC that business stakeholders actually read.',
-        'Outside the Oracle world I build on Databricks. I shipped a medallion-architecture supply chain pipeline through Bronze, Silver and Gold layers using PySpark and Delta Lake, leaning on versioned storage, schema enforcement and ACID guarantees rather than hoping a reload behaves.',
-        'The part I care most about is trust. Most of my time goes into reconciliation, row-count audits, null and schema-mismatch handling, and structured logging at every layer transition — because a pipeline that quietly produces wrong numbers is far worse than one that fails loudly.',
+        'I build and maintain cloud data pipelines on AWS. Day to day that means AWS Glue for orchestration and scheduling across source systems, PySpark and Spark SQL for the transformation logic, and Python around the edges — owning the whole path from raw ingestion through to a validated reporting output rather than a single hop of it.',
+        'On Databricks I shipped a medallion-architecture supply chain pipeline through Bronze, Silver and Gold layers, using Delta Lake for versioned storage with schema enforcement and ACID guarantees, and structured logging at every layer transition so a run can be traced rather than guessed at.',
+        'The part I care most about is trust. A large share of my work is SQL-based validation and reconciliation between source and target — catching schema mismatches, null violations and business rule failures before anything reaches a downstream consumer. A pipeline that quietly produces wrong numbers is far worse than one that fails loudly.',
+        'Before the cloud work I spent my consulting time in the Oracle stack, building ETL in Oracle Data Integrator across enterprise sources including Fusion ERP and writing the SQL and PL/SQL behind the reporting layers. That grounding in enterprise data models still shapes how I design schemas today.',
     ],
 
     currently: {
         label: 'Currently',
-        text: 'Extending my warehouse work beyond Oracle and Delta Lake into Snowflake, while shipping ODI and PySpark pipelines at Flytics.',
+        text: 'Deepening cloud warehousing with Snowflake alongside the AWS Glue and Databricks pipeline work at Flytics.',
     },
 
     email: 'hadiyaghanshyam13@gmail.com',

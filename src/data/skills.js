@@ -7,36 +7,42 @@
 // they will probe in the interview. Depth is signalled instead by `primary`,
 // and by what the projects actually demonstrate.
 //
-// Every entry below comes from your CV. Airflow and dbt were removed: they were
-// placeholders from the earlier draft and appear nowhere in your experience —
-// your orchestration is ODI load plans and AWS Glue. Django was removed for the
-// same reason. Snowflake sits in `exploring` because your CV marks it as
-// learning, which is the honest place for it.
-//
 // `primary: true` means "I have owned this in production".
+//
+// Kept in sync with the CV. Two notes on what is deliberately NOT primary:
+//   - OCI and OAC remain listed because the CV lists them, but they were
+//     dropped from the current role, so no experience bullet now evidences
+//     production ownership. Marking them primary would be a claim the CV
+//     cannot back.
+//   - ODI and Fusion ERP stay primary: the trainee role explicitly describes
+//     building ETL across 3+ enterprise sources with them. The CV frames that
+//     as earlier consulting work, which is exactly how the About copy reads.
+//
+// Airflow, dbt and Django are absent on purpose — they appear nowhere in your
+// experience. Snowflake sits in `exploring` because the CV marks it as
+// learning, which is the honest place for it.
 
 export const skillLayers = [
     {
         layer: 'Languages',
         blurb: 'Day-to-day working languages.',
         items: [
-            { name: 'SQL', primary: true },
-            { name: 'PL/SQL', primary: true },
             { name: 'Python', primary: true },
+            { name: 'SQL', primary: true },
             { name: 'Spark SQL', primary: true },
+            { name: 'PL/SQL', primary: true },
             { name: 'JavaScript (ES6+)' },
             { name: 'TypeScript' },
         ],
     },
     {
         layer: 'Ingestion & Integration',
-        blurb: 'Getting data out of enterprise source systems reliably.',
+        blurb: 'Getting data out of source systems reliably and repeatably.',
         items: [
+            { name: 'AWS Glue', primary: true },
             { name: 'Oracle Data Integrator (ODI)', primary: true },
             { name: 'Oracle Fusion ERP (O2C)', primary: true },
-            { name: 'ODI mappings & session flows', primary: true },
             { name: 'Databricks Data Loader' },
-            { name: 'AWS Glue' },
         ],
     },
     {
@@ -45,27 +51,27 @@ export const skillLayers = [
         items: [
             { name: 'PySpark', primary: true },
             { name: 'Apache Spark', primary: true },
-            { name: 'Medallion architecture', primary: true },
             { name: 'ETL pipeline design', primary: true },
+            { name: 'Medallion architecture', primary: true },
             { name: 'Pandas' },
         ],
     },
     {
         layer: 'Orchestration & Scheduling',
-        blurb: 'Dependencies, reloads and pipeline execution.',
+        blurb: 'Dependencies, scheduling and pipeline execution.',
         items: [
+            { name: 'AWS Glue jobs', primary: true },
             { name: 'ODI load plans', primary: true },
             { name: 'Databricks jobs' },
-            { name: 'AWS Glue jobs' },
         ],
     },
     {
         layer: 'Storage & Warehouse',
         blurb: 'Where the data lands and how it is laid out.',
         items: [
-            { name: 'Oracle Database', primary: true },
             { name: 'Delta Lake', primary: true },
             { name: 'Databricks', primary: true },
+            { name: 'Oracle Database', primary: true },
             { name: 'PostgreSQL' },
             { name: 'MongoDB' },
             { name: 'SQLite' },
@@ -75,9 +81,10 @@ export const skillLayers = [
         layer: 'Data Quality & Reconciliation',
         blurb: 'Failing loudly instead of quietly publishing wrong numbers.',
         items: [
-            { name: 'Data reconciliation', primary: true },
-            { name: 'Row-count & null audits', primary: true },
-            { name: 'Schema mismatch handling', primary: true },
+            { name: 'SQL validation checks', primary: true },
+            { name: 'Source-to-target reconciliation', primary: true },
+            { name: 'Schema mismatch & null violations', primary: true },
+            { name: 'Business rule validation', primary: true },
             { name: 'Structured pipeline logging', primary: true },
         ],
     },
@@ -85,8 +92,8 @@ export const skillLayers = [
         layer: 'Analytics & Serving',
         blurb: 'The layer stakeholders actually read.',
         items: [
-            { name: 'Oracle Analytics Cloud (OAC)', primary: true },
             { name: 'Spark SQL dashboards', primary: true },
+            { name: 'Oracle Analytics Cloud (OAC)' },
             { name: 'Matplotlib / Seaborn' },
             { name: 'React.js' },
             { name: 'Node.js / Express' },
@@ -96,11 +103,11 @@ export const skillLayers = [
         layer: 'Cloud & Tooling',
         blurb: 'Everything around the pipeline.',
         items: [
-            { name: 'Oracle Cloud Infrastructure (OCI)', primary: true },
-            { name: 'Oracle SQL Developer', primary: true },
+            { name: 'AWS', primary: true },
             { name: 'Git', primary: true },
             { name: 'Jupyter Notebook', primary: true },
-            { name: 'AWS' },
+            { name: 'Oracle SQL Developer', primary: true },
+            { name: 'Oracle Cloud Infrastructure (OCI)' },
         ],
     },
 ];
