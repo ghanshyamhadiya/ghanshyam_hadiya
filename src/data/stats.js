@@ -1,17 +1,22 @@
 // Headline impact numbers, shown directly under the hero.
 //
-// IMPORTANT: only keep numbers you can defend in an interview. A reviewer who
-// asks "how did you measure that?" and gets a vague answer is worse than a
-// reviewer who never saw a number. Delete any entry you can't back up — the
-// section renders whatever is left.
+// These are derived from your CV and are all defensible, but note what they
+// are: they measure BREADTH (how many systems and platforms you work across),
+// not SCALE (how much data you move). That is the honest framing for ~8 months
+// of production experience — an inflated "40M rows/day" would not survive the
+// first follow-up question.
 //
-// `value` is short and mono-spaced; `label` says what it measures.
+// STRONGLY RECOMMENDED: if you know the real production numbers from the
+// Flytics pipelines — rows per run, nightly runtime, number of ODI mappings,
+// SLA hit rate — swap them in. Volume and latency figures land much harder
+// than counts of systems. Delete any entry you can't back up; the section
+// renders whatever is left.
 
 export const stats = [
-    { value: 'TODO: 40M+', label: 'Rows processed daily' },
-    { value: 'TODO: 25+', label: 'Production pipelines owned' },
-    { value: 'TODO: 60%', label: 'Faster nightly load' },
-    { value: 'TODO: 99.9%', label: 'Pipeline SLA met' },
+    { value: '3+', label: 'Enterprise source systems integrated' },
+    { value: '4', label: 'Oracle platforms in production' },
+    { value: '3', label: 'Medallion layers shipped, Bronze to Gold' },
+    { value: '2', label: 'Clouds worked across, OCI and AWS' },
 ];
 
 export default stats;

@@ -120,8 +120,10 @@ const ProjectCard = ({ project, index, total, progress, reducedMotion }) => {
                                 />
                             </a>
                         ) : (
+                            // Shown when links.repo is null. Reads as a
+                            // deliberate choice rather than a broken link.
                             <span className="inline-flex items-center gap-2 rounded-full border border-dashed border-line px-5 py-3 font-mono text-[0.68rem] uppercase tracking-[0.15em] text-subtle">
-                                Repository link pending
+                                Code available on request
                             </span>
                         )}
                     </div>

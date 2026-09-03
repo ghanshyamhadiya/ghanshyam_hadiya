@@ -43,33 +43,38 @@ should never need to touch JSX to update the site.
 | `credentials.js` | Certifications and education |
 | `navigation.js` | Nav items (each `id` must match a section `id`) |
 
-### Fill-in checklist
+### What's still outstanding
 
-Every value that still needs your input is prefixed `TODO:`. To list them all:
+Content is populated from `GhanshyamHadiya_DataEngineer.pdf`. Anything left needing input is
+prefixed `TODO:`; the build also warns about the important ones.
 
 ```bash
 grep -rn "TODO:" src/data
 ```
 
-The build also prints a warning naming the important ones that are still unset.
+Currently outstanding:
 
-Start with these four:
+1. **Two missing repository links** — `projects.js` → `links.repo` for *Supply Chain Data Pipeline*
+   and *Customer Churn Analysis*. Only `MigrationTool` had a matching public repo. Those two cards
+   currently render "Code available on request". Publishing the repos and pasting the URLs is the
+   highest-value remaining change: a project a reviewer can't open is the most common reason one
+   gets skipped. `node scripts/list-repos.mjs ghanshyamhadiya` lists your public repos.
+2. **`stats.js`** — the four numbers measure *breadth* (systems, platforms, layers), not *scale*.
+   If you know real production figures from the Flytics pipelines — rows per run, nightly runtime,
+   number of ODI mappings, SLA hit rate — swap them in; volume and latency land much harder.
+3. **`experience.js` → `companyNote`** — one line on what Flytics does, for context.
+4. **`credentials.js`** — `certifications` is deliberately empty since your CV lists none. Given
+   the Oracle-heavy production work, an OCI or Oracle Analytics certification would be the
+   highest-value addition to that section.
+5. **`profile.js` → `availability`** — currently "Open to data engineering roles", which is a
+   public job-seeking signal while you're employed at Flytics. Change it if that's not intended.
 
-1. **`site.js` → `url`** — remove the `TODO:` prefix and set your real domain. Until you do, the
-   build deliberately omits `canonical`, `og:url`, `og:image` and `sitemap.xml` rather than
-   publishing URLs that point at a domain which doesn't exist.
-2. **`profile.js`** — name, email, location, and the GitHub/LinkedIn URLs in `socials`.
-3. **`projects.js` → `links.repo`** — a project card without a working repository link is the most
-   common reason a portfolio project gets skipped.
-4. **`public/resume.pdf`** — overwrite the committed placeholder with your real CV. Every
-   "Download CV" button already points here.
-
-### Replacing the placeholder assets
+### Assets
 
 | Asset | Notes |
 |---|---|
-| `public/resume.pdf` | Placeholder PDF; overwrite with your CV |
-| `public/og.png` | 1200×630 link-preview image; regenerate or replace |
+| `public/resume.pdf` | Your real CV. Overwrite this file to update it |
+| `public/og.png` | 1200×630 link preview, generated with your name and stack |
 | `public/favicon.svg` | Pipeline glyph |
 | `public/apple-touch-icon.png` | 180×180 |
 
@@ -140,7 +145,9 @@ Kept passing, so please don't regress it:
 
 ## Scripts
 
-`scripts/` holds one-off maintenance helpers, not part of the build:
+`scripts/` holds maintenance helpers, not part of the build:
 
-- `make-placeholder-pdf.mjs` — regenerates `public/resume.pdf`
-- `check-head.mjs` — asserts the built `index.html` metadata is coherent
+- `list-repos.mjs <user>` — lists public GitHub repos, for filling in project links
+- `extract-pdf-text.mjs <file>` — dumps CV text, for re-syncing content after a CV update
+- `make-placeholder-pdf.mjs` — regenerates a placeholder `public/resume.pdf`
+- `check-*.mjs` / `ssr-entry.jsx` — the verification suite described above

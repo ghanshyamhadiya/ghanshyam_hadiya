@@ -74,10 +74,17 @@ const Credentials = () => {
         <Section
             id="credentials"
             eyebrow="Credentials"
-            title="Certifications & education"
-            intro="Formal training and verified credentials, with anything still in progress labelled as such."
+            // Heading and intro follow the data: with no certifications yet the
+            // section presents itself as education rather than showing an
+            // empty "Certifications" column.
+            title={hasCerts ? 'Certifications & education' : 'Education'}
+            intro={
+                hasCerts
+                    ? 'Formal training and verified credentials, with anything still in progress labelled as such.'
+                    : 'Formal training behind the production work.'
+            }
         >
-            <div className="grid gap-12 md:grid-cols-2 md:gap-10">
+            <div className={cn('grid gap-12 md:gap-10', hasCerts && 'md:grid-cols-2')}>
                 {hasCerts && (
                     <div>
                         <h3 className="flex items-center gap-2.5 label text-subtle">

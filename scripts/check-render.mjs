@@ -29,9 +29,14 @@ const expectations = [
     // so assert on single words rather than a contiguous phrase.
     ['pipelines', 'hero headline lead word'],
     ['trust.', 'hero headline emphasis word'],
+    ['Ghanshyam', 'real name rendered'],
+    ['hadiyaghanshyam13@gmail.com', 'real email rendered'],
+    ['Flytics', 'real employer from CV'],
+    ['Oracle Data Integrator', 'real skill from CV'],
+    ['Supply Chain Data Pipeline', 'real project from CV'],
+    ['ghanshyamhadiya/MigrationTool', 'real repository link'],
+    ['Ahmedabad Institute of Technology', 'real education from CV'],
     ['Ingestion &amp; Integration', 'skill layer from data'],
-    ['Enterprise ETL Modernisation', 'project title from data'],
-    ['Orchestration', 'pipeline diagram orchestrator bar'],
     ['aria-label="Data flow:', 'diagram accessible description'],
     // The overlay itself only mounts when open, so assert on the toggle that
     // controls it rather than on aria-modal.
@@ -44,6 +49,17 @@ for (const [needle, label] of expectations) {
     if (!present) failures += 1;
     console.log(`${present ? 'ok   ' : 'FAIL '} ${label} (${needle})`);
 }
+
+// No placeholder text may ever reach a visitor. This is the single most
+// important assertion in this file — a live "TODO:" on the page is worse than
+// any layout bug.
+const todos = [...html.matchAll(/TODO:[^<]{0,60}/g)].map((m) => m[0]);
+if (todos.length) failures += 1;
+console.log(
+    `${todos.length ? 'FAIL ' : 'ok   '} no TODO: placeholders in rendered output${
+        todos.length ? ` -> ${todos.join(' | ')}` : ''
+    }`
+);
 
 // Nested anchors are invalid and were a real risk when the project card gained
 // its own repository link.

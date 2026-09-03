@@ -1,40 +1,32 @@
 // Certifications and education.
 //
-// Certifications carry real weight in data-engineering screening, so link the
-// credential wherever the issuer provides a verification URL.
+// `certifications` is intentionally empty: your CV lists none, and an
+// aspirational certification you haven't earned is the fastest way to lose a
+// reviewer's trust. The Credentials section detects the empty list and renders
+// education on its own, with the heading adjusted.
 //
-// status: 'active'    -> solid copper badge
-//         'in-progress' -> dashed badge, labelled honestly as in progress
+// When you do earn one, add it here:
+//   {
+//     name: 'Oracle Cloud Infrastructure 2025 Data Engineer Professional',
+//     issuer: 'Oracle',
+//     issued: '2026',
+//     credentialId: null,          // or the ID string
+//     url: 'https://...',          // verification link, or null
+//     status: 'active',            // 'active' | 'in-progress'
+//   }
 //
-// Delete any entry you don't have. An empty list hides its column entirely —
-// an aspirational cert you haven't earned is the fastest way to lose trust.
+// Given your Oracle-heavy production work, an OCI or Oracle Analytics
+// certification would be the highest-value addition to this section.
 
-export const certifications = [
-    {
-        name: 'TODO: Oracle Cloud Infrastructure Data Integration',
-        issuer: 'TODO: Oracle',
-        issued: 'TODO: 2025',
-        credentialId: 'TODO: or delete this field',
-        url: 'TODO: verification link, or null',
-        status: 'active',
-    },
-    {
-        name: 'TODO: certification you are working towards',
-        issuer: 'TODO: issuer',
-        issued: null,
-        credentialId: null,
-        url: null,
-        status: 'in-progress',
-    },
-];
+export const certifications = [];
 
 export const education = [
     {
-        degree: 'TODO: B.E. / B.Tech in ...',
-        institution: 'TODO: University Name',
-        start: 'TODO: 2018',
-        end: 'TODO: 2022',
-        note: 'TODO: optional — specialisation, honours, or relevant coursework',
+        degree: 'B.E. in Information Technology',
+        institution: 'Ahmedabad Institute of Technology',
+        start: 'Sept 2022',
+        end: 'May 2026',
+        note: null,
     },
 ];
 

@@ -5,15 +5,15 @@
 // There are no proficiency percentages here on purpose. Self-assigned numbers
 // ("Python 84%") are unverifiable, tell a reviewer nothing, and advertise a gap
 // they will probe in the interview. Depth is signalled instead by `primary`,
-// and by what the projects below actually demonstrate.
+// and by what the projects actually demonstrate.
 //
-// VERIFY BEFORE SHIPPING:
-//   1. Delete anything you could not discuss for five minutes under questioning.
-//   2. `primary: true` should mean "I have used this in production and own it".
-//      Everything else renders as supporting familiarity.
-//   3. Anything self-taught or in progress belongs in the `exploring` layer at
-//      the bottom, not in the main layers. Being explicit about that boundary
-//      is a credibility asset, not a weakness.
+// Every entry below comes from your CV. Airflow and dbt were removed: they were
+// placeholders from the earlier draft and appear nowhere in your experience —
+// your orchestration is ODI load plans and AWS Glue. Django was removed for the
+// same reason. Snowflake sits in `exploring` because your CV marks it as
+// learning, which is the honest place for it.
+//
+// `primary: true` means "I have owned this in production".
 
 export const skillLayers = [
     {
@@ -21,37 +21,42 @@ export const skillLayers = [
         blurb: 'Day-to-day working languages.',
         items: [
             { name: 'SQL', primary: true },
+            { name: 'PL/SQL', primary: true },
             { name: 'Python', primary: true },
-            { name: 'JavaScript', primary: true },
+            { name: 'Spark SQL', primary: true },
+            { name: 'JavaScript (ES6+)' },
+            { name: 'TypeScript' },
         ],
     },
     {
         layer: 'Ingestion & Integration',
-        blurb: 'Getting data out of source systems reliably and repeatably.',
+        blurb: 'Getting data out of enterprise source systems reliably.',
         items: [
-            { name: 'Oracle Data Integrator', primary: true },
-            { name: 'REST API extraction', primary: true },
-            { name: 'Incremental / CDC loads', primary: true },
-            { name: 'Flat file & batch ingest' },
+            { name: 'Oracle Data Integrator (ODI)', primary: true },
+            { name: 'Oracle Fusion ERP (O2C)', primary: true },
+            { name: 'ODI mappings & session flows', primary: true },
+            { name: 'Databricks Data Loader' },
+            { name: 'AWS Glue' },
         ],
     },
     {
         layer: 'Transformation & Modelling',
-        blurb: 'Turning raw tables into models people can query with confidence.',
+        blurb: 'Turning raw extracts into layers people can query with confidence.',
         items: [
-            { name: 'Dimensional modelling', primary: true },
-            { name: 'dbt' },
-            { name: 'Apache Spark' },
-            { name: 'pandas' },
+            { name: 'PySpark', primary: true },
+            { name: 'Apache Spark', primary: true },
+            { name: 'Medallion architecture', primary: true },
+            { name: 'ETL pipeline design', primary: true },
+            { name: 'Pandas' },
         ],
     },
     {
         layer: 'Orchestration & Scheduling',
-        blurb: 'Dependencies, retries, backfills and SLAs.',
+        blurb: 'Dependencies, reloads and pipeline execution.',
         items: [
             { name: 'ODI load plans', primary: true },
-            { name: 'Apache Airflow' },
-            { name: 'Cron / shell automation' },
+            { name: 'Databricks jobs' },
+            { name: 'AWS Glue jobs' },
         ],
     },
     {
@@ -59,52 +64,52 @@ export const skillLayers = [
         blurb: 'Where the data lands and how it is laid out.',
         items: [
             { name: 'Oracle Database', primary: true },
+            { name: 'Delta Lake', primary: true },
+            { name: 'Databricks', primary: true },
             { name: 'PostgreSQL' },
             { name: 'MongoDB' },
-            // TODO: pick the ONE cloud warehouse you actually use and delete
-            // the rest — Snowflake | BigQuery | Redshift | Databricks.
-            { name: 'TODO: Snowflake | BigQuery | Redshift' },
+            { name: 'SQLite' },
         ],
     },
     {
-        layer: 'Data Quality & Observability',
-        blurb: 'Failing loudly instead of quietly producing wrong numbers.',
+        layer: 'Data Quality & Reconciliation',
+        blurb: 'Failing loudly instead of quietly publishing wrong numbers.',
         items: [
-            { name: 'Assertion-based DQ checks', primary: true },
-            { name: 'Reconciliation & row-count audits', primary: true },
-            { name: 'Pipeline alerting' },
+            { name: 'Data reconciliation', primary: true },
+            { name: 'Row-count & null audits', primary: true },
+            { name: 'Schema mismatch handling', primary: true },
+            { name: 'Structured pipeline logging', primary: true },
         ],
     },
     {
-        layer: 'Application & Serving',
-        blurb: 'The layer that consumes the data — my full-stack background.',
+        layer: 'Analytics & Serving',
+        blurb: 'The layer stakeholders actually read.',
         items: [
-            { name: 'Django', primary: true },
+            { name: 'Oracle Analytics Cloud (OAC)', primary: true },
+            { name: 'Spark SQL dashboards', primary: true },
+            { name: 'Matplotlib / Seaborn' },
+            { name: 'React.js' },
             { name: 'Node.js / Express' },
-            { name: 'React' },
-            { name: 'REST API design' },
         ],
     },
     {
-        layer: 'Tooling & Ops',
+        layer: 'Cloud & Tooling',
         blurb: 'Everything around the pipeline.',
         items: [
+            { name: 'Oracle Cloud Infrastructure (OCI)', primary: true },
+            { name: 'Oracle SQL Developer', primary: true },
             { name: 'Git', primary: true },
-            { name: 'Linux / shell', primary: true },
-            { name: 'Docker' },
+            { name: 'Jupyter Notebook', primary: true },
+            { name: 'AWS' },
         ],
     },
 ];
 
-// Rendered separately and labelled honestly as in-progress. Move anything here
-// that you are still learning rather than inflating the layers above.
+// Listed honestly as in progress rather than claimed above.
 export const exploring = {
     layer: 'Currently exploring',
     blurb: 'Learning in progress — listed here rather than claimed above.',
-    items: [
-        { name: 'TODO: e.g. Kafka' },
-        { name: 'TODO: e.g. Terraform' },
-    ],
+    items: [{ name: 'Snowflake' }],
 };
 
 export default skillLayers;

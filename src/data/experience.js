@@ -1,68 +1,51 @@
 // Work history, newest first. Rendered as a scroll-driven vertical timeline.
+// Content taken from GhanshyamHadiya_DataEngineer.pdf.
 //
-// Write `achievements` metric-first — lead with the number or the outcome, then
-// the mechanism. "Cut nightly load from 4h to 40min by partitioning the fact
-// table" lands; "Responsible for pipeline performance" does not.
-//
-// Set `current: true` on your present role; it renders a live badge and the
-// `end` value is ignored in favour of "Present".
+// `companyNote` is a one-line description of what the company does — left null
+// because I don't know what Flytics does. Adding it gives a reviewer useful
+// context (industry, scale) in one line, so it's worth filling in.
 
 export const experience = [
     {
-        role: 'TODO: Data Engineer',
-        company: 'TODO: Company Name',
-        companyNote: 'TODO: one line on what the company does',
-        location: 'TODO: City / Remote',
-        start: 'TODO: 2024',
+        role: 'Data Consultant',
+        company: 'Flytics',
+        companyNote: null,
+        location: 'India',
+        start: 'Jul 2026',
         end: 'Present',
         current: true,
 
         summary:
-            'TODO: two sentences on the scope you own — which systems, which domains, and who depends on your output.',
+            'Building data pipelines and analytics layers on Oracle Cloud Infrastructure and Oracle Analytics Cloud for enterprise reporting, alongside Spark-based migration work.',
 
         achievements: [
-            'TODO: metric-first achievement, e.g. "Cut nightly warehouse load from 4h to 40min by partitioning the largest fact table and switching to incremental merges."',
-            'TODO: second achievement covering reliability or data quality.',
-            'TODO: third achievement covering collaboration or ownership.',
+            'Working on Oracle OCI and OAC implementations, building the data pipelines and analytics layers that sit on top of them for enterprise reporting.',
+            'Writing Spark SQL and PySpark transformation logic for data migration and ETL workflows, including AWS Glue jobs for cloud-based pipeline orchestration across source systems.',
+            'Designing and reviewing ODI mappings and session flows for ongoing Oracle Fusion ERP integrations, owning data validation, reconciliation and quality checks before delivery to downstream consumers.',
         ],
 
-        stack: ['Oracle ODI', 'SQL', 'Python', 'Airflow'],
+        stack: ['Oracle ODI', 'OCI', 'OAC', 'PySpark', 'Spark SQL', 'AWS Glue'],
     },
 
     {
-        role: 'TODO: Previous Role',
-        company: 'TODO: Company Name',
-        companyNote: 'TODO: one line on what the company does',
-        location: 'TODO: City / Hybrid',
-        start: 'TODO: 2023',
-        end: 'TODO: 2024',
+        role: 'Data Consultant Trainee',
+        company: 'Flytics',
+        companyNote: null,
+        location: 'India',
+        start: 'Jan 2026',
+        end: 'Jun 2026',
         current: false,
 
         summary:
-            'TODO: two sentences on what you built and the engineering context.',
+            'Built and maintained ETL pipelines in Oracle Data Integrator across enterprise source systems, and wrote the SQL and PL/SQL that fed reporting layers.',
 
         achievements: [
-            'TODO: metric-first achievement.',
-            'TODO: second achievement.',
+            'Built ETL pipelines in Oracle Data Integrator across 3+ enterprise source systems including Oracle Fusion ERP, improving consistency in weekly data preparation workflows.',
+            'Developed SQL and PL/SQL scripts to extract, transform and load structured data into reporting layers consumed by business stakeholders.',
+            'Identified and resolved data quality issues including null values, schema mismatches and format inconsistencies before downstream consumption.',
         ],
 
-        stack: ['Python', 'SQL', 'Django'],
-    },
-
-    {
-        role: 'TODO: First Role',
-        company: 'TODO: Company Name',
-        companyNote: 'TODO: one line on what the company does',
-        location: 'TODO: City / On-site',
-        start: 'TODO: 2022',
-        end: 'TODO: 2023',
-        current: false,
-
-        summary: 'TODO: two sentences.',
-
-        achievements: ['TODO: metric-first achievement.'],
-
-        stack: ['Python', 'SQL'],
+        stack: ['Oracle ODI', 'SQL', 'PL/SQL', 'Oracle Fusion ERP'],
     },
 ];
 

@@ -2,27 +2,24 @@
 // Everything URL-related reads from here, so moving hosts is a one-line change.
 
 export const site = {
-    // TODO: set this to your real Vercel domain (no trailing slash), e.g.
-    // 'https://yourname.vercel.app'. Until the TODO prefix is removed the build
-    // deliberately omits canonical/sitemap URLs rather than publishing a
-    // pointing-nowhere domain, which would hurt SEO more than having none.
-    url: 'TODO: https://your-portfolio.vercel.app',
+    // Taken from the homepage field on your ghanshyam_hadiya---portfolio repo.
+    // Change it if this build deploys somewhere else.
+    url: 'https://ghanshyam-hadiya-portfolio.vercel.app',
 
-    // TODO: your name — also used for the JSON-LD Person schema.
-    name: 'TODO: Your Name',
+    name: 'Ghanshyam M. Hadiya',
 
     // Short form used in the navbar wordmark and footer.
-    shortName: 'TODO: Name',
+    shortName: 'Ghanshyam',
 
     jobTitle: 'Data Engineer',
 
     description:
-        'Data engineer building reliable ETL pipelines, dimensional warehouse models and orchestrated data platforms with Oracle ODI, Python, SQL and Airflow.',
+        'Data engineer building Oracle ODI pipelines and Databricks medallion architectures — from Oracle Fusion ERP ingestion and PL/SQL transformation through to OAC analytics delivery.',
 
-    // 1200x630 image in /public. TODO: replace the placeholder.
+    // 1200x630 link-preview image in /public.
     ogImage: '/og.png',
 
-    locale: 'en_US',
+    locale: 'en_IN',
 };
 
 export default site;

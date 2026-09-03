@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Github, Linkedin, Mail, Download, ArrowUpRight } from 'lucide-react';
+import { Github, Linkedin, Mail, Download, ArrowUpRight, Phone } from 'lucide-react';
 import Magnetic from './Magnetic';
 import CopyButton from './CopyButton';
 import { profile, socials } from '../data';
@@ -105,6 +105,16 @@ const Contact = () => (
                     <Download size={14} aria-hidden="true" />
                     {profile.resume.label}
                 </a>
+
+                {profile.phone && (
+                    <a
+                        href={`tel:${profile.phone.replace(/\s/g, '')}`}
+                        className="inline-flex items-center gap-2.5 rounded-full border border-line px-5 py-3 font-mono text-[0.7rem] tracking-[0.08em] text-muted transition-colors duration-300 hover:border-accent/50 hover:text-accent"
+                    >
+                        <Phone size={14} aria-hidden="true" />
+                        {profile.phone}
+                    </a>
+                )}
             </motion.div>
 
             <motion.div

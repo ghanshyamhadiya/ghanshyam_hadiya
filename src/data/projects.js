@@ -1,132 +1,146 @@
-// Featured work.
+// Featured work. Content taken from GhanshyamHadiya_DataEngineer.pdf.
 //
 // The card renders in the order a data-engineering reviewer actually scans:
-// problem -> architecture -> metrics -> stack -> repository. Keep that order in
-// mind when editing; a card without a problem statement or a repo link is the
-// most common reason a portfolio project gets skipped.
+// problem -> architecture -> metrics -> stack -> repository.
 //
-// The prose below is a realistic template built around your stated stack.
-// REWRITE it to describe what you genuinely built, and replace every TODO
-// metric with a real, defensible number (or delete the metric).
-//
-// `architecture` drives the SVG diagram — no image assets required.
-//   node.kind: source | ingest | transform | store | serve
-//   architecture.orchestrator: optional label drawn as the control bar on top
-//
-// Set `featured: false` to keep a project in this file but hide it from the site.
+// REPO LINKS: only the migration tool could be matched to a public repo
+// (github.com/ghanshyamhadiya/MigrationTool). The supply chain pipeline and the
+// churn analysis have no matching public repository on your account — if they
+// are private, make them public and fill in `links.repo`. A project card with
+// no reachable code is the single most common reason a portfolio project gets
+// skipped, so this is worth doing before you share the site.
 
 export const projects = [
     {
-        slug: 'etl-modernisation',
-        title: 'Enterprise ETL Modernisation',
-        tagline: 'Oracle ODI · Python · Airflow',
+        slug: 'supply-chain-data-pipeline',
+        title: 'Supply Chain Data Pipeline',
+        tagline: 'PySpark · Databricks · Delta Lake',
+        year: '2026',
+        featured: true,
+
+        problem:
+            'Raw supply chain files arrived with no versioning, no schema guarantees and no way to tell whether a load had half-finished. Any reprocessing risked silently double-counting or dropping rows, and nothing recorded what had actually been processed.',
+        solution:
+            'Built a medallion architecture on Databricks that promotes data through Bronze, Silver and Gold layers, using Delta tables for versioned storage with schema enforcement and ACID guarantees, and structured logging at every layer transition to track file status, row counts and transformation errors.',
+
+        architecture: {
+            orchestrator: 'Databricks jobs',
+            nodes: [
+                { id: 'files', label: 'Raw supply chain files', kind: 'source', note: 'batch drops' },
+                { id: 'loader', label: 'Data Loader', kind: 'ingest', note: 'raw file ingest' },
+                { id: 'bronze', label: 'Bronze', kind: 'store', note: 'Delta, immutable' },
+                { id: 'silver', label: 'Silver', kind: 'transform', note: 'PySpark cleansing' },
+                { id: 'gold', label: 'Gold', kind: 'store', note: 'business-ready' },
+                { id: 'bi', label: 'Spark SQL dashboards', kind: 'serve', note: 'final analytics' },
+            ],
+            note: 'Structured logging at each layer transition records file status, row counts and transformation errors.',
+        },
+
+        metrics: [
+            { value: '3', label: 'layers, Bronze to Gold' },
+            { value: 'ACID', label: 'guarantees via Delta' },
+        ],
+
+        stack: [
+            'PySpark',
+            'Databricks',
+            'Delta Lake',
+            'Spark SQL',
+            'Data Loader',
+            'Jupyter Notebook',
+        ],
+
+        links: {
+            // TODO: no matching public repo found — publish it and paste the URL.
+            repo: null,
+            demo: null,
+            writeup: null,
+        },
+    },
+
+    {
+        slug: 'ai-etl-migration-tool',
+        title: 'AI-Powered ETL Migration Tool',
+        tagline: 'Python · React · Anthropic, Gemini & OpenAI',
+        year: '2026',
+        featured: true,
+
+        problem:
+            'Migrating Oracle SQL logic to Spark is slow, repetitive manual work, and the hard part is not syntax but semantics — Oracle-specific constructs like NVL, DECODE, ROWNUM and cursor logic have no one-to-one Spark equivalent, so a naive translation quietly changes results.',
+        solution:
+            'Built a tool that reads SQL straight from Oracle SQL Developer session logs or uploaded .sql files and converts it to PySpark or Spark SQL. Conversion rules live in instruction files on GitHub and are fetched at runtime, so the mapping logic can be updated without redeploying, and the user picks source type, target dialect and AI model.',
+
+        architecture: {
+            orchestrator: 'Runtime-fetched instruction files',
+            nodes: [
+                { id: 'src', label: 'SQL Developer logs / .sql', kind: 'source', note: 'session capture' },
+                { id: 'parse', label: 'Parser & rule loader', kind: 'ingest', note: 'rules from GitHub' },
+                { id: 'ai', label: 'LLM conversion', kind: 'transform', note: 'Anthropic · Gemini · OpenAI' },
+                { id: 'db', label: 'PostgreSQL', kind: 'store', note: 'jobs & history' },
+                { id: 'out', label: 'PySpark / Spark SQL', kind: 'serve', note: 'production-ready code' },
+            ],
+            note: 'Handles Oracle-specific constructs including NVL, DECODE, ROWNUM and cursor logic.',
+        },
+
+        metrics: [
+            { value: '3', label: 'AI providers integrated' },
+            { value: '2', label: 'target dialects' },
+            { value: '4+', label: 'Oracle construct families mapped' },
+        ],
+
+        stack: [
+            'Python',
+            'Node.js',
+            'Express.js',
+            'React.js',
+            'PostgreSQL',
+            'Anthropic API',
+            'Gemini API',
+            'OpenAI API',
+            'PySpark',
+        ],
+
+        links: {
+            repo: 'https://github.com/ghanshyamhadiya/MigrationTool',
+            demo: null,
+            writeup: null,
+        },
+    },
+
+    {
+        slug: 'customer-churn-analysis',
+        title: 'Customer Churn Analysis',
+        tagline: 'Python · Pandas · Seaborn',
         year: '2025',
         featured: true,
 
         problem:
-            'Nightly reporting depended on a chain of hand-maintained SQL scripts with no dependency tracking. A single failure mid-chain left the warehouse half-loaded, and nobody found out until analysts reported broken dashboards the next morning.',
+            'Telecom churn was known to be high but not attributed — there was no segment-level view of which contract types, tenures or demographics were actually driving it, so retention effort had nowhere specific to go.',
         solution:
-            'Rebuilt the chain as declarative ODI mappings driven by reusable load plans, with incremental change capture on the source tables, row-count reconciliation between each hop, and alerting on assertion failure so a bad run stops instead of publishing.',
-
-        architecture: {
-            orchestrator: 'Airflow · ODI load plans',
-            nodes: [
-                { id: 'oltp', label: 'Oracle OLTP', kind: 'source', note: 'TODO: n tables' },
-                { id: 'odi', label: 'ODI mappings', kind: 'ingest', note: 'incremental / CDC' },
-                { id: 'stg', label: 'Staging schema', kind: 'store', note: 'raw, immutable' },
-                { id: 'dq', label: 'Quality checks', kind: 'transform', note: 'reconciliation' },
-                { id: 'dwh', label: 'Warehouse', kind: 'store', note: 'star schema' },
-                { id: 'bi', label: 'Reporting', kind: 'serve', note: 'analyst dashboards' },
-            ],
-            note: 'Failed assertions halt the load plan before anything reaches the warehouse.',
-        },
-
-        metrics: [
-            { value: 'TODO: 12M', label: 'rows per run' },
-            { value: 'TODO: 8 min', label: 'end-to-end runtime' },
-            { value: 'TODO: 50%', label: 'fewer failed loads' },
-        ],
-
-        stack: ['Oracle ODI', 'Python', 'SQL', 'Airflow', 'Oracle Database'],
-
-        links: {
-            repo: 'TODO: https://github.com/yourhandle/repo',
-            demo: null,
-            writeup: null,
-        },
-    },
-
-    {
-        slug: 'analytics-warehouse',
-        title: 'Analytics Warehouse & Semantic Layer',
-        tagline: 'dbt · SQL · Dimensional modelling',
-        year: '2024',
-        featured: true,
-
-        problem:
-            'Every team calculated core metrics differently, so the same question produced different answers depending on who ran the query. Definitions lived in individual analysts\u2019 SQL rather than anywhere shared or testable.',
-        solution:
-            'Modelled the domain as conformed dimensions and fact tables, moved metric definitions into version-controlled dbt models with tests on grain and referential integrity, and exposed a documented semantic layer as the single place a metric is defined.',
-
-        architecture: {
-            orchestrator: 'Scheduled dbt runs',
-            nodes: [
-                { id: 'raw', label: 'Raw sources', kind: 'source', note: 'ingested tables' },
-                { id: 'stage', label: 'Staging models', kind: 'transform', note: 'typed, renamed' },
-                { id: 'core', label: 'Dimensions & facts', kind: 'transform', note: 'conformed' },
-                { id: 'marts', label: 'Marts', kind: 'store', note: 'per business domain' },
-                { id: 'bi', label: 'BI & self-serve', kind: 'serve', note: 'one metric, one definition' },
-            ],
-            note: 'Tests run on every model build; a failing grain or relationship test blocks promotion.',
-        },
-
-        metrics: [
-            { value: 'TODO: 40+', label: 'tested models' },
-            { value: 'TODO: 1', label: 'definition per metric' },
-            { value: 'TODO: 3 days', label: 'saved per reporting cycle' },
-        ],
-
-        stack: ['dbt', 'SQL', 'PostgreSQL', 'Git'],
-
-        links: {
-            repo: 'TODO: https://github.com/yourhandle/repo',
-            demo: null,
-            writeup: null,
-        },
-    },
-
-    {
-        slug: 'operational-data-api',
-        title: 'Operational Data API & Dashboard',
-        tagline: 'Django · React · MongoDB',
-        year: '2024',
-        featured: true,
-
-        problem:
-            'Warehouse models were only reachable through BI tooling, so internal teams filed ticket requests for numbers that already existed. The data was modelled but not actually serveable to the applications that needed it.',
-        solution:
-            'Built a documented Django REST layer over the curated models with cursor pagination, response caching and role-scoped access, plus a React dashboard so non-technical users could answer their own questions without a ticket.',
+            'Analysed 7,000+ customer records across contract type, tenure and demographic segments in Pandas, then used segment-level comparison to isolate the cohorts with materially higher churn rather than reporting a single blended number.',
 
         architecture: {
             orchestrator: null,
             nodes: [
-                { id: 'dwh', label: 'Curated models', kind: 'source', note: 'warehouse marts' },
-                { id: 'api', label: 'Django REST API', kind: 'transform', note: 'cached, paginated' },
-                { id: 'cache', label: 'Query cache', kind: 'store', note: 'hot aggregates' },
-                { id: 'ui', label: 'React dashboard', kind: 'serve', note: 'self-serve access' },
+                { id: 'raw', label: 'Telecom records', kind: 'source', note: '7,000+ rows' },
+                { id: 'clean', label: 'Pandas cleaning', kind: 'transform', note: 'typing, nulls' },
+                { id: 'seg', label: 'Segment analysis', kind: 'transform', note: 'contract, tenure, demo' },
+                { id: 'viz', label: 'Matplotlib / Seaborn', kind: 'serve', note: 'cohort findings' },
             ],
-            note: 'The serving layer that closes the loop between modelled data and the people who need it.',
+            note: 'Exploratory validation in Jupyter Notebook at each stage before drawing conclusions.',
         },
 
         metrics: [
-            { value: 'TODO: 200ms', label: 'p95 response' },
-            { value: 'TODO: 15', label: 'internal consumers' },
+            { value: '7,000+', label: 'records analysed' },
+            { value: '3x', label: 'churn, monthly vs yearly plans' },
+            { value: '41%', label: 'senior citizen churn vs 26% overall' },
         ],
 
-        stack: ['Django', 'React', 'MongoDB', 'REST'],
+        stack: ['Python', 'Pandas', 'Matplotlib', 'Seaborn', 'Jupyter Notebook'],
 
         links: {
-            repo: 'TODO: https://github.com/yourhandle/repo',
+            // TODO: no matching public repo found — publish it and paste the URL.
+            repo: null,
             demo: null,
             writeup: null,
         },

@@ -1,15 +1,14 @@
 // Identity, hero copy and contact details.
-//
-// Fill in every value marked TODO. Run `grep -rn "TODO:" src/data` to see the
-// full outstanding list.
 
 export const profile = {
-    name: 'TODO: Your Name',
+    name: 'Ghanshyam M. Hadiya',
     role: 'Data Engineer',
-    roleLong: 'Data Engineer — ETL, Warehouse Modelling & Orchestration',
+    roleLong: 'Data Engineer — Oracle ODI, PySpark & Analytics Delivery',
 
-    // TODO: e.g. 'Pune, India'
-    location: 'TODO: City, Country',
+    location: 'Ahmedabad, India',
+
+    // Reads as job-seeking. Swap to something like 'Data Consultant at Flytics'
+    // if you would rather not signal that publicly.
     availability: 'Open to data engineering roles',
 
     // Renders as one serif sentence; `emphasis` is set in italic copper.
@@ -19,28 +18,29 @@ export const profile = {
     },
 
     intro:
-        'I design and operate ETL workflows that turn scattered operational data into tested, documented, on-time datasets — the kind analysts and applications can depend on without asking whether the numbers are right.',
+        'Data consultant at Flytics building Oracle ODI pipelines and Databricks medallion architectures — from Oracle Fusion ERP ingestion and PL/SQL transformation through to OAC analytics delivery.',
 
     // One animated paragraph per entry in the About section.
     about: [
-        'I work at the ingestion and transformation layer of the data stack: modelling sources, building incremental loads, and shaping raw operational tables into warehouse models that answer real business questions.',
-        'Most of my time goes into the parts nobody sees until they break — idempotent reloads, schema-drift handling, data quality assertions and alerting. A pipeline that silently produces wrong numbers is worse than one that fails loudly, so I build for the second.',
-        'I also ship the applications that consume the data. Having built Django and React interfaces on top of my own models makes me a better data engineer: I design schemas knowing exactly how painful a bad one is to query.',
+        'I work across the Oracle data stack in production: designing and reviewing ODI mappings and session flows for Oracle Fusion ERP integrations, writing the SQL and PL/SQL that shapes those extracts into reporting layers, and building the analytics surfaces on OCI and OAC that business stakeholders actually read.',
+        'Outside the Oracle world I build on Databricks. I shipped a medallion-architecture supply chain pipeline through Bronze, Silver and Gold layers using PySpark and Delta Lake, leaning on versioned storage, schema enforcement and ACID guarantees rather than hoping a reload behaves.',
+        'The part I care most about is trust. Most of my time goes into reconciliation, row-count audits, null and schema-mismatch handling, and structured logging at every layer transition — because a pipeline that quietly produces wrong numbers is far worse than one that fails loudly.',
     ],
 
     currently: {
         label: 'Currently',
-        text: 'TODO: e.g. Deepening Oracle ODI load plans and Airflow orchestration patterns.',
+        text: 'Extending my warehouse work beyond Oracle and Delta Lake into Snowflake, while shipping ODI and PySpark pipelines at Flytics.',
     },
 
-    // TODO: your real address. Used by the mailto link and the copy button.
-    email: 'TODO: you@example.com',
+    email: 'hadiyaghanshyam13@gmail.com',
+    phone: '+91 76229 08854',
 
     resume: {
-        // TODO: drop your CV at public/resume.pdf (a placeholder is committed).
+        // public/resume.pdf is your real CV. Overwrite that file when you
+        // update it — no code change needed.
         href: '/resume.pdf',
         label: 'Download CV',
-        updated: 'TODO: Jan 2026',
+        updated: 'Sept 2026',
     },
 
     cta: {
@@ -51,8 +51,12 @@ export const profile = {
 
 // `icon` must match a key in the ICONS map in src/components/Contact.jsx
 export const socials = [
-    { label: 'GitHub', icon: 'github', href: 'TODO: https://github.com/yourhandle' },
-    { label: 'LinkedIn', icon: 'linkedin', href: 'TODO: https://linkedin.com/in/yourhandle' },
+    { label: 'GitHub', icon: 'github', href: 'https://github.com/ghanshyamhadiya' },
+    {
+        label: 'LinkedIn',
+        icon: 'linkedin',
+        href: 'https://www.linkedin.com/in/ghanshyam-hadiya-13971b2bb/',
+    },
     { label: 'Email', icon: 'mail', href: `mailto:${profile.email}` },
 ];
 
