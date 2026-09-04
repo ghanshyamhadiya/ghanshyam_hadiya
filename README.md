@@ -38,6 +38,8 @@ reading the source will surface.
 | `npm run shots -- http://localhost:5173` | Screenshots every section at 360/390/768/1440 into `shots/`, and reports horizontal overflow |
 | `npm run check:reveals -- http://localhost:5173 390` | Scrolls the whole page like a person, then fails if **any element is still hidden** — zero opacity or parked outside its mask |
 | `npm run check:cards -- http://localhost:5173` | Measures each project card against the viewport; the sticky stack silently clips anything taller |
+| `npm run check:intro -- http://localhost:5173` | Verifies the first-load sequence: the hero must still be animating **after** the curtain has fully lifted, and the intro must finish under 2.6s |
+| `npm run shots:intro -- http://localhost:5173` | Frame-by-frame screenshots of the boot sequence |
 
 `check:reveals` earned its place immediately: it found 29 words in About and the entire Contact
 headline that never appeared after a full scroll. `check:cards` found project cards overflowing by
@@ -166,7 +168,8 @@ the hard-edged container: a 1px rule plus four corner brackets and a scanline sw
 
 | Piece | Where |
 |---|---|
-| Boot sequence | `Preloader.jsx` — counter to 100 then panel wipe. Session-scoped so it plays once per tab, dismissible by click or keypress, skipped under reduced motion |
+| Boot sequence | `Preloader.jsx` — counter to 100 then a four-panel wipe. Session-scoped so it plays once per tab, dismissible by click or keypress, skipped under reduced motion |
+| Boot gating | `utils/bootState.js` / `useBooted.js` — **entry animations wait for the curtain** |
 | Text decode | `ScrambleText.jsx` / `useScramble.js` — glyph scramble on scroll-in and hover. The real string stays in the DOM for screen readers |
 | Scroll reveals | `useReveal.js` / `Reveal.jsx` — **one shared system for the whole site** |
 | Crosshair cursor | `Cursor.jsx` — viewport-spanning crosshair, corner-bracket reticle, live coordinate readout. Driven by motion values, so pointer movement causes **no React re-renders**. Add `data-cursor="label"` to any element to change the readout on hover |
@@ -192,6 +195,27 @@ anything the observer never fired for. `npm run check:reveals` enforces the resu
 
 All reveals share one distance, duration and easing from `utils/motion.js`, so the page moves with
 a single rhythm. Values had previously drifted to four different distances and four durations.
+
+#### Entry animations must gate on `useBooted()`
+
+Anything that animates on mount — the hero, the navbar, and every `useReveal` above the fold —
+waits for `useBooted()`. Without it the entry sequence runs *behind the preloader*: measured, the
+hero headline animated from y=202 to y=0 between 579ms and 1464ms while the curtain did not clear
+until 3184ms, so the page simply appeared already settled. It only happened on a first load,
+because the intro is session-scoped and skipped afterwards, which made it easy to miss.
+
+`Preloader` calls `setBooted()` as the wipe **starts**, not when the overlay unmounts, so the hero
+moves while the panels are still travelling and the two motions read as one. `bootState` resolves
+synchronously at import, so repeat visits and reduced-motion users never wait on the gate.
+
+Two things that are easy to undo by accident:
+
+- The preloader container must have **no background of its own**. It previously carried `bg-bg`,
+  which painted over the wipe panels and hid them entirely — all you saw was a fade.
+- The panels need their copper trailing edge. They are the same colour as the page behind them, so
+  without that line the wipe is genuinely invisible.
+
+`npm run check:intro` enforces the timing.
 
 ## Deployment (Vercel)
 

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePrefersReducedMotion } from './useMediaQuery';
+import useBooted from './useBooted';
 
 // One shared scroll-reveal system for the whole site.
 //
@@ -88,35 +89,43 @@ function ensureSweepListener() {
 
 export function useReveal() {
     const reducedMotion = usePrefersReducedMotion();
+    // Nothing reveals while the intro curtain is still up, otherwise
+    // above-the-fold content finishes animating before it is ever visible.
+    const booted = useBooted();
     const [revealed, setRevealed] = useState(false);
     const nodeRef = useRef(null);
 
     // Measuring in the ref callback rather than an effect body: this runs at
     // attach time, so already-visible content shows immediately without a
     // synchronous setState inside useEffect.
-    const ref = useCallback((node) => {
-        nodeRef.current = node;
-        if (!node || typeof window === 'undefined') return;
+    const ref = useCallback(
+        (node) => {
+            nodeRef.current = node;
+            if (!node || typeof window === 'undefined' || !booted) return;
 
-        if (node.getBoundingClientRect().top < window.innerHeight * (1 - REVEAL_MARGIN)) {
-            setRevealed(true);
-        }
-    }, []);
+            if (node.getBoundingClientRect().top < window.innerHeight * (1 - REVEAL_MARGIN)) {
+                setRevealed(true);
+            }
+        },
+        [booted]
+    );
 
     useEffect(() => {
         const element = nodeRef.current;
-        if (!element || reducedMotion || revealed) return undefined;
+        if (!element || reducedMotion || revealed || !booted) return undefined;
 
         registry.set(element, () => setRevealed(true));
         ensureObserver().observe(element);
         ensureSweepListener();
+        // Runs on the next frame, so anything already on screen when the
+        // curtain lifts animates in rather than snapping.
         queueSweep();
 
         return () => {
             registry.delete(element);
             observer?.unobserve(element);
         };
-    }, [reducedMotion, revealed]);
+    }, [reducedMotion, revealed, booted]);
 
     return [ref, revealed || reducedMotion];
 }

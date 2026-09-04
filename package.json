@@ -16,6 +16,8 @@
     "shots": "node scripts/shoot.mjs",
     "check:reveals": "node scripts/audit-reveals.mjs",
     "check:cards": "node scripts/measure.mjs",
+    "check:intro": "node scripts/audit-intro.mjs",
+    "shots:intro": "node scripts/shoot-intro.mjs",
     "verify": "npm run lint && npm run build && npm run check:head && npm run check:contrast && npm run check:radius && npm run check:render"
   },
   "dependencies": {

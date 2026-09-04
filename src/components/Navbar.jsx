@@ -9,10 +9,13 @@ import { navLinks, profile, site } from '../data';
 import useActiveSection from '../hooks/useActiveSection';
 import useScrollInfo from '../hooks/useScrollInfo';
 import useFocusTrap from '../hooks/useFocusTrap';
+import useBooted from '../hooks/useBooted';
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const { scrolled, hidden } = useScrollInfo();
+    // Holds the slide-in until the curtain lifts, so it isn't spent off-screen.
+    const booted = useBooted();
     const sectionIds = useMemo(() => navLinks.map((link) => link.id), []);
     const active = useActiveSection(sectionIds);
 
@@ -51,8 +54,8 @@ const Navbar = () => {
 
             <motion.header
                 initial={{ y: -120 }}
-                animate={{ y: hidden && !isOpen ? -140 : 0 }}
-                transition={{ duration: 0.55, ease: EASE_OUT_EXPO }}
+                animate={{ y: !booted || (hidden && !isOpen) ? -140 : 0 }}
+                transition={{ duration: 0.55, delay: booted ? 0.3 : 0, ease: EASE_OUT_EXPO }}
                 className={cn(
                     'fixed left-0 right-0 top-0 z-50 border-b transition-colors duration-500',
                     scrolled

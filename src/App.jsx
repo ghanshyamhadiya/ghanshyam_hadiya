@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Lenis from 'lenis';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -20,7 +20,6 @@ import { usePrefersReducedMotion } from './hooks/useMediaQuery';
 
 function App() {
     const reducedMotion = usePrefersReducedMotion();
-    const [booted, setBooted] = useState(false);
 
     useEffect(() => {
         if (reducedMotion) {
@@ -71,7 +70,10 @@ function App() {
     return (
         <ErrorBoundary>
             <SkipLink />
-            <Preloader onDone={() => setBooted(true)} />
+            {/* Boot state lives in utils/bootState.js rather than here: almost
+                every component needs it via useReveal, so it is read through a
+                store instead of being threaded down as a prop. */}
+            <Preloader />
             <AnimatedNoise />
             <Cursor />
 
@@ -83,7 +85,7 @@ function App() {
 
             <div className="relative z-10 min-h-screen overflow-x-clip">
                 <Navbar />
-                <main id="main" data-booted={booted}>
+                <main id="main">
                     <Hero />
                     <Stats />
                     <About />

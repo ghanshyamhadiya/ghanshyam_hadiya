@@ -7,10 +7,11 @@ import { profile } from '../data';
 import { EASE_OUT_EXPO } from '../utils/motion';
 import { scrollToSection } from '../utils/smoothScroll';
 import { useIsDesktop, usePrefersReducedMotion } from '../hooks/useMediaQuery';
+import useBooted from '../hooks/useBooted';
 
 // Structural backdrop: blueprint grid plus four full-height column rules, so
 // the page reads as being built on a visible grid rather than floating.
-const Backdrop = ({ reducedMotion }) => (
+const Backdrop = ({ reducedMotion, booted }) => (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
         <div
             className="grid-bg absolute inset-0"
@@ -25,8 +26,8 @@ const Backdrop = ({ reducedMotion }) => (
                 <motion.span
                     key={i}
                     initial={{ scaleY: 0 }}
-                    animate={{ scaleY: 1 }}
-                    transition={{ duration: 1.1, delay: 0.2 + i * 0.07, ease: EASE_OUT_EXPO }}
+                    animate={booted ? { scaleY: 1 } : { scaleY: 0 }}
+                    transition={{ duration: 0.9, delay: 0.05 + i * 0.06, ease: EASE_OUT_EXPO }}
                     className="h-full w-px origin-top bg-line"
                 />
             ))}
@@ -56,6 +57,12 @@ const Hero = () => {
     const isDesktop = useIsDesktop();
     const reducedMotion = usePrefersReducedMotion();
 
+    // Hold the entry sequence until the intro curtain starts lifting. Without
+    // this the headline finished animating ~1.7s before it was visible.
+    // Delays below are short because they now begin once you can see the page,
+    // not the moment the app mounts.
+    const booted = useBooted();
+
     const { scrollYProgress } = useScroll({
         target: sectionRef,
         offset: ['start start', 'end start'],
@@ -77,7 +84,7 @@ const Hero = () => {
             aria-label="Introduction"
             className="relative flex min-h-[100svh] flex-col justify-center overflow-hidden px-5 pb-16 pt-32 sm:px-8 sm:pt-36"
         >
-            <Backdrop reducedMotion={reducedMotion} />
+            <Backdrop reducedMotion={reducedMotion} booted={booted} />
 
             <motion.div
                 style={enableParallax ? { y, opacity } : undefined}
@@ -88,8 +95,8 @@ const Hero = () => {
                     the right edge once it wrapped. */}
                 <motion.div
                     initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.15, ease: EASE_OUT_EXPO }}
+                    animate={booted ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+                    transition={{ duration: 0.5, delay: 0.26, ease: EASE_OUT_EXPO }}
                     className="flex flex-col gap-1.5 border-y border-line py-2.5 sm:flex-row sm:items-center sm:gap-x-5"
                 >
                     <ScrambleText text={profile.role} className="label text-accent" />
@@ -109,10 +116,10 @@ const Hero = () => {
                         <span key={line} className="block overflow-hidden pb-[0.06em]">
                             <motion.span
                                 initial={{ y: '105%' }}
-                                animate={{ y: 0 }}
+                                animate={booted ? { y: 0 } : { y: '105%' }}
                                 transition={{
-                                    duration: 0.9,
-                                    delay: 0.3 + i * 0.1,
+                                    duration: 0.85,
+                                    delay: 0.34 + i * 0.09,
                                     ease: EASE_OUT_EXPO,
                                 }}
                                 className={i === 1 ? 'block text-accent' : 'block'}
@@ -125,8 +132,8 @@ const Hero = () => {
 
                 <motion.div
                     initial={{ opacity: 0, y: 14 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, delay: 0.85, ease: EASE_OUT_EXPO }}
+                    animate={booted ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
+                    transition={{ duration: 0.6, delay: 0.72, ease: EASE_OUT_EXPO }}
                     className="mt-10 grid gap-8 border-t border-line pt-8 md:grid-cols-12 md:items-start md:gap-10"
                 >
                     <p className="max-w-xl text-sm leading-relaxed text-muted sm:text-base md:col-span-7">
@@ -177,8 +184,8 @@ const Hero = () => {
             {/* Scroll indicator */}
             <motion.div
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 1.5 }}
+                animate={booted ? { opacity: 1 } : { opacity: 0 }}
+                transition={{ duration: 0.6, delay: 1.15 }}
                 className="pointer-events-none absolute bottom-5 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 md:flex"
             >
                 <span className="font-mono text-[0.58rem] uppercase tracking-[0.3em] text-subtle">
