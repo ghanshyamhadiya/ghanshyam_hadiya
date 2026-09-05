@@ -27,3 +27,6 @@ shots
 *.njsproj
 *.sln
 *.sw?
+
+# Research captures and reference frames (scripts/shoot*.mjs, refs/)
+refs
