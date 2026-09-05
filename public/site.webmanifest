@@ -4,8 +4,8 @@
   "description": "Data engineer building reliable ETL pipelines, warehouse models and orchestrated data platforms.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0a0b",
-  "theme_color": "#0a0a0b",
+  "background_color": "#fff7ec",
+  "theme_color": "#fff7ec",
   "icons": [
     {
       "src": "/favicon.svg",

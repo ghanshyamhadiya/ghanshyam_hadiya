@@ -16,9 +16,9 @@ const page = await browser.newPage({
 
 const readState = () =>
     page.evaluate(() => {
-        const preloader = document.querySelector('[aria-label="Loading"]');
-        const h1 = document.querySelector('#home h1 span span');
-        const intro = document.querySelector('#home p');
+        const preloader = document.querySelector('[data-intro-curtain]');
+        const h1 = document.querySelector('#home [data-hero-line]');
+        const intro = document.querySelector('#home [data-hero-intro]');
 
         const ty = (el) => {
             if (!el) return null;
@@ -31,20 +31,15 @@ const readState = () =>
             return 0;
         };
 
-        // How much of the screen the wipe panels still cover. Element presence
-        // is not the right signal: AnimatePresence keeps the overlay mounted
-        // for a beat after the panels have travelled off-screen, so measuring
-        // the unmount would report the curtain as up long after it is visually
-        // gone.
-        const panels = preloader ? [...preloader.querySelectorAll(':scope > span')] : [];
+        // How much of the screen the curtain still covers. Element presence is
+        // not the right signal: AnimatePresence keeps the overlay mounted for a
+        // beat after it has travelled off-screen, so measuring the unmount
+        // would report the curtain as up long after it is visually gone.
         let coverage = 0;
-        if (panels.length) {
+        if (preloader) {
             const vh = window.innerHeight;
-            const covered = panels.map((p) => {
-                const r = p.getBoundingClientRect();
-                return Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0)) / vh;
-            });
-            coverage = Math.max(...covered);
+            const r = preloader.getBoundingClientRect();
+            coverage = Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0)) / vh;
         }
 
         return {

@@ -2,8 +2,10 @@ import React, { useEffect } from 'react';
 import Lenis from 'lenis';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
+import MarqueeBand from './components/MarqueeBand';
 import Stats from './components/Stats';
 import About from './components/About';
+import Process from './components/Process';
 import Skills from './components/Skills';
 import Experience from './components/Experience';
 import Projects from './components/Projects';
@@ -11,7 +13,6 @@ import Credentials from './components/Credentials';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import Cursor from './components/Cursor';
-import AnimatedNoise from './components/AnimatedNoise';
 import Preloader from './components/Preloader';
 import SkipLink from './components/SkipLink';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -71,24 +72,19 @@ function App() {
         <ErrorBoundary>
             <SkipLink />
             {/* Boot state lives in utils/bootState.js rather than here: almost
-                every component needs it via useReveal, so it is read through a
+                every component reads it via useReveal, so it goes through a
                 store instead of being threaded down as a prop. */}
             <Preloader />
-            <AnimatedNoise />
             <Cursor />
 
-            {/* Page-wide blueprint grid sitting behind everything. */}
-            <div
-                aria-hidden="true"
-                className="grid-bg pointer-events-none fixed inset-0 z-0 opacity-40"
-            />
-
-            <div className="relative z-10 min-h-screen overflow-x-clip">
+            <div className="min-h-screen overflow-x-clip">
                 <Navbar />
                 <main id="main">
                     <Hero />
+                    <MarqueeBand />
                     <Stats />
                     <About />
+                    <Process />
                     <Skills />
                     <Experience />
                     <Projects />

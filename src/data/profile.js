@@ -3,8 +3,14 @@
 
 export const profile = {
     name: 'Ghanshyam M. Hadiya',
+    // Split so the hero can set each line at display scale independently.
+    nameLines: ['Ghanshyam', 'Hadiya'],
+    greeting: "hi, i'm",
     role: 'Data Engineer',
     roleLong: 'Data Engineer — AWS, Spark & End-to-End Pipeline Delivery',
+
+    // Rendered in the handwriting face; no image asset needed.
+    signature: 'Ghanshyam',
 
     location: 'Ahmedabad, India',
 
@@ -48,6 +54,35 @@ export const profile = {
     cta: {
         label: 'View work',
         href: '#work',
+    },
+
+    // Every path is verified by scripts/check-assets.mjs, so a missing or
+    // renamed file fails the build instead of shipping a broken image.
+    // Sources are generated from public/photos/portrait-src.jpg — see the
+    // ffmpeg recipe in README.
+    photos: {
+        hero: {
+            src: '/photos/portrait-768.webp',
+            srcSet:
+                '/photos/portrait-480.webp 480w, /photos/portrait-768.webp 768w, /photos/portrait-1024.webp 1024w',
+            width: 768,
+            height: 1152,
+            alt: 'Ghanshyam Hadiya, data engineer, photographed at the office',
+        },
+        about: {
+            src: '/photos/portrait-sq-400.webp',
+            srcSet: '/photos/portrait-sq-400.webp 400w, /photos/portrait-sq-640.webp 640w',
+            width: 400,
+            height: 500,
+            alt: 'Ghanshyam Hadiya',
+        },
+        contact: {
+            src: '/photos/portrait-wide-480.webp',
+            srcSet: '/photos/portrait-wide-480.webp 480w, /photos/portrait-wide-768.webp 768w',
+            width: 480,
+            height: 316,
+            alt: 'Ghanshyam Hadiya',
+        },
     },
 };
 

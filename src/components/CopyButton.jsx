@@ -3,7 +3,7 @@ import { Check, Copy } from 'lucide-react';
 import { cn } from '../utils/cn';
 import useCopyToClipboard from '../hooks/useCopyToClipboard';
 
-const CopyButton = ({ value, label = 'Copy', className }) => {
+const CopyButton = ({ value, label = 'Copy', className, invert = false }) => {
     const { copied, copy } = useCopyToClipboard();
 
     return (
@@ -13,18 +13,19 @@ const CopyButton = ({ value, label = 'Copy', className }) => {
             data-cursor={copied ? 'copied' : 'copy'}
             aria-label={copied ? 'Copied to clipboard' : `${label} ${value}`}
             className={cn(
-                'group relative inline-flex items-center gap-2 overflow-hidden border px-5 py-3',
-                'font-mono text-[0.68rem] uppercase tracking-[0.14em] transition-colors duration-300',
-                copied
-                    ? 'border-accent text-accent'
-                    : 'border-line text-muted hover:border-accent/50 hover:text-accent',
+                'inline-flex items-center gap-2 rounded-full border px-4 py-2',
+                'font-display text-[0.8rem] font-semibold transition-colors duration-300',
+                invert
+                    ? 'border-canvas/40 text-canvas hover:bg-canvas hover:text-indigo'
+                    : 'border-ink text-ink hover:bg-ink hover:text-canvas',
+                copied && (invert ? 'border-amber text-amber' : 'border-pink-deep text-pink-deep'),
                 className
             )}
         >
             {copied ? (
-                <Check size={13} className="text-accent" aria-hidden="true" />
+                <Check size={14} aria-hidden="true" />
             ) : (
-                <Copy size={13} aria-hidden="true" />
+                <Copy size={14} aria-hidden="true" />
             )}
             {/* aria-live so the confirmation is announced, not just shown. */}
             <span aria-live="polite">{copied ? 'Copied' : label}</span>

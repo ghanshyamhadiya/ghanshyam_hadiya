@@ -18,7 +18,17 @@ const VIEWPORTS = [
     { name: '1440', width: 1440, height: 900 },
 ];
 
-const SECTIONS = ['home', 'impact', 'about', 'skills', 'experience', 'work', 'credentials', 'contact'];
+const SECTIONS = [
+    'home',
+    'impact',
+    'about',
+    'process',
+    'skills',
+    'experience',
+    'work',
+    'credentials',
+    'contact',
+];
 
 mkdirSync(OUT, { recursive: true });
 

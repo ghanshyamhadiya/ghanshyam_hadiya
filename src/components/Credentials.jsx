@@ -11,10 +11,10 @@ const StatusBadge = ({ status }) => {
     return (
         <span
             className={cn(
-                'inline-flex shrink-0 items-center gap-1.5 px-2 py-1 font-mono text-[0.56rem] uppercase tracking-[0.1em]',
+                'inline-flex shrink-0 items-center rounded-full px-2.5 py-1 font-mono text-[0.58rem] uppercase tracking-[0.08em]',
                 inProgress
                     ? 'border border-dashed border-line-strong text-subtle'
-                    : 'border border-accent/45 bg-accent-soft text-accent'
+                    : 'bg-pink text-ink'
             )}
         >
             {inProgress ? 'In progress' : 'Certified'}
@@ -37,18 +37,16 @@ const Certification = ({ item, index }) => {
                     : {})}
             >
                 <div className="flex items-start justify-between gap-3">
-                    <h4 className="text-[0.92rem] font-medium leading-snug text-ink">
-                        {item.name}
-                    </h4>
+                    <h4 className="font-display text-base leading-snug">{item.name}</h4>
                     <StatusBadge status={item.status} />
                 </div>
 
-                <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[0.66rem] text-subtle">
+                <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[0.68rem] text-subtle">
                     <span className="text-muted">{item.issuer}</span>
                     {item.issued && <span>· {item.issued}</span>}
                     {item.credentialId && <span>· {item.credentialId}</span>}
                     {hasLink && (
-                        <span className="inline-flex items-center gap-1 text-accent">
+                        <span className="inline-flex items-center gap-1 text-pink-deep">
                             <ExternalLink size={11} aria-hidden="true" />
                             Verify
                         </span>
@@ -67,23 +65,23 @@ const Credentials = () => {
     return (
         <Section
             id="credentials"
-            index="05"
+            index="06"
             eyebrow="Credentials"
-            // Heading and intro follow the data: with no certifications yet the
-            // section presents itself as education rather than showing an empty
-            // "Certifications" column.
+            // Heading follows the data: with no certifications yet the section
+            // presents itself as education rather than showing an empty column.
             title={hasCerts ? 'Certifications & education' : 'Education'}
             intro={
                 hasCerts
                     ? 'Formal training and verified credentials, with anything still in progress labelled as such.'
                     : 'Formal training behind the production work.'
             }
+            tone="canvas"
         >
             <div className={cn('grid gap-10', hasCerts && 'md:grid-cols-2')}>
                 {hasCerts && (
                     <div>
                         <h3 className="label flex items-center gap-2.5 text-subtle">
-                            <ShieldCheck size={14} className="text-accent" aria-hidden="true" />
+                            <ShieldCheck size={14} className="text-indigo" aria-hidden="true" />
                             Certifications
                         </h3>
                         <ul className="mt-6 space-y-3">
@@ -97,7 +95,7 @@ const Credentials = () => {
                 {hasEducation && (
                     <div>
                         <h3 className="label flex items-center gap-2.5 text-subtle">
-                            <GraduationCap size={14} className="text-accent" aria-hidden="true" />
+                            <GraduationCap size={14} className="text-indigo" aria-hidden="true" />
                             Education
                         </h3>
                         <ul className="mt-6 space-y-3">
@@ -105,18 +103,18 @@ const Credentials = () => {
                                 <li key={item.degree}>
                                     <Panel delay={stagger(index)} className="p-5">
                                         <div className="flex items-start justify-between gap-3">
-                                            <h4 className="text-[0.92rem] font-medium leading-snug text-ink">
+                                            <h4 className="font-display text-base leading-snug">
                                                 {item.degree}
                                             </h4>
-                                            <span className="shrink-0 font-mono text-[0.66rem] text-subtle tabular-nums">
+                                            <span className="shrink-0 font-mono text-[0.68rem] text-subtle tabular-nums">
                                                 {item.start} → {item.end}
                                             </span>
                                         </div>
-                                        <p className="mt-2 text-sm text-muted">
+                                        <p className="mt-2 text-[0.9rem] text-muted">
                                             {item.institution}
                                         </p>
                                         {item.note && (
-                                            <p className="mt-2 text-[0.78rem] leading-relaxed text-subtle">
+                                            <p className="mt-2 text-[0.8rem] leading-relaxed text-subtle">
                                                 {item.note}
                                             </p>
                                         )}

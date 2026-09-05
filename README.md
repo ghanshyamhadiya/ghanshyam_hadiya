@@ -21,8 +21,8 @@ npm run verify   # lint + build + all checks below
 | Command | Asserts |
 |---|---|
 | `npm run check:head` | Built `index.html` metadata is coherent, JSON-LD parses, and no `%SITE_*%` token or placeholder URL leaked through |
-| `npm run check:contrast` | Every text colour clears WCAG AA against the lightest surface it sits on |
-| `npm run check:radius` | **No curves** — no `rounded-*` utility in source, and no non-zero `border-radius` in the shipped stylesheet |
+| `npm run check:contrast` | Every colour pairing the design uses clears WCAG AA, and the forbidden white-on-hot-pink pairing is documented rather than silently reintroduced |
+| `npm run check:assets` | Every image referenced from the data layer exists on disk, with alt text and explicit width/height |
 | `npm run check:render` | The whole tree server-renders without throwing, every section is present, there are **no nested `<a>` elements**, and `dt` precedes `dd` in all definition lists |
 
 The render check exists because this is a type-less codebase: SSR-rendering the tree catches
@@ -95,9 +95,24 @@ Currently outstanding:
 | Asset | Notes |
 |---|---|
 | `public/resume.pdf` | Your real CV. Overwrite this file to update it |
-| `public/og.png` | 1200×630 link preview, generated with your name and stack |
-| `public/favicon.svg` | Pipeline glyph |
-| `public/apple-touch-icon.png` | 180×180 |
+| `public/photos/portrait-src.jpg` | Master portrait. Everything else is derived from it |
+| `public/photos/portrait-*.webp` | Generated crops — see below |
+| `public/og.png` | 1200×630 link preview, with your photo |
+| `public/favicon.svg` · `apple-touch-icon.png` | Indigo mark |
+
+### Regenerating the photo crops
+
+Three crops are derived from the master with ffmpeg — a tall 2:3 for the hero, a 4:5 for About,
+and a 3:2 band for Contact. After replacing `portrait-src.jpg`, re-run from `public/photos`:
+
+```powershell
+foreach ($w in 480,768,1024) { ffmpeg -y -i portrait-src.jpg -vf "scale=${w}:-2" -q:v 82 "portrait-$w.webp" }
+foreach ($w in 400,640) { $h=[int]($w*1.25); ffmpeg -y -i portrait-src.jpg -vf "crop=1024:1280:0:120,scale=${w}:${h}" -q:v 82 "portrait-sq-$w.webp" }
+foreach ($w in 480,768) { $h=[int]($w*0.66); ffmpeg -y -i portrait-src.jpg -vf "crop=1024:683:0:500,scale=${w}:${h}" -q:v 82 "portrait-wide-$w.webp" }
+```
+
+The `crop` offsets are tuned to this specific photo. If you swap in a different one, check the
+framing and adjust — `npm run check:assets` verifies the files exist, not that the face is in shot.
 
 ## Two things worth being careful about
 
@@ -133,47 +148,67 @@ for screen readers.
 
 ## Design system
 
-Technical grid / terminal. Tokens live in one place: the `@theme` block in `src/index.css`.
-Tailwind generates the utilities from them (`text-accent`, `font-display`, `bg-surface`,
-`text-title`, `grid-bg`).
+Light, colourful and rounded. Tokens live in one place: the `@theme` block in `src/index.css`.
+Tailwind generates the utilities from them (`bg-canvas`, `text-ink`, `font-display`, `text-name`).
 
-### Zero curves — how it's enforced
+### Palette
 
-Every corner is square, and three mechanisms keep it that way:
+Every value below is measured, not estimated — run `npm run check:contrast`.
 
-1. All `--radius-*` tokens are `0`.
-2. `.rounded-full` is explicitly neutralised, because Tailwind hardcodes it as
-   `calc(infinity * 1px)` instead of reading a token, so the scale can't reach it.
-3. `npm run check:radius` fails on any `rounded-*` in source **or** any non-zero `border-radius`
-   in the built CSS.
+| Token | Hex | Role |
+|---|---|---|
+| `canvas` | `#FFF7EC` | warm cream page |
+| `surface` | `#FFFFFF` | cards |
+| `amber` / `amber-soft` | `#FFC93C` / `#FFE9A8` | brand surfaces, hero |
+| `indigo` / `indigo-deep` | `#332C81` / `#221C5C` | dark panels, contact, footer |
+| `pink` / `pink-deep` | `#FF1E8E` / `#D6006F` | accent, CTAs |
+| `ink` / `muted` / `subtle` | `#141225` / `#4A4560` / `#6E6885` | text |
 
-⚠️ **Never write the literal utility name for a corner radius anywhere in `src/`, even in a
-comment.** Tailwind scans raw file text and does not skip comments, so merely mentioning it makes
-Tailwind emit that utility and puts a curve back in the bundle. This actually happened — a comment
-in `Panel.jsx` shipped a `.25rem` radius. For the same reason `index.css` uses
-`@import "tailwindcss" source(none)` with explicit `@source` globs, so `scripts/` and `README.md`
-are not scanned.
+⚠️ **Three colour rules, enforced by the contrast check:**
 
-- **Display** Archivo 800, uppercase, tight tracking
-- **Body** Inter · **Labels/readouts** JetBrains Mono
-- **Accent** copper `#C98B5E`
-- Text colours are contrast-checked against the **lightest surface they sit on**, not just the page
-  background. Worst case: `ink` 15.3:1, `muted` 7.0:1, `subtle` 5.2:1 — all clear WCAG AA for body
-  text. Nothing dimmer than `subtle` may carry text. Verify with `node scripts/check-contrast.mjs`.
+1. **Never white text on hot pink.** It measures **3.60 and fails AA** — and it is the most obvious
+   CTA styling, which is exactly why it is easy to reintroduce. Use ink on pink (5.10), or
+   `pink-deep` with white (5.14). `Button.jsx` bakes this in so call sites cannot get it wrong.
+2. **Pink is large-text only** on canvas (3.39) and on indigo (3.21). Never body copy.
+3. **Amber is never a text colour on canvas** (1.45). Surfaces and shapes only.
 
-`Section.jsx` owns section rhythm and the two-column header, so spacing can't drift. `Panel.jsx` is
-the hard-edged container: a 1px rule plus four corner brackets and a scanline sweep on hover.
+### Type
+
+- **Display** Outfit 800, **sentence case** — the friendliness comes from rounded lowercase forms,
+  not from caps
+- **Body** Inter · **Handwriting** Caveat · **Data labels** JetBrains Mono
+
+`--text-name` is deliberately smaller than `--text-display`. It is used inside a column, and sizing
+it in raw `vw` clipped the last letter of "Ghanshyam" at desktop widths: `9vw` of a 1440px viewport
+is 130px, and nine characters at that size overflow a 7-of-12 column, which the reveal mask then
+cropped. If you change it, check the name still fits at 768px and 1440px.
+
+### Zoning — bold but credible
+
+The playfulness is deliberately not uniform. This is a rule, not a matter of taste:
+
+| Zone | Sections | Treatment |
+|---|---|---|
+| **Identity** | Intro, Hero, Marquee, About, How I work, Contact | Full expression — blobs, floating objects, handwriting, saturated panels |
+| **Evidence** | Skills, Experience, Work, Credentials | Disciplined. Colour encodes *structure* (a filled chip means production ownership), never decoration. **No blobs behind text** |
+
+A reviewer skimming the work should never have to read a metric through a decorative shape. This is
+what keeps a bright portfolio credible for enterprise data roles.
+
+`Section.jsx` owns rhythm and the heading block; `tone` picks the surface. `Panel.jsx` is the
+rounded card used throughout the evidence sections.
 
 ### Motion
 
 | Piece | Where |
 |---|---|
-| Boot sequence | `Preloader.jsx` — counter to 100 then a four-panel wipe. Session-scoped so it plays once per tab, dismissible by click or keypress, skipped under reduced motion |
+| Intro curtain | `Preloader.jsx` — indigo panel, the name assembles, amber and pink blobs peel in from the corners, then the whole thing lifts. Session-scoped, dismissible, skipped under reduced motion |
 | Boot gating | `utils/bootState.js` / `useBooted.js` — **entry animations wait for the curtain** |
-| Text decode | `ScrambleText.jsx` / `useScramble.js` — glyph scramble on scroll-in and hover. The real string stays in the DOM for screen readers |
 | Scroll reveals | `useReveal.js` / `Reveal.jsx` — **one shared system for the whole site** |
-| Crosshair cursor | `Cursor.jsx` — viewport-spanning crosshair, corner-bracket reticle, live coordinate readout. Driven by motion values, so pointer movement causes **no React re-renders**. Add `data-cursor="label"` to any element to change the readout on hover |
-| Hover micro-interactions | Buttons fill from the left, nav underlines wipe, panel brackets fade in, rows draw a rule across on hover |
+| Organic shapes | `Blob.jsx` — SVG paths, always `aria-hidden`, never behind text |
+| Floating objects | `FloatingObjects.jsx` — pointer parallax via motion values, so no re-render per mousemove |
+| Ticker | `Marquee.jsx` — CSS keyframe, duplicated track translated exactly -50% for a seamless loop |
+| Blob cursor | `Cursor.jsx` — swells on interactive elements; add `data-cursor="label"` to any element to show a word |
 
 All of it is client-side; there is no backend or proxy.
 

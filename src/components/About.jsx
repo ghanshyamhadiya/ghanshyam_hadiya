@@ -1,38 +1,75 @@
 import React from 'react';
 import Section from './Section';
 import Panel from './Panel';
+import Portrait from './Portrait';
+import Reveal from './Reveal';
+import Signature, { Annotation } from './Signature';
 import AnimatedText from './AnimatedText';
+import Blob from './Blob';
 import { profile } from '../data';
 
 const Row = ({ term, value }) => (
     <div className="flex items-baseline justify-between gap-3 border-t border-line py-2.5">
-        <dt className="font-mono text-[0.62rem] uppercase tracking-[0.12em] text-subtle">{term}</dt>
-        <dd className="text-right text-[0.8rem] text-ink">{value}</dd>
+        <dt className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-subtle">{term}</dt>
+        <dd className="text-right text-[0.85rem] font-medium">{value}</dd>
     </div>
 );
 
 const About = () => (
-    <Section id="about" index="01" eyebrow="Profile" title="What I actually do">
-        <div className="grid gap-10 md:grid-cols-12">
-            <div className="space-y-6 md:col-span-8">
+    <Section
+        id="about"
+        index="01"
+        eyebrow="Profile"
+        title="What I actually do"
+        tone="canvas"
+        className="overflow-hidden"
+    >
+        <Blob
+            variant={0}
+            color="#FFE9A8"
+            className="-right-[18%] top-[10%] h-[50vh] w-[50vh] opacity-70"
+            duration={28}
+        />
+
+        <div className="relative grid gap-10 md:grid-cols-12 md:gap-10">
+            <div className="space-y-5 md:col-span-7">
                 {profile.about.map((paragraph, index) => (
                     <AnimatedText
                         key={index}
                         text={paragraph}
-                        delay={index * 0.06}
-                        className="text-sm leading-relaxed text-muted sm:text-base"
+                        index={index}
+                        className="text-base leading-relaxed text-muted sm:text-lg"
                     />
                 ))}
+
+                <Reveal delay={0.2} className="flex items-end gap-4 pt-2">
+                    <Signature className="text-indigo" />
+                    <Annotation className="mb-1 text-pink-deep" rotate={-4}>
+                        nice to meet you
+                    </Annotation>
+                </Reveal>
             </div>
 
-            <div className="md:col-span-4">
-                <Panel className="p-5 md:sticky md:top-32">
-                    <h3 className="label text-accent">{profile.currently.label}</h3>
-                    <p className="mt-3 text-[0.8rem] leading-relaxed text-muted">
+            <div className="md:col-span-5">
+                <Reveal className="relative mx-auto w-[62%] max-w-[260px] md:sticky md:top-28 md:w-full md:max-w-none">
+                    <span
+                        aria-hidden="true"
+                        className="absolute -bottom-3 -left-3 h-full w-full rounded-2xl bg-pink"
+                    />
+                    <Portrait
+                        photo={{ ...profile.photos.about, sizes: '(max-width: 768px) 62vw, 26vw' }}
+                        className="relative aspect-[4/5]"
+                        wash={false}
+                    />
+                </Reveal>
+
+                <Panel tone="soft" delay={0.12} hover={false} className="mt-6 p-5">
+                    <h3 className="label text-pink-deep">{profile.currently.label}</h3>
+                    <p className="mt-3 text-[0.85rem] leading-relaxed text-ink/80">
                         {profile.currently.text}
                     </p>
 
-                    <dl className="mt-6">
+                    <dl className="mt-5">
                         <Row term="Role" value={profile.role} />
                         <Row term="Based in" value={profile.location} />
                         <Row term="Status" value={profile.availability} />

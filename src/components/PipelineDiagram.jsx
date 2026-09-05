@@ -13,11 +13,9 @@ import { usePrefersReducedMotion } from '../hooks/useMediaQuery';
 
 // Data-driven architecture diagram, built from `project.architecture`.
 //
-// Implementation notes:
-//
-// 1. The node boxes are real HTML rather than SVG <text>. SVG text does not
-//    wrap or reflow, which is fragile across breakpoints and forces duplicated
-//    aria labels. HTML keeps the labels selectable, screen-reader-native and
+// 1. Node boxes are real HTML rather than SVG <text>. SVG text does not wrap or
+//    reflow, which is fragile across breakpoints and forces duplicated aria
+//    labels. HTML keeps the labels selectable, screen-reader-native and
 //    user-scalable; only the connectors are decorative.
 //
 // 2. One DOM serves both layouts, switched purely with CSS. Below `md` the
@@ -40,10 +38,10 @@ const Connector = ({ index, reducedMotion }) => (
     >
         <ChevronRight size={12} className="shrink-0 text-subtle md:hidden" />
 
-        <span className="relative hidden h-px w-full bg-line-strong md:block">
+        <span className="relative hidden h-0.5 w-full rounded-full bg-line md:block">
             {!reducedMotion && (
                 <span
-                    className="absolute top-1/2 h-1 w-1 -translate-y-1/2 bg-accent animate-[flow-right_1.6s_ease-in-out_infinite]"
+                    className="absolute top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-pink animate-[flow-right_1.6s_ease-in-out_infinite]"
                     style={{ animationDelay: `${index * 0.35}s` }}
                 />
             )}
@@ -51,28 +49,25 @@ const Connector = ({ index, reducedMotion }) => (
     </li>
 );
 
-// Nodes render statically rather than each running its own scroll reveal. They
-// live inside a card that already reveals as a unit, and inside the sticky
-// project stack per-node triggers fired unreliably — some nodes stayed blank.
 const Node = ({ node }) => {
     const { Icon, tag } = KINDS[node.kind] ?? KINDS.transform;
 
     return (
         <li
             className={cn(
-                'flex shrink-0 snap-start items-center gap-2 border border-line bg-surface-2/80 px-2.5 py-1.5',
-                'transition-colors duration-300 hover:border-accent/45',
+                'flex shrink-0 snap-start items-center gap-2 rounded-xl border border-line bg-surface px-2.5 py-1.5',
+                'transition-colors duration-300 hover:border-indigo',
                 'md:min-w-0 md:flex-1 md:shrink md:flex-col md:items-stretch md:px-3 md:py-3 md:text-center'
             )}
         >
             <Icon
                 size={13}
-                className="shrink-0 text-accent md:mx-auto md:mb-2 md:size-[15px]"
+                className="shrink-0 text-indigo md:mx-auto md:mb-2 md:size-[15px]"
                 aria-hidden="true"
-                strokeWidth={1.75}
+                strokeWidth={2}
             />
 
-            <span className="label hidden text-[0.52rem] tracking-[0.16em] text-subtle md:block">
+            <span className="label hidden text-[0.52rem] tracking-[0.14em] text-subtle md:block">
                 {tag}
             </span>
 
@@ -100,31 +95,27 @@ const PipelineDiagram = ({ architecture, className }) => {
         .join(', then ')}.${orchestrator ? ` Orchestrated by ${orchestrator}.` : ''}`;
 
     return (
-        <figure
-            className={cn('grid-bg-sm border border-line bg-surface/50 p-3.5 sm:p-5', className)}
-        >
+        <figure className={cn('rounded-2xl border border-line bg-canvas p-3.5 sm:p-5', className)}>
             {orchestrator && (
-                <div className="mb-3.5 flex items-center gap-2 border border-dashed border-accent/35 bg-accent-soft px-3 py-1.5 sm:py-2">
-                    <Workflow size={13} className="shrink-0 text-accent" aria-hidden="true" />
-                    <span className="label text-[0.52rem] text-accent sm:text-[0.58rem]">
+                <div className="mb-3.5 flex items-center gap-2 rounded-xl bg-amber-soft px-3 py-1.5 sm:py-2">
+                    <Workflow size={13} className="shrink-0 text-ink" aria-hidden="true" />
+                    <span className="label text-[0.52rem] text-ink sm:text-[0.58rem]">
                         Orchestration
                     </span>
-                    <span className="ml-auto truncate font-mono text-[0.62rem] text-muted sm:text-[0.68rem]">
+                    <span className="ml-auto truncate font-mono text-[0.62rem] text-ink/70 sm:text-[0.68rem]">
                         {orchestrator}
                     </span>
                 </div>
             )}
 
-            {/* On a phone this is a single horizontal strip you can swipe,
-                rather than a wrapped grid. Wrapping stranded connector chevrons
-                at the start of new lines and made the block three or four rows
-                tall, which was a large part of why the project cards no longer
-                fit one screen. */}
+            {/* On a phone this is a single horizontal strip you can swipe.
+                Wrapping stranded connector chevrons at the start of new lines
+                and made the block three or four rows tall, which is a large
+                part of why project cards stopped fitting one screen. */}
             <div className="relative">
-                {/* Fade on the trailing edge so it's obvious the strip scrolls. */}
                 <span
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-surface to-transparent md:hidden"
+                    className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-canvas to-transparent md:hidden"
                 />
 
                 <ol
@@ -143,7 +134,7 @@ const PipelineDiagram = ({ architecture, className }) => {
             </div>
 
             {note && (
-                <figcaption className="mt-3.5 hidden border-t border-line pt-3 text-[0.72rem] leading-relaxed text-subtle sm:block">
+                <figcaption className="mt-3.5 hidden border-t border-line pt-3 text-[0.75rem] leading-relaxed text-subtle sm:block">
                     {note}
                 </figcaption>
             )}

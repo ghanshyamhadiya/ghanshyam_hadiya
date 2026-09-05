@@ -1,66 +1,33 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowDown, Download } from 'lucide-react';
-import Magnetic from './Magnetic';
-import ScrambleText from './ScrambleText';
+import { ArrowDown, Download, MapPin } from 'lucide-react';
+import Blob from './Blob';
+import Button from './Button';
+import Portrait from './Portrait';
+import FloatingObjects from './FloatingObjects';
+import { Annotation } from './Signature';
 import { profile } from '../data';
 import { EASE_OUT_EXPO } from '../utils/motion';
 import { scrollToSection } from '../utils/smoothScroll';
 import { useIsDesktop, usePrefersReducedMotion } from '../hooks/useMediaQuery';
 import useBooted from '../hooks/useBooted';
 
-// Structural backdrop: blueprint grid plus four full-height column rules, so
-// the page reads as being built on a visible grid rather than floating.
-const Backdrop = ({ reducedMotion, booted }) => (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-        <div
-            className="grid-bg absolute inset-0"
-            style={{
-                maskImage: 'radial-gradient(ellipse 80% 65% at 50% 45%, black, transparent)',
-                WebkitMaskImage: 'radial-gradient(ellipse 80% 65% at 50% 45%, black, transparent)',
-            }}
-        />
-
-        <div className="mx-auto flex h-full max-w-6xl justify-between px-5 sm:px-8">
-            {[0, 1, 2, 3, 4].map((i) => (
-                <motion.span
-                    key={i}
-                    initial={{ scaleY: 0 }}
-                    animate={booted ? { scaleY: 1 } : { scaleY: 0 }}
-                    transition={{ duration: 0.9, delay: 0.05 + i * 0.06, ease: EASE_OUT_EXPO }}
-                    className="h-full w-px origin-top bg-line"
-                />
-            ))}
-        </div>
-
-        {/* Decorative flow lines are desktop-only: on a phone the hero content
-            fills most of the height, so these rules cut straight through the
-            status bar and the intro paragraph. */}
-        {!reducedMotion &&
-            [30, 62].map((top, index) => (
-                <span
-                    key={top}
-                    className="absolute left-0 hidden h-px w-full bg-line md:block"
-                    style={{ top: `${top}%` }}
-                >
-                    <span
-                        className="absolute top-1/2 h-1 w-6 -translate-y-1/2 bg-accent/60 animate-[flow-right_9s_linear_infinite]"
-                        style={{ animationDelay: `${index * 3.5}s` }}
-                    />
-                </span>
-            ))}
-    </div>
-);
+// Cards that drift around the portrait. Kept short: four is enough to feel
+// alive, more starts competing with the name for attention.
+const FLOATERS = [
+    { label: 'AWS Glue', top: '6%', left: '-6%', rotate: -8, className: 'bg-surface text-ink' },
+    { label: 'PySpark', top: '30%', right: '-10%', rotate: 7, className: 'bg-indigo text-canvas' },
+    { label: 'Delta Lake', bottom: '22%', left: '-12%', rotate: 5, className: 'bg-pink text-ink' },
+    { label: 'Oracle ODI', bottom: '4%', right: '-4%', rotate: -6, className: 'bg-ink text-canvas' },
+];
 
 const Hero = () => {
     const sectionRef = useRef(null);
     const isDesktop = useIsDesktop();
     const reducedMotion = usePrefersReducedMotion();
 
-    // Hold the entry sequence until the intro curtain starts lifting. Without
-    // this the headline finished animating ~1.7s before it was visible.
-    // Delays below are short because they now begin once you can see the page,
-    // not the moment the app mounts.
+    // Entry animations hold until the intro curtain starts lifting, otherwise
+    // the whole sequence plays behind it and the page looks already settled.
     const booted = useBooted();
 
     const { scrollYProgress } = useScroll({
@@ -69,137 +36,166 @@ const Hero = () => {
     });
 
     const enableParallax = isDesktop && !reducedMotion;
-    const y = useTransform(scrollYProgress, [0, 1], ['0%', '18%']);
-    const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+    const y = useTransform(scrollYProgress, [0, 1], ['0%', '14%']);
+    const opacity = useTransform(scrollYProgress, [0, 0.85], [1, 0]);
 
-    const lines = useMemo(
-        () => [profile.headline.lead, profile.headline.emphasis],
-        []
-    );
+    const show = (delay, from = { opacity: 0, y: 16 }) => ({
+        initial: from,
+        animate: booted ? { opacity: 1, y: 0 } : from,
+        transition: { duration: 0.6, delay, ease: EASE_OUT_EXPO },
+    });
 
     return (
         <section
             id="home"
             ref={sectionRef}
             aria-label="Introduction"
-            className="relative flex min-h-[100svh] flex-col justify-center overflow-hidden px-5 pb-16 pt-32 sm:px-8 sm:pt-36"
+            className="relative overflow-hidden bg-amber pb-16 pt-28 sm:pb-20 sm:pt-32"
         >
-            <Backdrop reducedMotion={reducedMotion} booted={booted} />
+            {/* Layered organic shapes. Decorative only — no text sits on them. */}
+            <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+                <Blob
+                    variant={1}
+                    color="#FFE9A8"
+                    className="-left-[15%] top-[8%] h-[70vh] w-[70vh]"
+                    duration={22}
+                />
+                <Blob
+                    variant={2}
+                    color="#FFDD7A"
+                    className="-right-[10%] -top-[10%] h-[60vh] w-[60vh]"
+                    duration={26}
+                    delay={2}
+                />
+                <Blob
+                    variant={3}
+                    color="#FFE9A8"
+                    className="-bottom-[25%] left-[20%] h-[55vh] w-[80vh]"
+                    duration={30}
+                    delay={4}
+                    opacity={0.7}
+                />
+            </div>
 
             <motion.div
                 style={enableParallax ? { y, opacity } : undefined}
-                className="relative z-10 mx-auto w-full max-w-6xl"
+                className="relative z-10 mx-auto grid w-full max-w-6xl gap-10 px-5 sm:px-8 md:grid-cols-12 md:items-center md:gap-8"
             >
-                {/* Status bar. Stacks into rows on a phone rather than relying
-                    on ml-auto, which pushed the availability text hard against
-                    the right edge once it wrapped. */}
-                <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={booted ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
-                    transition={{ duration: 0.5, delay: 0.26, ease: EASE_OUT_EXPO }}
-                    className="flex flex-col gap-1.5 border-y border-line py-2.5 sm:flex-row sm:items-center sm:gap-x-5"
-                >
-                    <ScrambleText text={profile.role} className="label text-accent" />
-                    <span className="hidden h-3 w-px bg-line-strong sm:block" aria-hidden="true" />
-                    <span className="font-mono text-[0.68rem] text-subtle">{profile.location}</span>
-                    <span className="flex items-center gap-2 font-mono text-[0.68rem] text-subtle sm:ml-auto">
-                        <span className="h-1.5 w-1.5 shrink-0 bg-emerald-400" aria-hidden="true" />
-                        {profile.availability}
-                    </span>
-                </motion.div>
+                {/* Name block */}
+                <div className="md:col-span-7">
+                    <motion.span
+                        {...show(0.24, { opacity: 0, y: 10 })}
+                        className="font-hand block text-2xl text-indigo sm:text-3xl"
+                    >
+                        {profile.greeting}
+                    </motion.span>
 
-                {/* Headline — each line wipes in from behind a mask.
-                    text-balance spreads the wrap evenly instead of leaving a
-                    one-word orphan line on narrow screens. */}
-                <h1 className="mt-7 font-display text-display leading-[0.88] text-balance text-ink sm:mt-8">
-                    {lines.map((line, i) => (
-                        <span key={line} className="block overflow-hidden pb-[0.06em]">
-                            <motion.span
-                                initial={{ y: '105%' }}
-                                animate={booted ? { y: 0 } : { y: '105%' }}
-                                transition={{
-                                    duration: 0.85,
-                                    delay: 0.34 + i * 0.09,
-                                    ease: EASE_OUT_EXPO,
-                                }}
-                                className={i === 1 ? 'block text-accent' : 'block'}
-                            >
-                                {line}
-                            </motion.span>
+                    <h1 className="mt-1 font-display text-name text-ink">
+                        {profile.nameLines.map((line, i) => (
+                            <span key={line} className="block overflow-hidden pb-[0.06em]">
+                                {/* The marker sits on the animated element, not
+                                    the mask — scripts/audit-intro.mjs reads its
+                                    transform to prove the hero is still moving
+                                    when the curtain clears. */}
+                                <motion.span
+                                    data-hero-line
+                                    initial={{ y: '108%' }}
+                                    animate={booted ? { y: 0 } : { y: '108%' }}
+                                    transition={{
+                                        duration: 0.95,
+                                        delay: 0.34 + i * 0.1,
+                                        ease: EASE_OUT_EXPO,
+                                    }}
+                                    className="block"
+                                >
+                                    {line}
+                                </motion.span>
+                            </span>
+                        ))}
+                    </h1>
+
+                    <motion.div
+                        {...show(0.62)}
+                        className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2"
+                    >
+                        <span className="rounded-full bg-ink px-4 py-1.5 font-display text-sm font-semibold text-canvas sm:text-base">
+                            {profile.role}
                         </span>
-                    ))}
-                </h1>
+                        <span className="inline-flex items-center gap-1.5 font-mono text-[0.75rem] text-muted">
+                            <MapPin size={13} aria-hidden="true" />
+                            {profile.location}
+                        </span>
+                    </motion.div>
 
-                <motion.div
-                    initial={{ opacity: 0, y: 14 }}
-                    animate={booted ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
-                    transition={{ duration: 0.6, delay: 0.72, ease: EASE_OUT_EXPO }}
-                    className="mt-10 grid gap-8 border-t border-line pt-8 md:grid-cols-12 md:items-start md:gap-10"
-                >
-                    <p className="max-w-xl text-sm leading-relaxed text-muted sm:text-base md:col-span-7">
+                    <motion.p
+                        {...show(0.72)}
+                        data-hero-intro
+                        className="mt-6 max-w-xl text-base leading-relaxed text-ink/80 sm:text-lg"
+                    >
                         {profile.intro}
-                        <span
-                            className="ml-1 inline-block h-4 w-2 translate-y-0.5 bg-accent animate-[blink_1.1s_step-end_infinite]"
-                            aria-hidden="true"
-                        />
-                    </p>
+                    </motion.p>
 
-                    {/* Buttons share a single joined border on wider screens;
-                        on a phone they go full width and stack so neither one
-                        ends up cramped against the edge. */}
-                    <div className="flex flex-col md:col-span-5 md:flex-row md:flex-wrap md:items-center md:justify-end">
-                        <Magnetic>
-                            <a
-                                href={profile.cta.href}
-                                data-cursor="view work"
-                                onClick={(event) => {
-                                    event.preventDefault();
-                                    scrollToSection(profile.cta.href.replace('#', ''));
-                                }}
-                                className="group relative flex items-center justify-start gap-3 overflow-hidden border border-accent px-6 py-3.5 font-mono text-[0.68rem] uppercase tracking-[0.15em] text-accent transition-colors duration-300 hover:text-bg md:inline-flex"
-                            >
-                                <span className="absolute inset-0 -translate-x-full bg-accent transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0" />
-                                <span className="relative">{profile.cta.label}</span>
-                                <ArrowDown
-                                    size={14}
-                                    className="relative transition-transform duration-300 group-hover:translate-y-0.5"
-                                />
-                            </a>
-                        </Magnetic>
+                    <motion.div {...show(0.82)} className="mt-8 flex flex-wrap items-center gap-3">
+                        <Button
+                            as="a"
+                            href={profile.cta.href}
+                            variant="pink"
+                            size="lg"
+                            data-cursor="see the work"
+                            onClick={(event) => {
+                                event.preventDefault();
+                                scrollToSection(profile.cta.href.replace('#', ''));
+                            }}
+                            icon={<ArrowDown size={16} />}
+                        >
+                            {profile.cta.label}
+                        </Button>
 
-                        <a
+                        <Button
+                            as="a"
                             href={profile.resume.href}
                             download
+                            variant="outline"
+                            size="lg"
                             data-cursor="download"
-                            className="group relative flex items-center justify-start gap-3 overflow-hidden border border-t-0 border-line-strong px-6 py-3.5 font-mono text-[0.68rem] uppercase tracking-[0.15em] text-muted transition-colors duration-300 hover:text-ink md:inline-flex md:border-l-0 md:border-t"
+                            icon={<Download size={16} />}
                         >
-                            <span className="absolute inset-0 -translate-x-full bg-surface-2 transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0" />
-                            <Download size={14} className="relative" />
-                            <span className="relative">{profile.resume.label}</span>
-                        </a>
-                    </div>
-                </motion.div>
-            </motion.div>
+                            {profile.resume.label}
+                        </Button>
+                    </motion.div>
+                </div>
 
-            {/* Scroll indicator */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={booted ? { opacity: 1 } : { opacity: 0 }}
-                transition={{ duration: 0.6, delay: 1.15 }}
-                className="pointer-events-none absolute bottom-5 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 md:flex"
-            >
-                <span className="font-mono text-[0.58rem] uppercase tracking-[0.3em] text-subtle">
-                    Scroll
-                </span>
-                <span className="h-10 w-px overflow-hidden bg-line-strong">
-                    {!reducedMotion && (
-                        <motion.span
-                            animate={{ y: ['-100%', '100%'] }}
-                            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-                            className="block h-full w-px bg-accent"
+                {/* Portrait */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.94, y: 24 }}
+                    animate={
+                        booted ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.94, y: 24 }
+                    }
+                    transition={{ duration: 0.85, delay: 0.45, ease: EASE_OUT_EXPO }}
+                    className="relative md:col-span-5"
+                >
+                    <div className="relative mx-auto w-[74%] max-w-sm md:w-full">
+                        {/* Colour block behind the photo, offset for depth. */}
+                        <span
+                            aria-hidden="true"
+                            className="absolute -bottom-3 -right-3 h-full w-full rounded-[2rem] bg-indigo sm:-bottom-4 sm:-right-4"
                         />
-                    )}
-                </span>
+                        <Portrait
+                            photo={{ ...profile.photos.hero, eager: true, sizes: '(max-width: 768px) 74vw, 32vw' }}
+                            rounded="rounded-[2rem]"
+                            className="relative aspect-[2/3]"
+                            wash={false}
+                        />
+
+                        <FloatingObjects items={FLOATERS} />
+                    </div>
+
+                    {/* Sits below the frame rather than over it — anchored to
+                        the image it was half-hidden behind the photo. */}
+                    <Annotation className="mt-6 block text-center text-indigo md:mt-7" rotate={-5}>
+                        that&rsquo;s me
+                    </Annotation>
+                </motion.div>
             </motion.div>
         </section>
     );

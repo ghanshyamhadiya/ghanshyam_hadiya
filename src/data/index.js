@@ -8,6 +8,8 @@ export { site } from './site';
 export { profile, socials } from './profile';
 export { navLinks } from './navigation';
 export { stats } from './stats';
+export { process } from './process';
+export { marqueeItems } from './marquee';
 export { skillLayers, exploring } from './skills';
 export { experience } from './experience';
 export { certifications, education } from './credentials';

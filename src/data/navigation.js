@@ -6,10 +6,10 @@
 
 export const navLinks = [
     { title: 'About', id: 'about' },
+    { title: 'Process', id: 'process' },
     { title: 'Skills', id: 'skills' },
     { title: 'Experience', id: 'experience' },
     { title: 'Work', id: 'work' },
-    { title: 'Credentials', id: 'credentials' },
     { title: 'Contact', id: 'contact' },
 ];
 

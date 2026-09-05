@@ -1,14 +1,21 @@
 import React from 'react';
 import { cn } from '../utils/cn';
 import Reveal from './Reveal';
-import ScrambleText from './ScrambleText';
 
-// Owns section rhythm and the technical header: a mono index and eyebrow in the
-// narrow left column, a grotesk title on the right, hairline rules between
-// sections. Every section goes through here so spacing can never drift.
+// Section shell. Owns rhythm and the heading block so spacing cannot drift.
 //
-// `bleed` renders children full-width below the header instead of inside the
-// content track — used by the project card stack.
+// `tone` picks the surface. Evidence sections (skills, experience, work,
+// credentials) stay on canvas or white and never receive decorative shapes —
+// a reviewer should never have to read a metric through a blob. Identity
+// sections may use amber or indigo.
+const TONES = {
+    canvas: 'bg-canvas text-ink',
+    soft: 'bg-amber-soft text-ink',
+    amber: 'bg-amber text-ink',
+    indigo: 'bg-indigo text-canvas',
+    indigoDeep: 'bg-indigo-deep text-canvas',
+};
+
 const Section = ({
     id,
     index,
@@ -16,66 +23,80 @@ const Section = ({
     title,
     intro,
     children,
+    tone = 'canvas',
     bleed = false,
     className,
     contentClassName,
+    headerClassName,
+    aside,
 }) => {
     const titleId = `${id}-title`;
+    const invert = tone === 'indigo' || tone === 'indigoDeep';
 
     return (
         <section
             id={id}
             aria-labelledby={titleId}
-            className={cn('relative scroll-mt-24 border-t border-line', className)}
+            className={cn('relative scroll-mt-24', TONES[tone] ?? TONES.canvas, className)}
         >
-            <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-24 md:py-32">
-                <div className="grid gap-y-6 md:grid-cols-12 md:gap-x-10">
-                    <div className="md:col-span-3">
-                        <Reveal className="flex items-baseline gap-3 md:sticky md:top-28 md:flex-col md:gap-2">
+            <div className="relative mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28 md:py-32">
+                <div className={cn('max-w-3xl', headerClassName)}>
+                    {(eyebrow || index) && (
+                        <Reveal className="mb-4 flex items-center gap-3">
                             {index && (
-                                <span className="font-mono text-[0.65rem] tracking-[0.2em] text-subtle tabular-nums">
-                                    [{index}]
+                                <span
+                                    className={cn(
+                                        'flex h-7 w-7 items-center justify-center rounded-full font-mono text-[0.65rem] font-medium',
+                                        invert ? 'bg-canvas/15 text-canvas' : 'bg-ink text-canvas'
+                                    )}
+                                >
+                                    {index}
                                 </span>
                             )}
                             {eyebrow && (
-                                <ScrambleText
-                                    text={eyebrow}
-                                    className="label block text-accent"
-                                    rescanOnHover
-                                />
+                                <span
+                                    className={cn(
+                                        'label',
+                                        invert ? 'text-amber' : 'text-pink-deep'
+                                    )}
+                                >
+                                    {eyebrow}
+                                </span>
                             )}
                         </Reveal>
-                    </div>
+                    )}
 
-                    <div className="md:col-span-9">
-                        {/* Masked wipe rather than a fade, to suit the hard edges. */}
-                        <span className="block overflow-hidden pb-[0.08em]">
-                            <Reveal
-                                as="h2"
-                                id={titleId}
-                                variant="mask"
-                                duration={0.7}
-                                className="font-display text-title leading-[0.95] text-balance text-ink"
-                            >
-                                {title}
-                            </Reveal>
-                        </span>
+                    <span className="block overflow-hidden pb-[0.08em]">
+                        <Reveal
+                            as="h2"
+                            id={titleId}
+                            variant="mask"
+                            duration={0.7}
+                            className="font-display text-title text-balance"
+                        >
+                            {title}
+                        </Reveal>
+                    </span>
 
-                        {intro && (
-                            <Reveal
-                                as="p"
-                                delay={0.08}
-                                className="mt-5 max-w-2xl border-l border-accent/40 pl-4 text-sm leading-relaxed text-muted sm:text-base"
-                            >
-                                {intro}
-                            </Reveal>
-                        )}
+                    {intro && (
+                        <Reveal
+                            as="p"
+                            delay={0.08}
+                            className={cn(
+                                'mt-5 max-w-2xl text-base leading-relaxed sm:text-lg',
+                                invert ? 'text-canvas/75' : 'text-muted'
+                            )}
+                        >
+                            {intro}
+                        </Reveal>
+                    )}
 
-                        {!bleed && children && (
-                            <div className={cn('mt-10 sm:mt-14', contentClassName)}>{children}</div>
-                        )}
-                    </div>
+                    {aside}
                 </div>
+
+                {!bleed && children && (
+                    <div className={cn('mt-12 sm:mt-16', contentClassName)}>{children}</div>
+                )}
             </div>
 
             {bleed && children && <div className={cn(contentClassName)}>{children}</div>}

@@ -1,74 +1,76 @@
 @import "tailwindcss" source(none);
 
-/* Scan only real UI source. Auto-detection also reads scripts/ and README.md,
-   where the literal strings "rounded" and "rounded-full" appear in the
-   no-curve guard and its documentation — Tailwind treated those as class
-   candidates and emitted .rounded{border-radius:.25rem} and
-   .rounded-full{border-radius:calc(infinity*1px)} into the shipped stylesheet.
-   Verified by scripts/check-built-css.mjs. */
+/* Scan only real UI source; auto-detection also reads scripts/ and README.md. */
 @source "./**/*.{js,jsx}";
 @source "../index.html";
 
 /* ---------------------------------------------------------------------------
-   Technical grid / terminal design system.
+   Light, colourful design system.
 
-   Two hard rules this file enforces:
-   1. ZERO curves. Every radius token is 0, and `rounded-full` is neutralised
-      below because its value is hardcoded in Tailwind, not tokenised.
-   2. Structure comes from rules and grids, never from boxes with soft edges.
+   Palette ratios below are measured, not estimated. Three rules fall out of
+   that measurement and are enforced by scripts/check-contrast.mjs:
+
+     1. NEVER white text on --color-pink. It measures 3.60 and fails AA. Use
+        ink on pink (5.10), or --color-pink-deep with white (5.14).
+     2. Pink is LARGE TEXT ONLY on canvas (3.39) and on indigo (3.21).
+     3. Amber is never a text colour on canvas (1.45). Surfaces and shapes only.
    --------------------------------------------------------------------------- */
 @theme {
-  /* Grotesk display, neutral body, mono for every label and readout. */
-  --font-display: "Archivo", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-display: "Outfit", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-hand: "Caveat", "Bradley Hand", cursive;
   --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 
   /* Surfaces */
-  --color-bg: #08080a;
-  --color-surface: #0e0e11;
-  --color-surface-2: #141418;
-  --color-line: rgba(255, 255, 255, 0.11);
-  --color-line-strong: rgba(255, 255, 255, 0.2);
-  --color-grid: rgba(255, 255, 255, 0.035);
+  --color-canvas: #fff7ec;
+  --color-surface: #ffffff;
+  --color-amber: #ffc93c;
+  --color-amber-soft: #ffe9a8;
+  --color-indigo: #332c81;
+  --color-indigo-deep: #221c5c;
+  --color-pink: #ff1e8e;
+  --color-pink-deep: #d6006f;
 
-  /* Text. Ratios checked against the LIGHTEST surface these sit on
-     (--color-surface-2), not just the page background.
-     Worst case: ink 15.6:1 · muted 7.1:1 · subtle 5.3:1 — all clear WCAG AA.
-     Verify with: node scripts/check-contrast.mjs */
-  --color-ink: #f0f0f2;
-  --color-muted: #a3a3aa;
-  --color-subtle: #8b8b94;
+  /* Text. Worst-case ratios against the lightest surface they sit on:
+     ink 17.29 · muted 8.55 · subtle 4.96 — all clear WCAG AA for body copy. */
+  --color-ink: #141225;
+  --color-muted: #4a4560;
+  --color-subtle: #6e6885;
 
-  /* Copper accent */
-  --color-accent: #c98b5e;
-  --color-accent-hi: #e0a56f;
-  --color-accent-soft: rgba(201, 139, 94, 0.1);
+  /* Hairlines */
+  --color-line: rgba(20, 18, 37, 0.12);
+  --color-line-strong: rgba(20, 18, 37, 0.26);
+  --color-line-invert: rgba(255, 247, 236, 0.18);
 
-  /* Fluid type scale. The display minimum is deliberately low: uppercase
-     Archivo 800 is wide, and at the previous 2.5rem floor the hero headline
-     broke into five ragged lines on a 390px screen. */
-  --text-display: clamp(1.95rem, 7.6vw, 7rem);
-  --text-title: clamp(1.6rem, 5.2vw, 4rem);
-  --text-card: clamp(1.25rem, 3vw, 2.1rem);
-  --text-metric: clamp(1.5rem, 4vw, 2.6rem);
+  /* Fluid type. Display is SENTENCE CASE — the friendliness of this direction
+     comes from rounded lowercase forms, not from caps.
+     
+     --text-name is separate and smaller than --text-display because it is used
+     inside a column, not across the full page. Sizing it in raw vw clipped the
+     last letter of "Ghanshyam" at desktop widths: 9vw of a 1440px viewport is
+     130px, and nine characters at that size overflow a 7-of-12 column, which
+     the reveal mask then cropped. Cap it so the name always fits its column. */
+  --text-name: clamp(2.5rem, 8.5vw, 5.5rem);
+  --text-display: clamp(2.6rem, 9vw, 8rem);
+  --text-title: clamp(2rem, 5.5vw, 4rem);
+  --text-card: clamp(1.4rem, 3vw, 2.2rem);
+  --text-metric: clamp(1.8rem, 4.5vw, 3rem);
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-back: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  /* No curves anywhere. */
-  --radius-xs: 0px;
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  --radius-2xl: 0px;
-  --radius-3xl: 0px;
-  --radius-4xl: 0px;
+  /* Curves are part of the identity here. */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 32px;
+  --radius-2xl: 44px;
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
-    scroll-padding-top: 7rem;
+    scroll-padding-top: 6rem;
     -webkit-text-size-adjust: 100%;
   }
 
@@ -82,7 +84,7 @@
   }
 
   body {
-    background-color: var(--color-bg);
+    background-color: var(--color-canvas);
     color: var(--color-ink);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
@@ -93,28 +95,28 @@
     padding: 0;
   }
 
-  /* Tailwind hardcodes rounded-full as calc(infinity * 1px) rather than reading
-     a token, so the radius scale above cannot reach it. Neutralised here so a
-     stray rounded-full can never reintroduce a curve. scripts/check-radius.mjs
-     fails the build if one is committed. */
-  .rounded-full {
-    border-radius: 0 !important;
+  .font-display {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 0.92;
   }
 
-  .font-display {
-    font-weight: 800;
-    letter-spacing: -0.035em;
-    text-transform: uppercase;
+  .font-hand {
+    font-family: var(--font-hand);
+    font-weight: 600;
+    letter-spacing: 0;
   }
 
   ::selection {
-    background-color: var(--color-accent);
-    color: var(--color-bg);
+    background-color: var(--color-pink);
+    color: var(--color-canvas);
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-accent-hi);
+    outline: 3px solid var(--color-pink-deep);
     outline-offset: 2px;
+    border-radius: 4px;
   }
 
   img,
@@ -124,68 +126,44 @@
   }
 
   ::-webkit-scrollbar {
-    width: 10px;
+    width: 12px;
   }
 
   ::-webkit-scrollbar-track {
-    background: var(--color-bg);
-    border-left: 1px solid var(--color-line);
+    background: var(--color-canvas);
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.16);
+    background: var(--color-indigo);
+    border: 3px solid var(--color-canvas);
+    border-radius: 999px;
   }
 
-  ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-accent);
-  }
-
-  /* The custom crosshair replaces the pointer on precise-pointer devices. */
   @media (hover: hover) and (pointer: fine) {
-    body.has-crosshair,
-    body.has-crosshair * {
+    body.has-blob-cursor,
+    body.has-blob-cursor * {
       cursor: none;
     }
   }
 }
 
 @layer components {
+  /* Mono uppercase label, used for eyebrows and the contact data column. */
   .label {
     font-family: var(--font-mono);
     font-size: 0.7rem;
     font-weight: 500;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
   }
 }
 
-/* Blueprint grid, used as a page-wide backdrop and inside panels. */
-@utility grid-bg {
-  background-image:
-    linear-gradient(to right, var(--color-grid) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--color-grid) 1px, transparent 1px);
-  background-size: 64px 64px;
+/* Soft dot grid, used sparingly behind identity sections. */
+@utility dot-grid {
+  background-image: radial-gradient(circle at 1px 1px, rgba(20, 18, 37, 0.09) 1px, transparent 0);
+  background-size: 26px 26px;
 }
 
-@utility grid-bg-sm {
-  background-image:
-    linear-gradient(to right, var(--color-grid) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--color-grid) 1px, transparent 1px);
-  background-size: 22px 22px;
-}
-
-/* Diagonal hatch for "empty"/pending states. */
-@utility hatch {
-  background-image: repeating-linear-gradient(
-    45deg,
-    var(--color-grid),
-    var(--color-grid) 1px,
-    transparent 1px,
-    transparent 7px
-  );
-}
-
-/* Horizontal scroller for the mobile pipeline diagram, without a visible bar. */
 @utility no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -241,31 +219,45 @@
   }
 }
 
-/* Terminal caret. */
-@keyframes blink {
-  0%,
-  49% {
-    opacity: 1;
+/* Infinite ticker. The track holds two copies of the content, so translating
+   exactly -50% loops seamlessly. */
+@keyframes marquee {
+  from {
+    transform: translate3d(0, 0, 0);
   }
-  50%,
-  100% {
-    opacity: 0;
+  to {
+    transform: translate3d(-50%, 0, 0);
   }
 }
 
-/* Scanline sweep across panels on reveal. */
-@keyframes scan {
-  0% {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  30%,
-  70% {
-    opacity: 1;
-  }
+/* Slow idle drift for decorative blobs. Transform only, so it never triggers
+   layout or paint. */
+@keyframes drift {
+  0%,
   100% {
-    transform: translateY(100%);
-    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  33% {
+    transform: translate3d(2%, -3%, 0) rotate(4deg);
+  }
+  66% {
+    transform: translate3d(-2%, 2%, 0) rotate(-3deg);
+  }
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -12px, 0);
+  }
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
   }
 }
 

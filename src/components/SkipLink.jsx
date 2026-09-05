@@ -5,7 +5,7 @@ import React from 'react';
 const SkipLink = () => (
     <a
         href="#main"
-        className="skip-link border border-accent bg-bg px-4 py-2 font-mono text-xs uppercase tracking-[0.14em] text-accent"
+        className="skip-link rounded-full bg-ink px-4 py-2 font-display text-sm font-semibold text-canvas"
     >
         Skip to content
     </a>

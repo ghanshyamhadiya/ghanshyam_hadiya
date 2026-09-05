@@ -10,44 +10,36 @@ const TimelineItem = ({ item, index }) => (
     <Reveal
         as="li"
         delay={stagger(index)}
-        className="group relative pb-11 pl-7 last:pb-0 sm:pb-14 sm:pl-12"
+        className="group relative pb-12 pl-7 last:pb-0 sm:pl-12"
     >
-        {/* Square node, rotated to a diamond on the current role */}
         <span
-            className="absolute left-0 top-1 flex h-3.5 w-3.5 -translate-x-1/2 items-center justify-center border border-line-strong bg-bg transition-colors duration-400 group-hover:border-accent"
+            className="absolute left-0 top-1 flex h-4 w-4 -translate-x-1/2 items-center justify-center rounded-full border-2 border-ink bg-canvas transition-colors duration-300 group-hover:bg-pink"
             aria-hidden="true"
         >
-            <span
-                className={
-                    item.current
-                        ? 'h-1.5 w-1.5 rotate-45 bg-accent'
-                        : 'h-1.5 w-1.5 bg-subtle transition-colors duration-400 group-hover:bg-accent'
-                }
-            />
+            {item.current && <span className="h-1.5 w-1.5 rounded-full bg-ink" />}
         </span>
 
         <div className="grid gap-x-8 gap-y-4 md:grid-cols-12">
             <div className="md:col-span-3">
-                <p className="font-mono text-[0.68rem] uppercase tracking-[0.1em] text-subtle tabular-nums">
+                <p className="font-mono text-[0.7rem] uppercase tracking-[0.08em] text-subtle tabular-nums">
                     {item.start} → {item.current ? 'Present' : item.end}
                 </p>
                 {item.current && (
-                    <span className="mt-2 inline-flex items-center gap-1.5 border border-accent/45 bg-accent-soft px-2 py-1 font-mono text-[0.58rem] uppercase tracking-[0.12em] text-accent">
-                        <span className="h-1 w-1 bg-accent" />
+                    <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-pink px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-[0.1em] text-ink">
                         Current
                     </span>
                 )}
             </div>
 
             <div className="md:col-span-9">
-                <h3 className="font-display text-xl leading-tight text-ink sm:text-2xl">
-                    {item.role}
-                </h3>
+                <h3 className="font-display text-xl leading-tight sm:text-2xl">{item.role}</h3>
 
                 <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <span className="font-mono text-[0.8rem] text-accent">{item.company}</span>
+                    <span className="font-display text-[0.95rem] font-semibold text-indigo">
+                        {item.company}
+                    </span>
                     {item.location && (
-                        <span className="inline-flex items-center gap-1 font-mono text-[0.68rem] text-subtle">
+                        <span className="inline-flex items-center gap-1 font-mono text-[0.7rem] text-subtle">
                             <MapPin size={11} aria-hidden="true" />
                             {item.location}
                         </span>
@@ -55,11 +47,11 @@ const TimelineItem = ({ item, index }) => (
                 </div>
 
                 {item.companyNote && (
-                    <p className="mt-1 text-[0.78rem] text-subtle">{item.companyNote}</p>
+                    <p className="mt-1 text-[0.8rem] text-subtle">{item.companyNote}</p>
                 )}
 
                 {item.summary && (
-                    <p className="mt-4 text-sm leading-relaxed text-muted">{item.summary}</p>
+                    <p className="mt-4 text-[0.92rem] leading-relaxed text-muted">{item.summary}</p>
                 )}
 
                 {item.achievements?.length > 0 && (
@@ -67,10 +59,10 @@ const TimelineItem = ({ item, index }) => (
                         {item.achievements.map((achievement) => (
                             <li
                                 key={achievement}
-                                className="flex gap-3 text-sm leading-relaxed text-muted"
+                                className="flex gap-3 text-[0.9rem] leading-relaxed text-muted"
                             >
                                 <span
-                                    className="mt-2 h-1.5 w-1.5 shrink-0 bg-accent/70"
+                                    className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-pink"
                                     aria-hidden="true"
                                 />
                                 {achievement}
@@ -80,11 +72,11 @@ const TimelineItem = ({ item, index }) => (
                 )}
 
                 {item.stack?.length > 0 && (
-                    <div className="mt-5 flex flex-wrap gap-1.5">
+                    <div className="mt-5 flex flex-wrap gap-2">
                         {item.stack.map((tech) => (
                             <span
                                 key={tech}
-                                className="border border-line px-2 py-1 font-mono text-[0.62rem] text-subtle"
+                                className="rounded-full border border-line px-2.5 py-1 font-mono text-[0.65rem] text-subtle"
                             >
                                 {tech}
                             </span>
@@ -107,16 +99,20 @@ const Experience = () => {
     return (
         <Section
             id="experience"
-            index="03"
+            index="04"
             eyebrow="Career"
             title="Where I've done it"
             intro="Roles, scope and the outcomes that came out of them."
+            tone="canvas"
         >
             <div ref={listRef} className="relative">
-                <span className="absolute bottom-0 left-0 top-1 w-px bg-line" aria-hidden="true" />
+                <span
+                    className="absolute bottom-0 left-0 top-1 w-0.5 rounded-full bg-line"
+                    aria-hidden="true"
+                />
                 <motion.span
                     style={{ scaleY: lineScale }}
-                    className="absolute bottom-0 left-0 top-1 w-px origin-top bg-accent"
+                    className="absolute bottom-0 left-0 top-1 w-0.5 origin-top rounded-full bg-indigo"
                     aria-hidden="true"
                 />
 
