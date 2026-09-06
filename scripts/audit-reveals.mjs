@@ -44,6 +44,14 @@ const hidden = await page.evaluate(() => {
         if (rect.width === 0 && rect.height === 0) continue;
         if (style.visibility === 'hidden' || style.display === 'none') continue;
 
+        // Deliberately collapsed regions are not failed reveals. `inert` is the
+        // marker rather than an allowlist: it means the content is
+        // intentionally out of the tab order and the a11y tree, which is
+        // exactly what a closed disclosure panel is. The work section's
+        // "Approach, stack & code" panels stay mounted while collapsed so
+        // crawlers still see the repository links.
+        if (el.closest('[inert]')) continue;
+
         const text = (el.textContent ?? '').trim().slice(0, 45);
         if (!text) continue;
 
