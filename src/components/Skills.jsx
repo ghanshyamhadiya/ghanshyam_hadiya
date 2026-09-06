@@ -57,6 +57,7 @@ const Skills = () => (
         title="The stack, layer by layer"
         intro="Grouped the way data moves through a platform rather than as a flat keyword list. Filled chips are tools I have owned in production."
         tone="canvas"
+        curved
     >
         <div className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-[0.66rem] uppercase tracking-[0.1em] text-subtle">
             <span className="flex items-center gap-2">

@@ -30,12 +30,21 @@ const introAlreadyPlayed = () => {
     }
 };
 
-// Whether the intro should run at all. Consulted by Preloader for its own skip
-// decision, so both stay in agreement.
+// The intro now runs on EVERY load, not once per tab.
+//
+// It used to be skipped whenever the stored flag was set, and because
+// sessionStorage survives a refresh, pressing F5 silently skipped it — only a
+// brand new tab ever replayed it.
+//
+// The stored flag now selects a LENGTH instead of skipping: the first load of a
+// session plays in full so the name lands, and every refresh after that plays a
+// short version so it never becomes a toll gate.
 export const shouldPlayIntro = () => {
     if (typeof window === 'undefined') return false;
-    return !prefersReducedMotion() && !introAlreadyPlayed();
+    return !prefersReducedMotion();
 };
+
+export const introDuration = () => (introAlreadyPlayed() ? 'short' : 'full');
 
 export const markIntroPlayed = () => {
     try {
@@ -45,8 +54,8 @@ export const markIntroPlayed = () => {
     }
 };
 
-// Evaluated once at import. When the intro is skipped this is already true, so
-// repeat visits and reduced-motion users never wait on a gate.
+// Evaluated once at import. When the intro is skipped entirely — reduced motion
+// or no DOM — this is already true, so nothing ever waits on a gate.
 let booted = typeof window === 'undefined' ? true : !shouldPlayIntro();
 
 const listeners = new Set();

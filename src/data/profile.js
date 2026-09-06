@@ -61,12 +61,15 @@ export const profile = {
     // Sources are generated from public/photos/portrait-src.jpg — see the
     // ffmpeg recipe in README.
     photos: {
+        // 4:5 rather than the original 2:3. The tall crop made the photo drive
+        // the whole hero height and compete with the name it is there to
+        // support; the shorter crop in a narrower column lets the name lead.
         hero: {
-            src: '/photos/portrait-768.webp',
+            src: '/photos/portrait-sq-640.webp',
             srcSet:
-                '/photos/portrait-480.webp 480w, /photos/portrait-768.webp 768w, /photos/portrait-1024.webp 1024w',
-            width: 768,
-            height: 1152,
+                '/photos/portrait-sq-400.webp 400w, /photos/portrait-sq-640.webp 640w, /photos/portrait-sq-800.webp 800w',
+            width: 640,
+            height: 800,
             alt: 'Ghanshyam Hadiya, data engineer, photographed at the office',
         },
         about: {

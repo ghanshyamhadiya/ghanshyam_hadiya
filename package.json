@@ -16,6 +16,7 @@
     "shots": "node scripts/shoot.mjs",
     "check:reveals": "node scripts/audit-reveals.mjs",
     "check:cards": "node scripts/measure.mjs",
+    "check:cards-readable": "node scripts/audit-cards.mjs",
     "check:intro": "node scripts/audit-intro.mjs",
     "shots:intro": "node scripts/shoot-intro.mjs",
     "verify": "npm run lint && npm run build && npm run check:head && npm run check:contrast && npm run check:assets && npm run check:render"

@@ -37,13 +37,21 @@ reading the source will surface.
 |---|---|
 | `npm run shots -- http://localhost:5173` | Screenshots every section at 360/390/768/1440 into `shots/`, and reports horizontal overflow |
 | `npm run check:reveals -- http://localhost:5173 390` | Scrolls the whole page like a person, then fails if **any element is still hidden** — zero opacity or parked outside its mask |
-| `npm run check:cards -- http://localhost:5173` | Measures each project card against the viewport; the sticky stack silently clips anything taller |
+| `npm run check:cards -- http://localhost:5173` | Measures each project card against the viewport height |
+| `npm run check:cards-readable -- http://localhost:5173` | **Asserts every project card becomes fully readable at some scroll position.** The size check above is not sufficient on its own — see below |
 | `npm run check:intro -- http://localhost:5173` | Verifies the first-load sequence: the hero must still be animating **after** the curtain has fully lifted, and the intro must finish under 2.6s |
 | `npm run shots:intro -- http://localhost:5173` | Frame-by-frame screenshots of the boot sequence |
 
 `check:reveals` earned its place immediately: it found 29 words in About and the entire Contact
 headline that never appeared after a full scroll. `check:cards` found project cards overflowing by
 up to 188px at 768px, cutting off the diagram, metrics and repo link.
+
+`check:cards-readable` exists because `check:cards` was **not enough**. The old sticky card stack
+had cards that fitted the viewport perfectly — so the size check passed — while the incoming card
+rose from the bottom and covered the outgoing one bottom-first, starting only ~300px after it
+centred. Card 1's metrics, repo link and stack row were unreachable at *every* scroll position.
+Measuring size was the wrong question; this measures how much of each card is genuinely on screen.
+If you change the work section's mechanic, run it.
 
 Playwright is a dev dependency only. If you'd rather not carry it, `npm rm -D playwright` — the
 five checks in the table above it still run without a browser.

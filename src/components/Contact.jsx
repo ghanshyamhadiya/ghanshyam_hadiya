@@ -51,7 +51,9 @@ const Contact = () => (
     <section
         id="contact"
         aria-labelledby="contact-title"
-        className="relative scroll-mt-24 overflow-hidden bg-indigo text-canvas"
+        // Matches Section's `curved`: lifts over the section above with a large
+        // rounded top edge instead of butting against it.
+        className="relative z-10 -mt-8 scroll-mt-24 overflow-hidden rounded-t-[2rem] bg-indigo text-canvas sm:-mt-14 sm:rounded-t-[3.5rem]"
     >
         <div className="relative mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28 md:py-32">
             <div className="grid gap-12 md:grid-cols-12 md:gap-10">

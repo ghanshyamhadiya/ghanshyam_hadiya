@@ -103,7 +103,8 @@ const Experience = () => {
             eyebrow="Career"
             title="Where I've done it"
             intro="Roles, scope and the outcomes that came out of them."
-            tone="canvas"
+            tone="surface"
+            curved
         >
             <div ref={listRef} className="relative">
                 <span

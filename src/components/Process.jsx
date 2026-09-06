@@ -44,6 +44,7 @@ const Process = () => (
         title="Four steps, every time"
         intro="The same sequence whether it is an ODI mapping or a Databricks notebook. Most pipeline failures are decisions skipped in the first two steps."
         tone="soft"
+        curved
     >
         <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {process.map((step, index) => (

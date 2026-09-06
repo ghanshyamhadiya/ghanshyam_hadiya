@@ -2,7 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Blob from './Blob';
 import { profile } from '../data';
-import { shouldPlayIntro, markIntroPlayed, setBooted } from '../utils/bootState';
+import {
+    shouldPlayIntro,
+    introDuration,
+    markIntroPlayed,
+    setBooted,
+} from '../utils/bootState';
 import { EASE_OUT_EXPO } from '../utils/motion';
 
 // Intro curtain: indigo fills the screen, the name assembles at display scale,
@@ -19,11 +24,21 @@ import { EASE_OUT_EXPO } from '../utils/motion';
 //
 // Session-scoped, dismissible by click or key, skipped under reduced motion.
 
-const PEEL_AT = 1400; // ms — when the curtain starts leaving
+// Two lengths. The first load of a session plays in full so the name has time
+// to land; every refresh after that plays a compressed version, because an
+// intro you sit through on every reload stops being an introduction and starts
+// being a toll gate.
+const TIMING = {
+    full: { peelAt: 1400, greeting: 0.1, name: 0.2, nameStep: 0.12, role: 0.75, blob: 0.55 },
+    short: { peelAt: 780, greeting: 0.02, name: 0.06, nameStep: 0.07, role: 0.34, blob: 0.24 },
+};
+
 const EASE_CURTAIN = [0.76, 0, 0.24, 1];
 
 const Preloader = () => {
     const [skip] = useState(() => !shouldPlayIntro());
+    const [mode] = useState(() => introDuration());
+    const t = TIMING[mode] ?? TIMING.full;
     const [visible, setVisible] = useState(!skip);
 
     useEffect(() => {
@@ -42,7 +57,7 @@ const Preloader = () => {
             document.body.style.overflow = '';
         }
 
-        const timer = window.setTimeout(finish, PEEL_AT);
+        const timer = window.setTimeout(finish, t.peelAt);
         window.addEventListener('keydown', finish);
         window.addEventListener('click', finish);
 
@@ -52,7 +67,7 @@ const Preloader = () => {
             window.removeEventListener('keydown', finish);
             window.removeEventListener('click', finish);
         };
-    }, [skip]);
+    }, [skip, t.peelAt]);
 
     return (
         <AnimatePresence>
@@ -78,9 +93,9 @@ const Preloader = () => {
                         className="absolute -right-[18%] -top-[22%] h-[62vh] w-[62vh]"
                         initial={{ scale: 0, rotate: -40 }}
                         animate={{ scale: 1, rotate: 0 }}
-                        // Settled shortly before PEEL_AT, so the shapes read as
+                        // Settled shortly before the peel, so the shapes read as
                         // arriving rather than being yanked away mid-entrance.
-                        transition={{ duration: 0.65, delay: 0.55, ease: EASE_OUT_EXPO }}
+                        transition={{ duration: t.blob + 0.1, delay: t.blob, ease: EASE_OUT_EXPO }}
                     >
                         <Blob variant={0} color="#FFC93C" className="inset-0 h-full w-full" drift={false} />
                     </motion.div>
@@ -89,7 +104,11 @@ const Preloader = () => {
                         className="absolute -bottom-[24%] -left-[16%] h-[54vh] w-[54vh]"
                         initial={{ scale: 0, rotate: 30 }}
                         animate={{ scale: 1, rotate: 0 }}
-                        transition={{ duration: 0.65, delay: 0.66, ease: EASE_OUT_EXPO }}
+                        transition={{
+                            duration: t.blob + 0.1,
+                            delay: t.blob + 0.11,
+                            ease: EASE_OUT_EXPO,
+                        }}
                     >
                         <Blob variant={3} color="#FF1E8E" className="inset-0 h-full w-full" drift={false} />
                     </motion.div>
@@ -99,7 +118,7 @@ const Preloader = () => {
                         <motion.span
                             initial={{ opacity: 0, y: 12, rotate: -8 }}
                             animate={{ opacity: 1, y: 0, rotate: -8 }}
-                            transition={{ duration: 0.5, delay: 0.1, ease: EASE_OUT_EXPO }}
+                            transition={{ duration: 0.4, delay: t.greeting, ease: EASE_OUT_EXPO }}
                             className="font-hand mb-1 text-2xl text-amber sm:text-3xl"
                         >
                             {profile.greeting}
@@ -112,8 +131,8 @@ const Preloader = () => {
                                         initial={{ y: '108%' }}
                                         animate={{ y: 0 }}
                                         transition={{
-                                            duration: 0.75,
-                                            delay: 0.2 + i * 0.12,
+                                            duration: mode === 'short' ? 0.5 : 0.75,
+                                            delay: t.name + i * t.nameStep,
                                             ease: EASE_OUT_EXPO,
                                         }}
                                         className="block"
@@ -127,7 +146,7 @@ const Preloader = () => {
                         <motion.span
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            transition={{ duration: 0.4, delay: 0.75 }}
+                            transition={{ duration: 0.35, delay: t.role }}
                             className="label mt-5 text-canvas/70"
                         >
                             {profile.role}

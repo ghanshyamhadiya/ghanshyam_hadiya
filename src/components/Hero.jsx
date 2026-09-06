@@ -81,8 +81,9 @@ const Hero = () => {
                 style={enableParallax ? { y, opacity } : undefined}
                 className="relative z-10 mx-auto grid w-full max-w-6xl gap-10 px-5 sm:px-8 md:grid-cols-12 md:items-center md:gap-8"
             >
-                {/* Name block */}
-                <div className="md:col-span-7">
+                {/* Name block — 8 of 12 so the name, not the photo, is the
+                    largest thing in the hero. */}
+                <div className="md:col-span-8">
                     <motion.span
                         {...show(0.24, { opacity: 0, y: 10 })}
                         className="font-hand block text-2xl text-indigo sm:text-3xl"
@@ -172,18 +173,22 @@ const Hero = () => {
                         booted ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.94, y: 24 }
                     }
                     transition={{ duration: 0.85, delay: 0.45, ease: EASE_OUT_EXPO }}
-                    className="relative md:col-span-5"
+                    className="relative md:col-span-4"
                 >
-                    <div className="relative mx-auto w-[74%] max-w-sm md:w-full">
+                    <div className="relative mx-auto w-[68%] max-w-[300px] md:w-full">
                         {/* Colour block behind the photo, offset for depth. */}
                         <span
                             aria-hidden="true"
                             className="absolute -bottom-3 -right-3 h-full w-full rounded-[2rem] bg-indigo sm:-bottom-4 sm:-right-4"
                         />
                         <Portrait
-                            photo={{ ...profile.photos.hero, eager: true, sizes: '(max-width: 768px) 74vw, 32vw' }}
+                            photo={{
+                                ...profile.photos.hero,
+                                eager: true,
+                                sizes: '(max-width: 768px) 68vw, 26vw',
+                            }}
                             rounded="rounded-[2rem]"
-                            className="relative aspect-[2/3]"
+                            className="relative aspect-[4/5]"
                             wash={false}
                         />
 

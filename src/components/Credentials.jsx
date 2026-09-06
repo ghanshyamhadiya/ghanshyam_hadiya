@@ -76,6 +76,7 @@ const Credentials = () => {
                     : 'Formal training behind the production work.'
             }
             tone="canvas"
+            curved
         >
             <div className={cn('grid gap-10', hasCerts && 'md:grid-cols-2')}>
                 {hasCerts && (

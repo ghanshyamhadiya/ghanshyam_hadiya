@@ -1,6 +1,13 @@
-// Measures the project cards against the viewport. The sticky card stack only
-// works if a card fits in one screen; anything taller is silently clipped by
-// the next card sliding over it.
+// Measures the project cards against the viewport.
+//
+// The cards now sit in a scroll-pinned horizontal carousel rather than a sticky
+// vertical stack, but the constraint is the same: while the section is pinned a
+// card must fit the screen height, or its lower half is unreachable.
+//
+// Note this check alone is not sufficient — it passed for the old stack, whose
+// cards fitted perfectly and were still covered by the next card. Pair it with
+// refs/probe-work.mjs, which measures how much of each card is actually
+// visible and unoccluded as you scroll.
 import { chromium } from 'playwright';
 
 const BASE = process.argv[2] ?? 'http://localhost:5174';
@@ -26,12 +33,17 @@ for (const width of widths) {
         return {
             vh,
             cards: cards.map((card) => {
-                const holder = card.parentElement;
+                // The pinned frame is the sticky ancestor; fall back to the
+                // viewport when the carousel is in its native-scroll mode.
+                const frame = card.closest('.sticky');
+                const style = frame ? getComputedStyle(frame) : null;
                 return {
                     h: Math.round(card.getBoundingClientRect().height),
-                    holderH: Math.round(holder.getBoundingClientRect().height),
-                    padTop: Math.round(parseFloat(getComputedStyle(holder).paddingTop)),
-                    padBottom: Math.round(parseFloat(getComputedStyle(holder).paddingBottom)),
+                    holderH: frame
+                        ? Math.round(frame.getBoundingClientRect().height)
+                        : window.innerHeight,
+                    padTop: style ? Math.round(parseFloat(style.paddingTop)) : 0,
+                    padBottom: style ? Math.round(parseFloat(style.paddingBottom)) : 0,
                 };
             }),
         };
