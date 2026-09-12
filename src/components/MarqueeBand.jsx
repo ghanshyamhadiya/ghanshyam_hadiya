@@ -1,8 +1,7 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useId, useState } from 'react';
 import Marquee from './Marquee';
 import { marqueeItems } from '../data';
-import useScrollVelocity from '../hooks/useScrollVelocity';
+import { usePrefersReducedMotion } from '../hooks/useMediaQuery';
 
 // Two tilted ticker bands crossing each other, scrolling in opposite
 // directions — the reference site's pattern, and far more alive than the single
@@ -15,29 +14,46 @@ import useScrollVelocity from '../hooks/useScrollVelocity';
 // in opposite directions, so they converge at one end; without padding to
 // absorb that the front band slices the rear band's text through the middle of
 // its glyphs, which reads as a bug rather than as layered tape.
-const Band = ({ rotate, className, children }) => (
+const Band = ({ className, children }) => (
     <div
-        className={`relative w-[118%] -ml-[9%] border-y-2 border-ink py-5 sm:py-6 ${className}`}
-        style={{ rotate: `${rotate}deg` }}
+        data-marquee-band
+        className={`relative w-full min-w-0 border-y border-ink ${className}`}
     >
         {children}
     </div>
 );
 
 const MarqueeBand = () => {
-    const { blur, skew } = useScrollVelocity({ maxBlur: 2.5, maxSkew: 2 });
+    const [paused, setPaused] = useState(false);
+    const reducedMotion = usePrefersReducedMotion();
+    const id = useId();
+    const firstId = `${id}-tools-left`;
+    const secondId = `${id}-tools-right`;
 
     return (
-        <div className="relative z-20 -my-6 overflow-hidden py-8 sm:-my-8 sm:py-10">
-            <motion.div style={{ filter: blur, skewY: skew }}>
-                <Band rotate={-1.8} className="bg-pink text-ink">
-                    <Marquee items={marqueeItems} speed={44} separator="✦" />
-                </Band>
+        <div data-marquee-wrapper className="relative flex flex-col gap-3 bg-canvas py-3 sm:py-4">
+            <Band className="bg-pink text-ink">
+                <Marquee id={firstId} items={marqueeItems} paused={paused} label={reducedMotion ? 'Tools I work with' : 'Tools I work with, moving left'} separator="✦" />
+            </Band>
 
-                <Band rotate={1.5} className="-mt-1 bg-indigo text-canvas">
-                    <Marquee items={marqueeItems} speed={38} reverse separator="◆" />
-                </Band>
-            </motion.div>
+            <Band className="bg-indigo text-canvas">
+                <Marquee id={secondId} items={marqueeItems} paused={paused} label={reducedMotion ? 'Tools I work with' : 'Tools I work with, moving right'} reverse separator="◆" />
+            </Band>
+
+            {!reducedMotion && (
+                <div className="mx-auto flex w-full max-w-6xl justify-end px-5 sm:px-8">
+                    <button
+                        type="button"
+                        data-marquee-toggle
+                        aria-controls={`${firstId} ${secondId}`}
+                        aria-pressed={paused}
+                        onClick={() => setPaused((value) => !value)}
+                        className="min-h-11 rounded-full border border-line px-4 text-xs font-medium text-muted transition-colors hover:border-ink hover:text-ink focus-visible:outline-offset-2"
+                    >
+                        {paused ? 'Resume ticker' : 'Pause ticker'}
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

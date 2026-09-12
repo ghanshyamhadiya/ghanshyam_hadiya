@@ -41,7 +41,7 @@ const introAlreadyPlayed = () => {
 // short version so it never becomes a toll gate.
 export const shouldPlayIntro = () => {
     if (typeof window === 'undefined') return false;
-    return !prefersReducedMotion();
+    return !prefersReducedMotion() && (!window.location.hash || window.location.hash === '#home');
 };
 
 export const introDuration = () => (introAlreadyPlayed() ? 'short' : 'full');
@@ -57,10 +57,19 @@ export const markIntroPlayed = () => {
 // Evaluated once at import. When the intro is skipped entirely — reduced motion
 // or no DOM — this is already true, so nothing ever waits on a gate.
 let booted = typeof window === 'undefined' ? true : !shouldPlayIntro();
+let introComplete = booted;
 
 const listeners = new Set();
 
 export const getBooted = () => booted;
+export const getIntroComplete = () => introComplete;
+
+export const finishIntro = () => {
+    if (introComplete) return;
+    introComplete = true;
+    booted = true;
+    for (const listener of listeners) listener();
+};
 
 export const setBooted = () => {
     if (booted) return;

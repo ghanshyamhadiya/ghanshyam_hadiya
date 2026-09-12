@@ -32,6 +32,7 @@ const Card = ({ item, index, mx, my }) => {
             className="absolute"
         >
             <div
+                data-floating-chip={item.label}
                 className={cn(
                     'flex items-center gap-2 rounded-xl px-3.5 py-2.5 shadow-[0_10px_30px_-12px_rgba(20,18,37,0.4)]',
                     'font-mono text-[0.68rem] font-medium tracking-[0.06em] sm:text-[0.75rem]',

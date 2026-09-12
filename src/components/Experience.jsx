@@ -102,6 +102,7 @@ const Experience = () => {
             index="04"
             eyebrow="Career"
             title="Where I've done it"
+            titleMotion="unfold"
             intro="Roles, scope and the outcomes that came out of them."
             tone="surface"
             curved

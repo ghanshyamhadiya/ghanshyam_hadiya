@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import { motion } from 'framer-motion';
+import useSectionSurface from '../hooks/useSectionSurface';
 import { Github, Linkedin, Mail, Download, ArrowUpRight, Phone } from 'lucide-react';
 import Button from './Button';
 import CopyButton from './CopyButton';
-import Portrait from './Portrait';
 import Reveal from './Reveal';
+import AnimatedHeading from './type/AnimatedHeading';
 import WireGlobe from './WireGlobe';
+import SystemBackdrop from './SystemBackdrop';
 import { Annotation } from './Signature';
 import { profile, socials } from '../data';
 
@@ -47,34 +50,33 @@ const Social = ({ href, label, icon }) => {
 //
 // On indigo so it lands as the site's final statement rather than blending into
 // the cream canvas above it.
-const Contact = () => (
-    <section
+const Contact = () => {
+    const sectionRef = useRef(null);
+    const surface = useSectionSurface(sectionRef);
+    return <motion.section
+        ref={sectionRef}
+        style={surface}
+        data-section-surface=""
         id="contact"
         aria-labelledby="contact-title"
         // Matches Section's `curved`: lifts over the section above with a large
         // rounded top edge instead of butting against it.
         className="relative z-10 -mt-8 scroll-mt-24 overflow-hidden rounded-t-[2rem] bg-indigo text-canvas sm:-mt-14 sm:rounded-t-[3.5rem]"
     >
+        <SystemBackdrop dark variant="contact" />
         <div className="relative mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28 md:py-32">
-            <div className="grid gap-12 md:grid-cols-12 md:gap-10">
+            <div>
+                <span data-heading-label="" className="label text-amber">Contact</span>
+            </div>
+            <AnimatedHeading
+                id="contact-title"
+                text="Let’s talk"
+                variant="converge"
+                className="mt-5 font-display text-canvas"
+            />
+            <div className="mt-8 grid gap-12 md:grid-cols-12 md:gap-10">
                 {/* Left: the big statement + photo */}
-                <div className="md:col-span-6">
-                    <Reveal>
-                        <span className="label text-amber">Contact</span>
-                    </Reveal>
-
-                    <span className="mt-5 block overflow-hidden pb-[0.06em]">
-                        <Reveal
-                            as="h2"
-                            id="contact-title"
-                            variant="mask"
-                            duration={0.75}
-                            className="font-display text-name text-canvas"
-                        >
-                            Let&rsquo;s talk
-                        </Reveal>
-                    </span>
-
+                <div className="flex flex-col items-start md:col-span-6">
                     <Reveal delay={0.1} className="mt-3 flex items-center gap-3">
                         <span className="font-display text-2xl text-amber sm:text-3xl">
                             &copy; 2026
@@ -84,19 +86,8 @@ const Contact = () => (
                         </Annotation>
                     </Reveal>
 
-                    <Reveal delay={0.16} className="relative mt-10 w-[78%] max-w-sm">
-                        <span
-                            aria-hidden="true"
-                            className="absolute -bottom-3 -left-3 h-full w-full rounded-2xl bg-amber"
-                        />
-                        <Portrait
-                            photo={{
-                                ...profile.photos.contact,
-                                sizes: '(max-width: 768px) 78vw, 30vw',
-                            }}
-                            className="relative aspect-[3/2]"
-                            wash={false}
-                        />
+                    <Reveal delay={0.16} className="mt-10 text-amber md:mt-auto md:pt-12">
+                        <WireGlobe size={180} stroke="currentColor" />
                     </Reveal>
                 </div>
 
@@ -164,13 +155,10 @@ const Contact = () => (
                         </Field>
                     </Reveal>
 
-                    <Reveal delay={0.2} className="mt-12 flex justify-end">
-                        <WireGlobe size={120} stroke="#FFC93C" className="opacity-70" />
-                    </Reveal>
                 </div>
             </div>
         </div>
-    </section>
-);
+    </motion.section>;
+};
 
 export default Contact;

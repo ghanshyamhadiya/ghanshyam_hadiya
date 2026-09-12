@@ -9,7 +9,7 @@ import { navLinks, profile, site } from '../data';
 import useActiveSection from '../hooks/useActiveSection';
 import useScrollInfo from '../hooks/useScrollInfo';
 import useFocusTrap from '../hooks/useFocusTrap';
-import useBooted from '../hooks/useBooted';
+import useBooted, { useIntroComplete } from '../hooks/useBooted';
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -19,6 +19,7 @@ const Navbar = () => {
 
     // Holds the slide-in until the curtain lifts, so it isn't spent off-screen.
     const booted = useBooted();
+    const introComplete = useIntroComplete();
 
     const dialogRef = useRef(null);
     useFocusTrap(dialogRef, isOpen);
@@ -54,9 +55,10 @@ const Navbar = () => {
             />
 
             <motion.header
-                initial={{ y: -120 }}
-                animate={{ y: !booted || (hidden && !isOpen) ? -140 : 0 }}
-                transition={{ duration: 0.55, delay: booted ? 0.25 : 0, ease: EASE_OUT_EXPO }}
+                initial={false}
+                animate={{ y: introComplete && hidden && !isOpen ? -140 : 0, opacity: booted ? 1 : 0 }}
+                transition={{ duration: 0.55, ease: EASE_OUT_EXPO, opacity: { duration: introComplete ? 0 : 0.55 } }}
+                inert={!introComplete}
                 className="pointer-events-none fixed left-0 right-0 top-0 z-50 px-4 pt-3 sm:px-6 sm:pt-4"
             >
                 <div
@@ -73,7 +75,7 @@ const Navbar = () => {
                         data-cursor="home"
                         className="group flex items-center gap-2 pl-2"
                     >
-                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-ink font-display text-[0.7rem] font-bold text-canvas transition-colors duration-300 group-hover:bg-pink group-hover:text-ink">
+                        <span data-nav-mark style={{ opacity: introComplete ? 1 : 0 }} className="flex h-7 w-7 items-center justify-center rounded-full bg-ink font-display text-[0.7rem] font-bold text-canvas transition-colors duration-300 group-hover:bg-pink group-hover:text-ink">
                             GH
                         </span>
                         <span className="font-display text-base font-bold sm:text-lg">

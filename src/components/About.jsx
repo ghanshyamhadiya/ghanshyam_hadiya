@@ -1,7 +1,6 @@
 import React from 'react';
 import Section from './Section';
 import Panel from './Panel';
-import Portrait from './Portrait';
 import Reveal from './Reveal';
 import Signature, { Annotation } from './Signature';
 import AnimatedText from './AnimatedText';
@@ -21,6 +20,7 @@ const About = () => (
         index="01"
         eyebrow="Profile"
         title="What I actually do"
+        titleMotion="opposed"
         tone="canvas"
         className="overflow-hidden"
     >
@@ -50,20 +50,8 @@ const About = () => (
                 </Reveal>
             </div>
 
-            <div className="md:col-span-5">
-                <Reveal className="relative mx-auto w-[62%] max-w-[260px] md:sticky md:top-28 md:w-full md:max-w-none">
-                    <span
-                        aria-hidden="true"
-                        className="absolute -bottom-3 -left-3 h-full w-full rounded-2xl bg-pink"
-                    />
-                    <Portrait
-                        photo={{ ...profile.photos.about, sizes: '(max-width: 768px) 62vw, 26vw' }}
-                        className="relative aspect-[4/5]"
-                        wash={false}
-                    />
-                </Reveal>
-
-                <Panel tone="soft" delay={0.12} hover={false} className="mt-6 p-5">
+            <div className="md:sticky md:top-28 md:col-span-5 md:self-start">
+                <Panel tone="soft" delay={0.12} hover={false} className="p-5 sm:p-7">
                     <h3 className="label text-pink-deep">{profile.currently.label}</h3>
                     <p className="mt-3 text-[0.85rem] leading-relaxed text-ink/80">
                         {profile.currently.text}

@@ -16,7 +16,10 @@
     "shots": "node scripts/shoot.mjs",
     "check:reveals": "node scripts/audit-reveals.mjs",
     "check:work": "node scripts/audit-work.mjs",
+    "check:headings": "node scripts/audit-headings.mjs",
+    "check:marquee": "node scripts/audit-marquee.mjs",
     "check:intro": "node scripts/audit-intro.mjs",
+    "check:model": "node scripts/audit-model.mjs",
     "shots:intro": "node scripts/shoot-intro.mjs",
     "verify": "npm run lint && npm run build && npm run check:head && npm run check:contrast && npm run check:assets && npm run check:render"
   },
@@ -27,7 +30,8 @@
     "lucide-react": "^0.575.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "tailwind-merge": "^3.5.0"
+    "tailwind-merge": "^3.5.0",
+    "three": "0.180.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

@@ -70,6 +70,7 @@ const Credentials = () => {
             // Heading follows the data: with no certifications yet the section
             // presents itself as education rather than showing an empty column.
             title={hasCerts ? 'Certifications & education' : 'Education'}
+            titleMotion="press"
             intro={
                 hasCerts
                     ? 'Formal training and verified credentials, with anything still in progress labelled as such.'

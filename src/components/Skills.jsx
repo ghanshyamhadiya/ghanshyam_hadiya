@@ -55,6 +55,7 @@ const Skills = () => (
         index="03"
         eyebrow="Toolkit"
         title="The stack, layer by layer"
+        titleMotion="layers"
         intro="Grouped the way data moves through a platform rather than as a flat keyword list. Filled chips are tools I have owned in production."
         tone="canvas"
         curved

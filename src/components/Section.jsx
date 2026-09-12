@@ -1,6 +1,11 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import { motion } from 'framer-motion';
+import useSectionSurface from '../hooks/useSectionSurface';
 import { cn } from '../utils/cn';
 import Reveal from './Reveal';
+import ArcHeading from './type/ArcHeading';
+import AnimatedHeading from './type/AnimatedHeading';
+import SystemBackdrop, { SystemEmblem } from './SystemBackdrop';
 
 // Section shell. Owns rhythm and the heading block so spacing cannot drift.
 //
@@ -22,6 +27,7 @@ const Section = ({
     index,
     eyebrow,
     title,
+    titleMotion,
     intro,
     children,
     tone = 'canvas',
@@ -32,11 +38,17 @@ const Section = ({
     headerClassName,
     aside,
 }) => {
+    const sectionRef = useRef(null);
+    const surface = useSectionSurface(sectionRef, curved);
     const titleId = `${id}-title`;
     const invert = tone === 'indigo' || tone === 'indigoDeep';
+    const Label = titleMotion ? 'div' : Reveal;
 
     return (
-        <section
+        <motion.section
+            ref={sectionRef}
+            style={surface}
+            data-section-surface={curved ? '' : undefined}
             id={id}
             aria-labelledby={titleId}
             className={cn(
@@ -51,10 +63,11 @@ const Section = ({
                 className
             )}
         >
+            <SystemBackdrop dark={invert} variant={id} />
             <div className="relative mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28 md:py-32">
-                <div className={cn('max-w-3xl', headerClassName)}>
+                <div className={cn(titleMotion ? 'max-w-none' : 'max-w-3xl', headerClassName)}>
                     {(eyebrow || index) && (
-                        <Reveal className="mb-4 flex items-center gap-3">
+                        <Label className="mb-4 flex items-center gap-3">
                             {index && (
                                 <span
                                     className={cn(
@@ -67,6 +80,7 @@ const Section = ({
                             )}
                             {eyebrow && (
                                 <span
+                                    data-heading-label={titleMotion ? '' : undefined}
                                     className={cn(
                                         'label',
                                         invert ? 'text-amber' : 'text-pink-deep'
@@ -75,32 +89,46 @@ const Section = ({
                                     {eyebrow}
                                 </span>
                             )}
-                        </Reveal>
+                        </Label>
                     )}
 
-                    <span className="block overflow-hidden pb-[0.08em]">
-                        <Reveal
-                            as="h2"
+                    {titleMotion === 'arc' ? (
+                        <ArcHeading id={titleId} text={title} className="font-display text-title" />
+                    ) : titleMotion ? (
+                        <AnimatedHeading
                             id={titleId}
-                            variant="mask"
-                            duration={0.7}
+                            text={title}
+                            variant={titleMotion}
                             className="font-display text-title text-balance"
-                        >
-                            {title}
-                        </Reveal>
-                    </span>
+                        />
+                    ) : (
+                        <span className="block overflow-hidden pb-[0.08em]">
+                            <Reveal
+                                as="h2"
+                                id={titleId}
+                                variant="mask"
+                                duration={0.7}
+                                className="font-display text-title text-balance"
+                            >
+                                {title}
+                            </Reveal>
+                        </span>
+                    )}
 
                     {intro && (
-                        <Reveal
-                            as="p"
-                            delay={0.08}
-                            className={cn(
-                                'mt-5 max-w-2xl text-base leading-relaxed sm:text-lg',
-                                invert ? 'text-canvas/75' : 'text-muted'
-                            )}
-                        >
-                            {intro}
-                        </Reveal>
+                        <div className="mt-5 flex items-center justify-between gap-8">
+                            <Reveal
+                                as="p"
+                                delay={0.08}
+                                className={cn(
+                                    'max-w-2xl text-base leading-relaxed sm:text-lg',
+                                    invert ? 'text-canvas/75' : 'text-muted'
+                                )}
+                            >
+                                {intro}
+                            </Reveal>
+                            <SystemEmblem dark={invert} className="hidden lg:block" />
+                        </div>
                     )}
 
                     {aside}
@@ -112,7 +140,7 @@ const Section = ({
             </div>
 
             {bleed && children && <div className={cn(contentClassName)}>{children}</div>}
-        </section>
+        </motion.section>
     );
 };
 

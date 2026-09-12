@@ -36,6 +36,7 @@ const Projects = () => {
             index="05"
             eyebrow="Selected work"
             title="Pipelines I've built"
+            titleMotion="connect"
             intro="Scroll to run them. Each one assembles the way it was built: the problem, the architecture, then the numbers it produced."
             tone="indigo"
             curved

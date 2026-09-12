@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import { motion, useTransform } from 'framer-motion';
 import Section from './Section';
-import Reveal from './Reveal';
 import { process } from '../data';
-import { stagger } from '../utils/motion';
+import useGlideProgress from '../hooks/useGlideProgress';
 
 const TONES = [
     'bg-surface',
@@ -11,15 +11,21 @@ const TONES = [
     'bg-canvas',
 ];
 
-const Step = ({ step, index }) => (
-    <Reveal
-        as="li"
-        delay={stagger(index)}
-        className={`group relative flex flex-col rounded-2xl border border-line p-6 transition-transform duration-300 hover:-translate-y-1 sm:p-7 ${
-            TONES[index % TONES.length]
-        }`}
+const Step = ({ step, index }) => {
+    const ref = useRef(null);
+    const { progress, reducedMotion } = useGlideProgress(ref, ['start 85%', 'start 40%']);
+    const scale = useTransform(progress, [0, 1], [0.86, 1]);
+    const rotate = useTransform(progress, [0, 1], [-8, 0]);
+    return <motion.li
+        ref={ref}
+        data-process-step={index + 1}
+        className={`group relative flex flex-col overflow-hidden rounded-2xl border border-line p-6 sm:p-7 ${TONES[index % TONES.length]}`}
     >
-        <span className="label text-pink-deep">Step {String(index + 1).padStart(2, '0')}</span>
+        <motion.span aria-hidden="true" data-process-progress className="absolute inset-x-0 top-0 h-1 origin-left bg-indigo" style={{ scaleX: reducedMotion ? 1 : progress }} />
+        <div className="flex items-center justify-between gap-3">
+            <span className="label text-pink-deep">Step {String(index + 1).padStart(2, '0')}</span>
+            <motion.span aria-hidden="true" className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo font-display text-xl text-canvas" style={reducedMotion ? undefined : { scale, rotate }}>{index + 1}</motion.span>
+        </div>
 
         <h3 className="mt-4 font-display text-xl leading-tight sm:text-2xl">{step.title}</h3>
 
@@ -30,8 +36,8 @@ const Step = ({ step, index }) => (
                 {step.aside}
             </span>
         )}
-    </Reveal>
-);
+    </motion.li>;
+};
 
 // "How I work" — the reference site's numbered How-it-works pattern, which for
 // a data engineer doubles as evidence: it shows a repeatable process rather
@@ -42,6 +48,7 @@ const Process = () => (
         index="02"
         eyebrow="How I work"
         title="Four steps, every time"
+        titleMotion="arc"
         intro="The same sequence whether it is an ODI mapping or a Databricks notebook. Most pipeline failures are decisions skipped in the first two steps."
         tone="soft"
         curved

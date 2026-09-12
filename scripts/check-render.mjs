@@ -18,6 +18,7 @@ const expectations = [
     ['id="home"', 'hero section'],
     ['id="impact"', 'stats section'],
     ['id="about"', 'about section'],
+    ['id="process"', 'process section'],
     ['id="skills"', 'skills section'],
     ['id="experience"', 'experience section'],
     ['id="work"', 'projects section'],
@@ -82,6 +83,20 @@ const badOrder = dlBlocks.some((block) => {
 });
 if (badOrder) failures += 1;
 console.log(`${badOrder ? 'FAIL ' : 'ok   '} dt precedes dd in all ${dlBlocks.length} <dl> blocks`);
+
+for (const section of ['about', 'process', 'skills', 'experience', 'work', 'credentials', 'contact']) {
+    const id = `${section}-title`;
+    const matches = html.match(new RegExp(`<h2\\b[^>]*id="${id}"[^>]*>`, 'g')) ?? [];
+    const valid = matches.length === 1 && html.includes(`aria-labelledby="${id}"`);
+    if (!valid) failures += 1;
+    console.log(`${valid ? 'ok   ' : 'FAIL '} single semantic heading linked to ${section}`);
+}
+
+const portraits = html.match(/<img\b[^>]*\bsrc="\/photos\/[^\"]+"[^>]*>/g) ?? [];
+const heroBlock = html.match(/<section\b[^>]*\bid="home"[\s\S]*?<\/section>/)?.[0] ?? '';
+const heroModel = portraits.length === 0 && heroBlock.includes('data-hero-model') && heroBlock.includes('data-model-poster');
+if (!heroModel) failures += 1;
+console.log(`${heroModel ? 'ok   ' : 'FAIL '} hero has a model fallback and no portrait images (${portraits.length} portraits)`);
 
 console.log(failures ? `\n${failures} failure(s)` : '\nrender OK');
 process.exit(failures ? 1 : 0);

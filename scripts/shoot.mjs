@@ -49,7 +49,7 @@ for (const vp of VIEWPORTS) {
     // Skip the intro so it doesn't cover every shot.
     await page.evaluate(() => window.sessionStorage.setItem('intro-played', '1'));
     await page.reload({ waitUntil: 'networkidle' });
-    await page.waitForTimeout(900);
+    await page.waitForFunction(() => !document.querySelector('[data-intro-overlay], [data-intro-curtain]'), null, { timeout: 12000 });
 
     // Horizontal overflow report
     const overflow = await page.evaluate(() => {

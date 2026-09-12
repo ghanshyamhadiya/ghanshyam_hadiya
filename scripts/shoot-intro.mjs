@@ -17,7 +17,7 @@ const page = await browser.newPage({
 await page.goto(BASE, { waitUntil: 'domcontentloaded' });
 
 const t0 = Date.now();
-for (let i = 0; i < 12; i += 1) {
+for (let i = 0; i < 20; i += 1) {
     const t = Date.now() - t0;
     await page.screenshot({ path: `${OUT}/${String(t).padStart(4, '0')}ms.png` });
     await page.waitForTimeout(180);

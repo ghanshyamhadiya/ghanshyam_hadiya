@@ -1,21 +1,25 @@
 import React, { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useTransform } from 'framer-motion';
 import { ArrowDown, Download, MapPin } from 'lucide-react';
 import Blob from './Blob';
 import Button from './Button';
-import Portrait from './Portrait';
+import DataCore from './DataCore';
 import FloatingObjects from './FloatingObjects';
 import { Annotation } from './Signature';
 import { profile } from '../data';
-import { EASE_OUT_EXPO } from '../utils/motion';
+import { EASE_GLIDE } from '../utils/motion';
 import { scrollToSection } from '../utils/smoothScroll';
 import { useIsDesktop, usePrefersReducedMotion } from '../hooks/useMediaQuery';
-import useBooted from '../hooks/useBooted';
+import useBooted, { useIntroComplete } from '../hooks/useBooted';
+import useGlideProgress from '../hooks/useGlideProgress';
 
 // Cards that drift around the portrait. Kept short: four is enough to feel
 // alive, more starts competing with the name for attention.
 const FLOATERS = [
-    { label: 'AWS Glue', top: '6%', left: '-6%', rotate: -8, className: 'bg-surface text-ink' },
+    // Fixed rem offset, not a percentage: this card has to clear the model
+    // card's "Architecture / 01" header at every breakpoint, and the header
+    // sits a constant distance from the top edge.
+    { label: 'AWS Glue', top: '-2.4rem', left: '-6%', rotate: -8, className: 'bg-surface text-ink' },
     { label: 'PySpark', top: '30%', right: '-10%', rotate: 7, className: 'bg-indigo text-canvas' },
     { label: 'Delta Lake', bottom: '22%', left: '-12%', rotate: 5, className: 'bg-pink text-ink' },
     { label: 'Oracle ODI', bottom: '4%', right: '-4%', rotate: -6, className: 'bg-ink text-canvas' },
@@ -29,20 +33,18 @@ const Hero = () => {
     // Entry animations hold until the intro curtain starts lifting, otherwise
     // the whole sequence plays behind it and the page looks already settled.
     const booted = useBooted();
+    const introComplete = useIntroComplete();
+    const instant = reducedMotion || introComplete;
 
-    const { scrollYProgress } = useScroll({
-        target: sectionRef,
-        offset: ['start start', 'end start'],
-    });
+    const { progress: scrollYProgress } = useGlideProgress(sectionRef, ['start start', 'end start']);
 
     const enableParallax = isDesktop && !reducedMotion;
-    const y = useTransform(scrollYProgress, [0, 1], ['0%', '14%']);
-    const opacity = useTransform(scrollYProgress, [0, 0.85], [1, 0]);
+    const y = useTransform(scrollYProgress, [0, 1], ['0%', '6%']);
 
     const show = (delay, from = { opacity: 0, y: 16 }) => ({
-        initial: from,
+        initial: instant ? false : from,
         animate: booted ? { opacity: 1, y: 0 } : from,
-        transition: { duration: 0.6, delay, ease: EASE_OUT_EXPO },
+        transition: instant ? { duration: 0 } : { duration: 0.6, delay, ease: EASE_GLIDE },
     });
 
     return (
@@ -78,12 +80,13 @@ const Hero = () => {
             </div>
 
             <motion.div
-                style={enableParallax ? { y, opacity } : undefined}
-                className="relative z-10 mx-auto grid w-full max-w-6xl gap-10 px-5 sm:px-8 md:grid-cols-12 md:items-center md:gap-8"
+                data-hero-content=""
+                style={enableParallax ? { y } : undefined}
+                className="relative z-10 mx-auto grid w-full max-w-6xl gap-10 px-5 sm:px-8 lg:grid-cols-12 lg:items-center lg:gap-8"
             >
                 {/* Name block — 8 of 12 so the name, not the photo, is the
                     largest thing in the hero. */}
-                <div className="md:col-span-8">
+                <div className="lg:col-span-8">
                     <motion.span
                         {...show(0.24, { opacity: 0, y: 10 })}
                         className="font-hand block text-2xl text-indigo sm:text-3xl"
@@ -91,26 +94,21 @@ const Hero = () => {
                         {profile.greeting}
                     </motion.span>
 
-                    <h1 className="mt-1 font-display text-name text-ink">
-                        {profile.nameLines.map((line, i) => (
-                            <span key={line} className="block overflow-hidden pb-[0.06em]">
+                    <h1 className="mt-1 font-display text-name text-ink" style={{ fontOpticalSizing: 'none', fontVariationSettings: '"opsz" 80' }}>
+                        {profile.nameLines.map((line) => (
+                            <span key={line} className="block pb-[0.06em]">
                                 {/* The marker sits on the animated element, not
                                     the mask — scripts/audit-intro.mjs reads its
                                     transform to prove the hero is still moving
                                     when the curtain clears. */}
-                                <motion.span
+                                <span
                                     data-hero-line
-                                    initial={{ y: '108%' }}
-                                    animate={booted ? { y: 0 } : { y: '108%' }}
-                                    transition={{
-                                        duration: 0.95,
-                                        delay: 0.34 + i * 0.1,
-                                        ease: EASE_OUT_EXPO,
-                                    }}
-                                    className="block"
+                                    data-hero-name-target
+                                    style={{ opacity: introComplete ? 1 : 0 }}
+                                    className="inline-block"
                                 >
                                     {line}
-                                </motion.span>
+                                </span>
                             </span>
                         ))}
                     </h1>
@@ -168,37 +166,28 @@ const Hero = () => {
 
                 {/* Portrait */}
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.94, y: 24 }}
+                    initial={instant ? false : { opacity: 0, scale: 0.94, y: 24 }}
                     animate={
                         booted ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.94, y: 24 }
                     }
-                    transition={{ duration: 0.85, delay: 0.45, ease: EASE_OUT_EXPO }}
-                    className="relative md:col-span-4"
+                    transition={instant ? { duration: 0 } : { duration: 1, delay: 0.18, ease: EASE_GLIDE }}
+                    className="relative lg:col-span-4"
                 >
-                    <div className="relative mx-auto w-[68%] max-w-[300px] md:w-full">
+                    <div className="relative mx-auto w-full max-w-[380px] md:w-full">
                         {/* Colour block behind the photo, offset for depth. */}
                         <span
                             aria-hidden="true"
                             className="absolute -bottom-3 -right-3 h-full w-full rounded-[2rem] bg-indigo sm:-bottom-4 sm:-right-4"
                         />
-                        <Portrait
-                            photo={{
-                                ...profile.photos.hero,
-                                eager: true,
-                                sizes: '(max-width: 768px) 68vw, 26vw',
-                            }}
-                            rounded="rounded-[2rem]"
-                            className="relative aspect-[4/5]"
-                            wash={false}
-                        />
+                        <DataCore />
 
-                        <FloatingObjects items={FLOATERS} />
+                        <FloatingObjects items={FLOATERS} className="bottom-auto hidden h-2/3 sm:block" />
                     </div>
 
                     {/* Sits below the frame rather than over it — anchored to
                         the image it was half-hidden behind the photo. */}
                     <Annotation className="mt-6 block text-center text-indigo md:mt-7" rotate={-5}>
-                        that&rsquo;s me
+                        built to connect
                     </Annotation>
                 </motion.div>
             </motion.div>

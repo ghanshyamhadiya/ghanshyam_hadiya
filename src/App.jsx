@@ -18,6 +18,7 @@ import SkipLink from './components/SkipLink';
 import ErrorBoundary from './components/ErrorBoundary';
 import { registerLenis, scrollToSection } from './utils/smoothScroll';
 import { usePrefersReducedMotion } from './hooks/useMediaQuery';
+import { getIntroComplete, subscribeBooted } from './utils/bootState';
 
 function App() {
     const reducedMotion = usePrefersReducedMotion();
@@ -36,6 +37,9 @@ function App() {
         });
 
         registerLenis(lenis);
+        const syncIntro = () => getIntroComplete() ? lenis.start() : lenis.stop();
+        syncIntro();
+        const unsubscribe = subscribeBooted(syncIntro);
 
         let frame = requestAnimationFrame(function raf(time) {
             lenis.raf(time);
@@ -44,10 +48,39 @@ function App() {
 
         return () => {
             cancelAnimationFrame(frame);
+            unsubscribe();
             registerLenis(null);
             lenis.destroy();
         };
     }, [reducedMotion]);
+
+    useEffect(() => {
+        const hash = window.location.hash;
+        if (!hash || hash === '#home') return undefined;
+        let id;
+        try { id = decodeURIComponent(hash.slice(1)); } catch { return undefined; }
+        let cancelled = false;
+        let jumped = false;
+        const cancel = () => { cancelled = true; };
+        const jump = () => {
+            if (cancelled || jumped || window.location.hash !== hash) return;
+            const element = document.getElementById(id);
+            if (!element) return;
+            jumped = true;
+            const padding = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                window.scrollTo({ top: element.getBoundingClientRect().top + window.scrollY - padding, behavior: 'instant' });
+            } else scrollToSection(id, { immediate: true, offset: -padding });
+        };
+        const timer = window.setTimeout(jump, 1200);
+        document.fonts.ready.then(jump);
+        for (const event of ['wheel', 'touchstart', 'pointerdown', 'keydown']) window.addEventListener(event, cancel, { passive: true });
+        return () => {
+            cancelled = true;
+            window.clearTimeout(timer);
+            for (const event of ['wheel', 'touchstart', 'pointerdown', 'keydown']) window.removeEventListener(event, cancel);
+        };
+    }, []);
 
     // Delegated handler so hash links rendered later (mobile menu, footer) also
     // get smooth scrolling without re-binding listeners.

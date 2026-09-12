@@ -51,7 +51,7 @@ const page = await browser.newPage({
 });
 
 await page.goto(BASE, { waitUntil: 'networkidle' });
-await page.waitForTimeout(2800); // let the intro finish
+await page.waitForFunction(() => !document.querySelector('[data-intro-overlay], [data-intro-curtain]'), null, { timeout: 12000 }); // let the intro finish
 
 // Walk the whole work section, tracking the best readability each stage reaches.
 await page.evaluate(() => {

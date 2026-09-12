@@ -1,7 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import useReveal from '../hooks/useReveal';
-import { EASE_OUT_EXPO, REVEAL_DISTANCE, REVEAL_DURATION } from '../utils/motion';
+import { EASE_OUT_EXPO, REVEAL_DISTANCE, REVEAL_SPRING } from '../utils/motion';
+import { usePrefersReducedMotion } from '../hooks/useMediaQuery';
+import useHeadingVelocity from '../hooks/useHeadingVelocity';
 
 // The single scroll-reveal used across the whole site, so every section shares
 // one distance, duration and easing. Ad-hoc `whileInView` values had drifted to
@@ -16,13 +18,24 @@ const Reveal = ({
     as = 'div',
     variant = 'fade',
     delay = 0,
-    duration = REVEAL_DURATION,
+    duration,
     distance = REVEAL_DISTANCE,
     className,
     ...rest
 }) => {
     const [ref, visible] = useReveal();
+    const reducedMotion = usePrefersReducedMotion();
+    const entranceDelay = useHeadingVelocity(visible, delay);
     const Component = motion[as] ?? motion.div;
+    const timing = reducedMotion
+        ? { duration: 0, delay: 0 }
+        : duration !== undefined
+          ? { duration, delay, ease: EASE_OUT_EXPO }
+          : {
+                ...REVEAL_SPRING,
+                delay: entranceDelay,
+                opacity: { duration: 0.28, delay: entranceDelay, ease: EASE_OUT_EXPO },
+            };
 
     const hidden =
         variant === 'mask' ? { y: '105%' } : { opacity: 0, y: distance };
@@ -31,9 +44,9 @@ const Reveal = ({
     return (
         <Component
             ref={ref}
-            initial={hidden}
+            initial={reducedMotion ? false : hidden}
             animate={visible ? shown : hidden}
-            transition={{ duration, delay, ease: EASE_OUT_EXPO }}
+            transition={timing}
             className={className}
             {...rest}
         >
