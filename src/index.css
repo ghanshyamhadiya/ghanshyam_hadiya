@@ -4,6 +4,19 @@
 @source "./**/*.{js,jsx}";
 @source "../index.html";
 
+/* Self-hosted display face. Google's CDN is a render-blocking third party on
+   the critical path, and this face renders the name — the largest text on the
+   page. Latin-subset woff2, fetched by scripts/fetch-fonts.mjs.
+
+   Space Grotesk tops out at wght 700; there is no optical-size axis, so none
+   of the display styles pin one. */
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("/fonts/space-grotesk.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+}
+
 /* ---------------------------------------------------------------------------
    Light, colourful design system.
 
@@ -16,7 +29,7 @@
      3. Amber is never a text colour on canvas (1.45). Surfaces and shapes only.
    --------------------------------------------------------------------------- */
 @theme {
-  --font-display: "Bricolage Grotesque", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-display: "Space Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-hand: "Caveat", "Bradley Hand", cursive;
   --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -98,7 +111,7 @@
 
   .font-display {
     font-family: var(--font-display);
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: -0.03em;
     line-height: 0.92;
   }

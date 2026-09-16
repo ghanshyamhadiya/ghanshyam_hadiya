@@ -5,6 +5,7 @@ import SystemBackdrop from './SystemBackdrop';
 import { shouldPlayIntro, introDuration, markIntroPlayed, setBooted, finishIntro } from '../utils/bootState';
 import { EASE_GLIDE, INTRO_TIMING } from '../utils/motion';
 import { useIntroComplete } from '../hooks/useBooted';
+import { useWorld } from '../hooks/useWorld';
 import { usePrefersReducedMotion } from '../hooks/useMediaQuery';
 
 // Intro curtain: indigo fills the screen, the name assembles at display scale,
@@ -50,7 +51,7 @@ const NameFlight = ({ item, progress, tone, index }) => {
                 x, y, scale, transformOrigin: '0% 0%', width: item.to.width, height: item.to.height,
                 fontFamily: item.to.fontFamily, fontSize: item.to.fontSize,
                 fontWeight: item.to.fontWeight, lineHeight: item.to.lineHeight,
-                letterSpacing: item.to.letterSpacing, fontOpticalSizing: 'none', fontVariationSettings: '"opsz" 80',
+                letterSpacing: item.to.letterSpacing,
                 color: tone === 'light' ? 'var(--color-canvas)' : item.to.color,
             }}
         >
@@ -83,6 +84,7 @@ const Preloader = () => {
     const [mode] = useState(() => introDuration());
     const complete = useIntroComplete();
     const reducedMotion = usePrefersReducedMotion();
+    const world = useWorld();
     const [flight, setFlight] = useState(null);
     const starts = useRef([]);
     const mark = useRef(null);
@@ -168,6 +170,27 @@ const Preloader = () => {
         return () => { controls?.stop(); cancelAnimationFrame(frame); };
     }, [flight, complete, reducedMotion, progress, timing]);
 
+    // The curtain's peel progress is the single clock for the hand-off: the
+    // name flight, the badge flight and the figure's assembly all read this
+    // one 0..1, which is what makes the colours look like they become the
+    // person rather than three things happening near each other.
+    //
+    // Divided by 0.85 so the body is fully assembled slightly before the
+    // curtain finishes leaving, rather than snapping together on the last
+    // frame of an empty screen.
+    useEffect(() => {
+        if (skip || reducedMotion || !world.ready) return undefined;
+        const push = (value) => world.setAssembly(Math.min(1, value / 0.85));
+        push(progress.get());
+        return progress.on('change', push);
+    }, [skip, reducedMotion, world, progress]);
+
+    useEffect(() => {
+        if (skip || reducedMotion || !complete || !world.ready) return;
+        world.setAssembly(1);
+        world.wave();
+    }, [skip, reducedMotion, complete, world]);
+
     if (skip || complete || reducedMotion) return null;
 
     return (
@@ -207,7 +230,7 @@ const Preloader = () => {
                     >
                         {initials}
                     </motion.span>
-                    <div data-intro-name className="mt-6 font-display text-[clamp(2rem,5vw,4.5rem)] text-canvas" style={{ fontOpticalSizing: 'none', fontVariationSettings: '"opsz" 80' }}>
+                    <div data-intro-name className="mt-6 font-display text-[clamp(2rem,5vw,4.5rem)] text-canvas">
                         {profile.nameLines.map((line, index) => (
                             <React.Fragment key={line}>
                                 {index > 0 && ' '}

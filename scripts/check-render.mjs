@@ -92,11 +92,26 @@ for (const section of ['about', 'process', 'skills', 'experience', 'work', 'cred
     console.log(`${valid ? 'ok   ' : 'FAIL '} single semantic heading linked to ${section}`);
 }
 
-const portraits = html.match(/<img\b[^>]*\bsrc="\/photos\/[^\"]+"[^>]*>/g) ?? [];
+const portraits = html.match(/<img\b[^>]*\bsrc="\/photos\/[^"]+"[^>]*>/g) ?? [];
 const heroBlock = html.match(/<section\b[^>]*\bid="home"[\s\S]*?<\/section>/)?.[0] ?? '';
-const heroModel = portraits.length === 0 && heroBlock.includes('data-hero-model') && heroBlock.includes('data-model-poster');
-if (!heroModel) failures += 1;
-console.log(`${heroModel ? 'ok   ' : 'FAIL '} hero has a model fallback and no portrait images (${portraits.length} portraits)`);
+// The figure is drawn in the shared WebGL layer, so the hero ships an empty,
+// aria-hidden slot for it rather than an image. What must survive server
+// rendering is the text the figure stands in front of: the name has to be a
+// real <h1> so crawlers and screen readers still get it.
+const heroSlot = portraits.length === 0 && heroBlock.includes('data-hero-figure-slot');
+if (!heroSlot) failures += 1;
+console.log(`${heroSlot ? 'ok   ' : 'FAIL '} hero has a figure slot and no portrait images (${portraits.length} portraits)`);
+
+const heroName = /<h1\b[^>]*>[\s\S]*?Ghanshyam[\s\S]*?Hadiya[\s\S]*?<\/h1>/.test(heroBlock);
+if (!heroName) failures += 1;
+console.log(`${heroName ? 'ok   ' : 'FAIL '} full name is a real server-rendered <h1> behind the figure`);
+
+// The slot is decorative and must never swallow the page's focus order or be
+// announced as content.
+const slotHidden = /<div\b[^>]*data-hero-figure-slot[^>]*aria-hidden="true"/.test(heroBlock)
+    || /<div\b[^>]*aria-hidden="true"[^>]*data-hero-figure-slot/.test(heroBlock);
+if (!slotHidden) failures += 1;
+console.log(`${slotHidden ? 'ok   ' : 'FAIL '} figure slot is aria-hidden`);
 
 console.log(failures ? `\n${failures} failure(s)` : '\nrender OK');
 process.exit(failures ? 1 : 0);

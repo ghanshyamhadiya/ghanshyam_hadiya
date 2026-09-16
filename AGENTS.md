@@ -12,7 +12,7 @@
 - The Process arc follows reversible scroll progress. Unlike the work pipeline's latched assembly, it must not latch. Test actual SVG glyph bounds in the reading window; full opacity does not prove visibility.
 - Shared Reveal must respect explicit duration overrides and reduced motion. Keep useReveal's observer and fail-safes intact.
 - Preserve final text geometry during variable-weight animation, and remove temporary split-flap copies when the animation settles.
-- Display typography is Bricolage Grotesque; font-dependent motion must read the display token instead of assuming Outfit.
+- Display typography is self-hosted Space Grotesk (`public/fonts`, refreshed by `scripts/fetch-fonts.mjs`, preloaded in `index.html`). Font-dependent motion must read the `--font-display` token rather than naming a family. The face tops out at wght 700 and has no optical-size axis, so display styles must not pin `opsz` or ask for 800.
 - The Process arc is contained: every visible glyph must stay inside the screen and its stage, not travel through clipped side edges. Mobile uses two curved lines with one accessible full heading. Test simultaneous readability, safe horizontal bounds and reversible motion.
 - The personal portrait appears only in the hero. About and Contact must not repeat it; the SSR check enforces a single portrait in the hero.
 - The six non-arc section headings also follow reversible scroll progress via AnimatedHeading, with opposed/layers/unfold/connect/press/converge treatments. They are not one-time reveals. Keep stationary section labels and readable centre states. Do not wrap those labels in Reveal: its rise-in shifts their geometry during heading entry.

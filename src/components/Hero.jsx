@@ -1,34 +1,21 @@
-import React, { useRef } from 'react';
-import { motion, useTransform } from 'framer-motion';
+import React, { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { ArrowDown, Download, MapPin } from 'lucide-react';
-import Blob from './Blob';
 import Button from './Button';
-import DataCore from './DataCore';
-import FloatingObjects from './FloatingObjects';
 import { Annotation } from './Signature';
+import { useWorld } from '../hooks/useWorld';
 import { profile } from '../data';
 import { EASE_GLIDE } from '../utils/motion';
 import { scrollToSection } from '../utils/smoothScroll';
-import { useIsDesktop, usePrefersReducedMotion } from '../hooks/useMediaQuery';
+import { usePrefersReducedMotion } from '../hooks/useMediaQuery';
 import useBooted, { useIntroComplete } from '../hooks/useBooted';
 import useGlideProgress from '../hooks/useGlideProgress';
 
-// Cards that drift around the portrait. Kept short: four is enough to feel
-// alive, more starts competing with the name for attention.
-const FLOATERS = [
-    // Fixed rem offset, not a percentage: this card has to clear the model
-    // card's "Architecture / 01" header at every breakpoint, and the header
-    // sits a constant distance from the top edge.
-    { label: 'AWS Glue', top: '-2.4rem', left: '-6%', rotate: -8, className: 'bg-surface text-ink' },
-    { label: 'PySpark', top: '30%', right: '-10%', rotate: 7, className: 'bg-indigo text-canvas' },
-    { label: 'Delta Lake', bottom: '22%', left: '-12%', rotate: 5, className: 'bg-pink text-ink' },
-    { label: 'Oracle ODI', bottom: '4%', right: '-4%', rotate: -6, className: 'bg-ink text-canvas' },
-];
-
 const Hero = () => {
     const sectionRef = useRef(null);
-    const isDesktop = useIsDesktop();
+    const slotRef = useRef(null);
     const reducedMotion = usePrefersReducedMotion();
+    const world = useWorld();
 
     // Entry animations hold until the intro curtain starts lifting, otherwise
     // the whole sequence plays behind it and the page looks already settled.
@@ -38,8 +25,34 @@ const Hero = () => {
 
     const { progress: scrollYProgress } = useGlideProgress(sectionRef, ['start start', 'end start']);
 
-    const enableParallax = isDesktop && !reducedMotion;
-    const y = useTransform(scrollYProgress, [0, 1], ['0%', '6%']);
+    // The figure is drawn in the shared canvas, so its position comes from this
+    // slot's real rect rather than from CSS. Re-measured on resize and on
+    // scroll: the canvas is viewport-fixed, so a scroll changes where the slot
+    // sits inside it.
+    useEffect(() => {
+        if (!world.live) return undefined;
+        const publish = () => {
+            const rect = slotRef.current?.getBoundingClientRect();
+            if (rect) world.setAnchor({ x: rect.x, y: rect.y, width: rect.width, height: rect.height });
+        };
+        publish();
+        const observer = new ResizeObserver(publish);
+        observer.observe(slotRef.current);
+        window.addEventListener('scroll', publish, { passive: true });
+        window.addEventListener('resize', publish);
+        return () => {
+            observer.disconnect();
+            window.removeEventListener('scroll', publish);
+            window.removeEventListener('resize', publish);
+        };
+    }, [world]);
+
+    useEffect(() => {
+        if (!world.ready) return undefined;
+        const unsubscribe = scrollYProgress.on('change', (value) => world.setScroll(value));
+        world.setScroll(scrollYProgress.get());
+        return unsubscribe;
+    }, [world, scrollYProgress]);
 
     const show = (delay, from = { opacity: 0, y: 16 }) => ({
         initial: instant ? false : from,
@@ -52,144 +65,115 @@ const Hero = () => {
             id="home"
             ref={sectionRef}
             aria-label="Introduction"
-            className="relative overflow-hidden bg-amber pb-16 pt-28 sm:pb-20 sm:pt-32"
+            className="relative overflow-hidden bg-indigo-deep pb-16 pt-28 text-canvas sm:pb-20 sm:pt-32"
         >
-            {/* Layered organic shapes. Decorative only — no text sits on them. */}
+            {/* Deep zone wash. Decorative only — no text sits on these. */}
             <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-                <Blob
-                    variant={1}
-                    color="#FFE9A8"
-                    className="-left-[15%] top-[8%] h-[70vh] w-[70vh]"
-                    duration={22}
-                />
-                <Blob
-                    variant={2}
-                    color="#FFDD7A"
-                    className="-right-[10%] -top-[10%] h-[60vh] w-[60vh]"
-                    duration={26}
-                    delay={2}
-                />
-                <Blob
-                    variant={3}
-                    color="#FFE9A8"
-                    className="-bottom-[25%] left-[20%] h-[55vh] w-[80vh]"
-                    duration={30}
-                    delay={4}
-                    opacity={0.7}
-                />
+                <span className="absolute -left-[10%] top-[6%] h-[60vh] w-[60vh] rounded-full bg-indigo/60 blur-3xl" />
+                <span className="absolute -right-[12%] top-[30%] h-[46vh] w-[46vh] rounded-full bg-pink/20 blur-3xl" />
+                <span className="absolute bottom-[-20%] left-[25%] h-[40vh] w-[70vh] rounded-full bg-amber/10 blur-3xl" />
             </div>
 
             <motion.div
                 data-hero-content=""
-                style={enableParallax ? { y } : undefined}
-                className="relative z-10 mx-auto grid w-full max-w-6xl gap-10 px-5 sm:px-8 lg:grid-cols-12 lg:items-center lg:gap-8"
+                className="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-center px-5 text-center sm:px-8"
             >
-                {/* Name block — 8 of 12 so the name, not the photo, is the
-                    largest thing in the hero. */}
-                <div className="lg:col-span-8">
-                    <motion.span
-                        {...show(0.24, { opacity: 0, y: 10 })}
-                        className="font-hand block text-2xl text-indigo sm:text-3xl"
-                    >
-                        {profile.greeting}
-                    </motion.span>
-
-                    <h1 className="mt-1 font-display text-name text-ink" style={{ fontOpticalSizing: 'none', fontVariationSettings: '"opsz" 80' }}>
-                        {profile.nameLines.map((line) => (
-                            <span key={line} className="block pb-[0.06em]">
-                                {/* The marker sits on the animated element, not
-                                    the mask — scripts/audit-intro.mjs reads its
-                                    transform to prove the hero is still moving
-                                    when the curtain clears. */}
-                                <span
-                                    data-hero-line
-                                    data-hero-name-target
-                                    style={{ opacity: introComplete ? 1 : 0 }}
-                                    className="inline-block"
-                                >
-                                    {line}
-                                </span>
-                            </span>
-                        ))}
-                    </h1>
-
-                    <motion.div
-                        {...show(0.62)}
-                        className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2"
-                    >
-                        <span className="rounded-full bg-ink px-4 py-1.5 font-display text-sm font-semibold text-canvas sm:text-base">
-                            {profile.role}
-                        </span>
-                        <span className="inline-flex items-center gap-1.5 font-mono text-[0.75rem] text-muted">
-                            <MapPin size={13} aria-hidden="true" />
-                            {profile.location}
-                        </span>
-                    </motion.div>
-
-                    <motion.p
-                        {...show(0.72)}
-                        data-hero-intro
-                        className="mt-6 max-w-xl text-base leading-relaxed text-ink/80 sm:text-lg"
-                    >
-                        {profile.intro}
-                    </motion.p>
-
-                    <motion.div {...show(0.82)} className="mt-8 flex flex-wrap items-center gap-3">
-                        <Button
-                            as="a"
-                            href={profile.cta.href}
-                            variant="pink"
-                            size="lg"
-                            data-cursor="see the work"
-                            onClick={(event) => {
-                                event.preventDefault();
-                                scrollToSection(profile.cta.href.replace('#', ''));
-                            }}
-                            icon={<ArrowDown size={16} />}
-                        >
-                            {profile.cta.label}
-                        </Button>
-
-                        <Button
-                            as="a"
-                            href={profile.resume.href}
-                            download
-                            variant="outline"
-                            size="lg"
-                            data-cursor="download"
-                            icon={<Download size={16} />}
-                        >
-                            {profile.resume.label}
-                        </Button>
-                    </motion.div>
-                </div>
-
-                {/* Portrait */}
-                <motion.div
-                    initial={instant ? false : { opacity: 0, scale: 0.94, y: 24 }}
-                    animate={
-                        booted ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.94, y: 24 }
-                    }
-                    transition={instant ? { duration: 0 } : { duration: 1, delay: 0.18, ease: EASE_GLIDE }}
-                    className="relative lg:col-span-4"
+                <motion.span
+                    {...show(0.24, { opacity: 0, y: 10 })}
+                    className="font-hand block text-2xl text-amber sm:text-3xl"
                 >
-                    <div className="relative mx-auto w-full max-w-[380px] md:w-full">
-                        {/* Colour block behind the photo, offset for depth. */}
-                        <span
-                            aria-hidden="true"
-                            className="absolute -bottom-3 -right-3 h-full w-full rounded-[2rem] bg-indigo sm:-bottom-4 sm:-right-4"
-                        />
-                        <DataCore />
+                    {profile.greeting}
+                </motion.span>
 
-                        <FloatingObjects items={FLOATERS} className="bottom-auto hidden h-2/3 sm:block" />
-                    </div>
+                {/* The name is a real <h1> sitting BEHIND the figure. The canvas
+                    renders above the document, so the clay body occludes these
+                    glyphs without the name ever leaving the DOM. */}
+                <h1 className="mt-2 font-display text-name leading-[0.86] text-canvas">
+                    {profile.nameLines.map((line) => (
+                        <span key={line} className="block pb-[0.06em]">
+                            <span
+                                data-hero-line
+                                data-hero-name-target
+                                style={{ opacity: introComplete ? 1 : 0 }}
+                                className="inline-block"
+                            >
+                                {line}
+                            </span>
+                        </span>
+                    ))}
+                </h1>
 
-                    {/* Sits below the frame rather than over it — anchored to
-                        the image it was half-hidden behind the photo. */}
-                    <Annotation className="mt-6 block text-center text-indigo md:mt-7" rotate={-5}>
-                        built to connect
-                    </Annotation>
+                {/* The figure's stage. Sized in CSS, read as a rect by the
+                    world; data-figure-grab is the drag hit area, and it is the
+                    one element here that takes pointer events.
+
+                    The negative margin is small on purpose. The figure is
+                    meant to stand in FRONT of the name, but the name has to
+                    stay readable, so it overlaps only the descender band of
+                    the last line rather than the middle of both. */}
+                <div
+                    ref={slotRef}
+                    data-hero-figure-slot
+                    data-figure-grab
+                    aria-hidden="true"
+                    onClick={() => world.react()}
+                    className="pointer-events-auto -mt-[2.5vh] mb-4 h-[38vh] w-full max-w-[360px] cursor-grab active:cursor-grabbing sm:h-[42vh]"
+                />
+
+                <motion.div
+                    {...show(0.62)}
+                    className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2"
+                >
+                    <span className="rounded-full bg-amber px-4 py-1.5 font-display text-sm font-semibold text-ink sm:text-base">
+                        {profile.role}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 font-mono text-[0.75rem] text-canvas/70">
+                        <MapPin size={13} aria-hidden="true" />
+                        {profile.location}
+                    </span>
                 </motion.div>
+
+                <motion.p
+                    {...show(0.72)}
+                    data-hero-intro
+                    className="mt-6 max-w-xl text-base leading-relaxed text-canvas/85 sm:text-lg"
+                >
+                    {profile.intro}
+                </motion.p>
+
+                <motion.div {...show(0.82)} className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                    <Button
+                        as="a"
+                        href={profile.cta.href}
+                        variant="pink"
+                        size="lg"
+                        data-cursor="see the work"
+                        onClick={(event) => {
+                            event.preventDefault();
+                            scrollToSection(profile.cta.href.replace('#', ''));
+                        }}
+                        icon={<ArrowDown size={16} />}
+                    >
+                        {profile.cta.label}
+                    </Button>
+
+                    <Button
+                        as="a"
+                        href={profile.resume.href}
+                        download
+                        variant="outline"
+                        size="lg"
+                        data-cursor="download"
+                        className="border-canvas/40 text-canvas hover:bg-canvas hover:text-ink"
+                        icon={<Download size={16} />}
+                    >
+                        {profile.resume.label}
+                    </Button>
+                </motion.div>
+
+                <Annotation className="mt-10 block text-amber" rotate={-4}>
+                    built to connect
+                </Annotation>
             </motion.div>
         </section>
     );

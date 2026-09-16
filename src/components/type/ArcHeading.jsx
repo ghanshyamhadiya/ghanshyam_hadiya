@@ -105,7 +105,7 @@ const ArcHeading = ({ id, text, className }) => {
             data-arc-mode="contained"
             data-arc-ready={enhanced ? 'true' : 'false'}
             className={cn('relative isolate flex h-[clamp(208px,24vw,360px)] items-center justify-center', className)}
-            style={{ fontSize: 'clamp(1.875rem, 7vw, 5.25rem)', fontWeight: 800, fontVariationSettings: '"opsz" 80, "wght" 800', letterSpacing: '-0.035em', lineHeight: 1.2 }}
+            style={{ fontSize: 'clamp(1.875rem, 7vw, 5.25rem)', fontWeight: 700, letterSpacing: '-0.035em', lineHeight: 1.2 }}
         >
             <span className="sr-only">{text}</span>
             <span aria-hidden="true" className={cn('max-w-full px-3 text-center', enhanced && 'invisible')}>

@@ -133,8 +133,7 @@ const AnimatedHeading = ({ id, text, variant, className }) => {
             className={cn('relative isolate w-full', className)}
             style={{
                 fontSize: variant === 'converge' ? 'clamp(3.25rem, 11.5vw, 10.25rem)' : 'clamp(2.5rem, 7.5vw, 6.75rem)',
-                fontWeight: 800,
-                fontVariationSettings: '"opsz" 80, "wght" 800',
+                fontWeight: 700,
                 letterSpacing: '-0.035em',
                 lineHeight: 1.14,
                 padding: '0.38em 0.28em',
