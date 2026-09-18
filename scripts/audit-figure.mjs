@@ -127,8 +127,23 @@ try {
         // size, not that it matches to the pixel.
         const centreDrift = Math.abs((parked.box.left + parked.box.right) / 2 - (slot.left + slot.right) / 2);
         const heightRatio = (parked.box.bottom - parked.box.top) / slot.height;
+        const widthRatio = (parked.box.right - parked.box.left) / slot.width;
         assert(centreDrift < 24, `figure is centred on its slot (${centreDrift.toFixed(1)}px drift)`);
         assert(heightRatio > 0.75 && heightRatio < 1.3, `figure is scaled to its slot (${heightRatio.toFixed(2)}x)`);
+        // Width catches the failure height cannot see: a whole body scaled to
+        // fit the slot's HEIGHT satisfies every height check while reading as a
+        // distant doll. That bug measured 0.44.
+        //
+        // The floor has to depend on which body is loaded, because a single
+        // threshold between the doll's 0.44 and the procedural figure's 0.50
+        // would have two hundredths of margin and fail on breathing phase
+        // alone. The avatar is waist-cropped, so it genuinely fills the slot
+        // (measured 0.98-1.09) and is what this assertion exists to protect.
+        // The procedural figure has no crop to get wrong — it simply fills
+        // whatever slot it is given — so for it this is only a sanity floor.
+        const minWidth = parked.source === 'avatar' ? 0.8 : 0.35;
+        assert(widthRatio > minWidth,
+            `figure fills its slot's width (${widthRatio.toFixed(2)}x, ${parked.source} floor ${minWidth})`);
         assert(Math.abs(parked.assembly - 1) < 0.001, `figure is fully assembled after the intro (${parked.assembly})`);
 
         if (MODE === 'reduced') {

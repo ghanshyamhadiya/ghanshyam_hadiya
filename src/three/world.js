@@ -93,6 +93,7 @@ export async function createWorld(host, { onFailure, staticMode = false, assembl
         const { width, height } = stage.size;
         if (!width || !height) return;
         bounds.setFromObject(figure.root);
+        figure.clipBounds?.(bounds);
         if (bounds.isEmpty()) return;
         let left = Infinity;
         let top = Infinity;

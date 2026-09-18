@@ -32,9 +32,11 @@ const BONE_PATTERNS = {
     rightForeArm: /^(mixamorig)?rightforearm$/,
     leftArm: /^(mixamorig)?leftarm$/,
     leftForeArm: /^(mixamorig)?leftforearm$/,
-    // Not animated; the presence of legs is the structural test that
-    // distinguishes a full-body rig from a bust, where measuring proportions
-    // fails (a T-pose is as wide as it is tall).
+    // Not animated: hips marks the waist for the bust crop, and the presence
+    // of legs is the structural test that distinguishes a full-body rig from
+    // a bust, where measuring proportions fails (a T-pose is as wide as it
+    // is tall).
+    hips: /^(mixamorig)?hips$/,
     leftUpLeg: /^(mixamorig)?leftupleg$/,
     rightUpLeg: /^(mixamorig)?rightupleg$/,
 };
@@ -119,23 +121,28 @@ export async function createAvatar(stage, { url } = {}) {
     body.add(model);
     root.add(body);
 
-    // Normalise the model so a 1.8m avatar and a stylised bust both fill their
-    // slot: measure it, then move it so its own centre sits on the group
-    // origin and scale it to a known height.
+    // The frame is what we intend to SHOW, which is what world.js fits to the
+    // slot — measuring the whole model here is what made the crop a no-op.
+    // A full body framed end to end is a distant doll, so the frame runs from
+    // the waist — taken from the rig itself, not a height proportion — to the
+    // crown. A rig with no waist bone frames whole.
     const raw = posedBox(model);
-    const rawSize = raw.getSize(new THREE.Vector3());
-    const rawCentre = raw.getCenter(new THREE.Vector3());
-    // Frame the upper body: a full-body avatar in a hero slot is a distant
-    // doll, so the crop keeps head-to-waist and lets the slot do the rest.
-    const fullBody = Boolean(bones.leftUpLeg || bones.rightUpLeg);
+    const waistBone = bones.hips ?? bones.leftUpLeg ?? bones.rightUpLeg;
+    const waist = waistBone?.getWorldPosition(new THREE.Vector3()) ?? null;
+    const frame = raw.clone();
+    if (waist) frame.min.y = Math.min(waist.y, raw.max.y);
+    const frameSize = frame.getSize(new THREE.Vector3());
+    const frameCentre = frame.getCenter(new THREE.Vector3());
+    // Normalise the model so a 1.8m avatar and a stylised bust both fill their
+    // slot: move it so the frame's own centre sits on the group origin and
+    // scale the frame to a known height.
     const targetHeight = 3.6;
-    const modelScale = targetHeight / (fullBody ? rawSize.y * 0.52 : rawSize.y);
+    const modelScale = targetHeight / frameSize.y;
     model.scale.setScalar(modelScale);
     model.position.set(
-        -rawCentre.x * modelScale,
-        // Keep the head near the top of the frame for a full-body rig.
-        (fullBody ? -(raw.max.y - rawSize.y * 0.26) : -rawCentre.y) * modelScale,
-        -rawCentre.z * modelScale,
+        -frameCentre.x * modelScale,
+        -frameCentre.y * modelScale,
+        -frameCentre.z * modelScale,
     );
 
     // Shard cloud: the welcome curtain's colours, which converge on the body
@@ -170,6 +177,57 @@ export async function createAvatar(stage, { url } = {}) {
     disposables.add(shardGeometry);
     for (const mat of shardMaterials) disposables.add(mat);
 
+    // The waist crop hides the lower body with a clip plane whose constant is
+    // re-derived every frame from the frame's bottom edge, so the cut always
+    // sits exactly on the slot edge however the layout scales the figure.
+    const clipPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    const cutLocalY = -frameSize.y * modelScale * 0.5;
+    const cutPoint = new THREE.Vector3();
+    if (waist) {
+        stage.renderer.localClippingEnabled = true;
+        model.traverse((node) => {
+            if (!node.isMesh && !node.isSkinnedMesh) return;
+            for (const mat of Array.isArray(node.material) ? node.material : [node.material]) {
+                if (mat) mat.clippingPlanes = [clipPlane];
+            }
+        });
+
+        // A clipped full-body mesh is hollow, and the camera looks down onto
+        // the cut, so the open torso shows. Cap it with a dark matte ellipse
+        // matched to the body's own posed cross-section at the waist — meant
+        // to read as shadow, never as a plug matched to unknown colours.
+        const vertex = new THREE.Vector3();
+        let capRx = 0;
+        let capRz = 0;
+        model.traverse((node) => {
+            if (!node.isSkinnedMesh) return;
+            const count = node.geometry.getAttribute('position').count;
+            for (let i = 0; i < count; i += 1) {
+                node.getVertexPosition(i, vertex);
+                vertex.applyMatrix4(node.matrixWorld);
+                if (Math.abs(vertex.y - waist.y) < 0.08) {
+                    capRx = Math.max(capRx, Math.abs(vertex.x - waist.x));
+                    capRz = Math.max(capRz, Math.abs(vertex.z - waist.z));
+                }
+            }
+        });
+        const capGeometry = new THREE.CircleGeometry(1, 40);
+        const capMaterial = new THREE.MeshStandardMaterial({ color: 0x232047, roughness: 0.95, metalness: 0 });
+        const cap = new THREE.Mesh(capGeometry, capMaterial);
+        cap.rotation.x = -Math.PI / 2;
+        // Just under the silhouette at the cut, so the rim never pokes out.
+        cap.scale.set(capRx * modelScale * 0.95, capRz * modelScale * 0.95, 1);
+        // A hair above the plane so the plane does not clip the cap itself.
+        cap.position.set(
+            (waist.x - frameCentre.x) * modelScale,
+            cutLocalY + 0.008,
+            (waist.z - frameCentre.z) * modelScale,
+        );
+        body.add(cap);
+        disposables.add(capGeometry);
+        disposables.add(capMaterial);
+    }
+
     stage.scene.add(root);
 
     let assembly = 1;
@@ -187,6 +245,7 @@ export async function createAvatar(stage, { url } = {}) {
     let baseY = 0;
     let waveAmount = 0;
     let revealScale = 1;
+    let cutWorldY = -Infinity;
 
     const applyAssembly = () => {
         // The body fades and grows in over the second half; the shards lead.
@@ -218,9 +277,11 @@ export async function createAvatar(stage, { url } = {}) {
     };
     applyAssembly();
 
-    const natural = posedBox(body);
-    const naturalSize = natural.getSize(new THREE.Vector3());
-    const naturalCentre = natural.getCenter(new THREE.Vector3());
+    // world.js fits the intended frame to the slot, so the published size is
+    // the frame's — centred on the body origin by the normalisation above —
+    // not the model's full posed extent.
+    const naturalSize = frameSize.clone().multiplyScalar(modelScale);
+    const naturalCentre = new THREE.Vector3();
 
     const applyBone = (bone, x, y, z) => {
         if (!bone) return;
@@ -261,6 +322,11 @@ export async function createAvatar(stage, { url } = {}) {
         react() {
             reactUntil = clock + 0.5;
         },
+        // Box3 ignores clipping planes, so in bust mode the published box
+        // would claim the hidden legs: clamp it to what is actually visible.
+        clipBounds(box) {
+            if (waist) box.min.y = Math.max(box.min.y, cutWorldY);
+        },
         get waving() { return clock < waveUntil; },
         get yaw() { return bodyYaw; },
         get headYaw() { return headYaw; },
@@ -297,6 +363,13 @@ export async function createAvatar(stage, { url } = {}) {
             applyBone(bones.spine, breath * 0.012, 0, 0);
             body.scale.setScalar(revealScale * (1 - squashAmount * 0.06));
             body.position.y = breath * 0.035 - squashAmount * 0.05;
+
+            if (waist) {
+                body.updateWorldMatrix(true, false);
+                cutPoint.set(0, cutLocalY, 0).applyMatrix4(body.matrixWorld);
+                clipPlane.constant = -cutPoint.y;
+                cutWorldY = cutPoint.y;
+            }
 
             // Wave with the figure's right arm, raised from the shoulder with
             // the forearm doing the actual waving.
