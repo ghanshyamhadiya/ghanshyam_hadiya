@@ -25,7 +25,10 @@ const page = await browser.newPage({
 });
 const errors = [];
 page.on('pageerror', (error) => errors.push(error.message));
-if (MODE === 'fallback') await page.route('**/*world*.js', (route) => route.abort());
+// The trailing * matters: Vite appends ?t=<timestamp> to re-fetched modules
+// after edits, and a glob ending in .js then never matches — the abort
+// silently stops blocking and the mode proves nothing.
+if (MODE === 'fallback') await page.route('**/*world*.js*', (route) => route.abort());
 
 const layer = page.locator('[data-world-layer]');
 const state = () => layer.evaluate((el) => {

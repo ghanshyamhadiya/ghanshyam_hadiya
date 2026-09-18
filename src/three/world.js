@@ -55,8 +55,52 @@ export async function createWorld(host, { onFailure, staticMode = false, assembl
     figure.applyQuality(stage.quality.level);
     figure.setAssembly(assembled ? 1 : 0);
 
-    let anchor = null;
+    // Anchored DOM boxes, stored in DOCUMENT space and measured only on
+    // register, resize and ResizeObserver — never on scroll. getBoundingClientRect
+    // forces layout, and one forced layout per scroll event per anchor is a
+    // guaranteed jank source once headings and stations join the figure.
+    // The viewport position is derived per frame from window.scrollY, which
+    // Lenis drives, so scroll costs a single read instead.
+    const anchors = new Map();
+    const measureAnchor = (el) => {
+        const a = anchors.get(el);
+        if (!a) return;
+        const rect = el.getBoundingClientRect();
+        a.top = rect.top + window.scrollY;
+        a.left = rect.left + window.scrollX;
+        a.width = rect.width;
+        a.height = rect.height;
+    };
+    const anchorObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) measureAnchor(entry.target);
+        stage.invalidate();
+    });
+    const measureAllAnchors = () => {
+        for (const el of anchors.keys()) measureAnchor(el);
+        stage.invalidate();
+    };
+    window.addEventListener('resize', measureAllAnchors);
+
+    let scrollY = 0;
+
+    // The static rung has no frame loop to re-derive viewport positions, so a
+    // scroll would leave the still figure floating over moved content. Redraw
+    // once per scroll event instead — still zero RAF, still no per-scroll
+    // layout reads beyond this single scrollY.
+    const onStaticScroll = staticMode
+        ? () => { scrollY = window.scrollY; stage.invalidate(); }
+        : null;
+    if (onStaticScroll) window.addEventListener('scroll', onStaticScroll, { passive: true });
     let unitsPerPixel = 1;
+
+    // Viewport-space rect for a registered anchor, from the frame's scrollY.
+    const anchorRect = (id) => {
+        for (const a of anchors.values()) {
+            if (a.id !== id) continue;
+            return { x: a.left - window.scrollX, y: a.top - scrollY, width: a.width, height: a.height };
+        }
+        return null;
+    };
 
     // Maps a viewport rect onto the z=0 plane. The canvas is fixed to the
     // viewport, so DOM pixels and canvas pixels are the same space, and the
@@ -66,6 +110,7 @@ export async function createWorld(host, { onFailure, staticMode = false, assembl
         if (!width || !height) return;
         const visibleHeight = 2 * stage.camera.position.z * Math.tan((stage.camera.fov * Math.PI) / 360);
         unitsPerPixel = visibleHeight / height;
+        const anchor = anchorRect('hero-figure');
         if (!anchor) return;
         const centreX = anchor.x + anchor.width / 2;
         const centreY = anchor.y + anchor.height / 2;
@@ -121,6 +166,7 @@ export async function createWorld(host, { onFailure, staticMode = false, assembl
     };
 
     const stopFrame = stage.onFrame((dt) => {
+        scrollY = window.scrollY;
         layout();
         figure.update(dt);
         publishBounds();
@@ -134,11 +180,22 @@ export async function createWorld(host, { onFailure, staticMode = false, assembl
     return {
         stage,
         figure,
-        setAnchor(rect) {
-            anchor = rect;
-            layout();
+        registerAnchor(id, el) {
+            const existing = [...anchors.entries()].find(([, a]) => a.id === id);
+            if (existing) {
+                anchorObserver.unobserve(existing[0]);
+                anchors.delete(existing[0]);
+            }
+            anchors.set(el, { id });
+            measureAnchor(el);
+            anchorObserver.observe(el);
             stage.invalidate();
+            return () => {
+                anchorObserver.unobserve(el);
+                anchors.delete(el);
+            };
         },
+        anchorRect,
         setPointer: (x, y) => figure.setPointer(x, y),
         setScroll: (progress) => figure.setScrollPose(progress),
         setAssembly: (progress) => {
@@ -155,6 +212,10 @@ export async function createWorld(host, { onFailure, staticMode = false, assembl
         setVisible: (value) => stage.setVisible(value),
         destroy() {
             stopFrame();
+            anchorObserver.disconnect();
+            window.removeEventListener('resize', measureAllAnchors);
+            if (onStaticScroll) window.removeEventListener('scroll', onStaticScroll);
+            anchors.clear();
             delete host.probeCoverage;
             figure.dispose();
             stage.scene.remove(hemisphere, key, rim, fill);

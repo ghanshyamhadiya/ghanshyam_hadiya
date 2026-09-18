@@ -26,25 +26,12 @@ const Hero = () => {
     const { progress: scrollYProgress } = useGlideProgress(sectionRef, ['start start', 'end start']);
 
     // The figure is drawn in the shared canvas, so its position comes from this
-    // slot's real rect rather than from CSS. Re-measured on resize and on
-    // scroll: the canvas is viewport-fixed, so a scroll changes where the slot
-    // sits inside it.
+    // slot's real rect rather than from CSS. The world owns measurement:
+    // anchors are stored in document space and re-measured without scroll
+    // listeners, so this effect is just registration.
     useEffect(() => {
         if (!world.live) return undefined;
-        const publish = () => {
-            const rect = slotRef.current?.getBoundingClientRect();
-            if (rect) world.setAnchor({ x: rect.x, y: rect.y, width: rect.width, height: rect.height });
-        };
-        publish();
-        const observer = new ResizeObserver(publish);
-        observer.observe(slotRef.current);
-        window.addEventListener('scroll', publish, { passive: true });
-        window.addEventListener('resize', publish);
-        return () => {
-            observer.disconnect();
-            window.removeEventListener('scroll', publish);
-            window.removeEventListener('resize', publish);
-        };
+        return world.registerAnchor('hero-figure', slotRef.current);
     }, [world]);
 
     useEffect(() => {

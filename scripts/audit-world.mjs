@@ -50,6 +50,17 @@ await page.addInitScript(() => {
     // itself does exactly that to trigger context loss.
     const seen = new Set();
     window.__contexts = { created: 0, lost: 0 };
+
+    // Count forced layouts on anchor boxes. getBoundingClientRect on an
+    // anchored element is only legitimate on register and on resize; doing it
+    // per scroll event is the jank source this design exists to avoid, and it
+    // regresses silently the moment someone adds a scroll listener.
+    window.__anchorRects = 0;
+    const rect = Element.prototype.getBoundingClientRect;
+    Element.prototype.getBoundingClientRect = function patchedRect() {
+        if (this.matches?.('[data-station],[data-hero-figure-slot]')) window.__anchorRects += 1;
+        return rect.call(this);
+    };
     const original = HTMLCanvasElement.prototype.getContext;
     HTMLCanvasElement.prototype.getContext = function patched(type, ...rest) {
         const context = original.call(this, type, ...rest);
@@ -105,7 +116,31 @@ try {
     assert(Number.isFinite(loaded.p95), `render cost is published for measurement (${loaded.p95})`);
     assert(loaded.p95 <= BUDGET, `p95 render cost is within the ${BUDGET}ms budget (${loaded.p95}ms at quality "${loaded.quality}")`);
 
-    // 3. The degradation ladder. Heavy CPU throttling must walk the quality
+    // 3. Scrolling must not force layout on anchor boxes. Anchors are stored
+    // in document space precisely so a scroll costs one window.scrollY read
+    // rather than a getBoundingClientRect per anchor per event.
+    // Registration itself legitimately measures, so a non-zero count here is
+    // what proves the instrumentation is live. Without this check a patch that
+    // silently failed to attach would make the assertion below pass on
+    // nothing.
+    const registered = await page.evaluate(() => window.__anchorRects);
+    assert(registered > 0, `anchor measurement is instrumented (${registered} reads while registering)`);
+    const thrash = await page.evaluate(async () => {
+        window.__anchorRects = 0;
+        for (let i = 0; i < 24; i += 1) {
+            window.scrollBy(0, 40);
+            await new Promise((resolve) => requestAnimationFrame(resolve));
+        }
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        return { reads: window.__anchorRects, anchors: document.querySelectorAll('[data-station],[data-hero-figure-slot]').length };
+    });
+    assert(thrash.anchors > 0, `the page registers anchor boxes to measure (${thrash.anchors})`);
+    assert(thrash.reads === 0,
+        `scrolling forces no layout on anchor boxes (${thrash.reads} getBoundingClientRect calls over 24 scroll steps)`);
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+    await page.waitForTimeout(300);
+
+    // 4. The degradation ladder. Heavy CPU throttling must walk the quality
     // level DOWN and stop at a rung, rather than sit at full quality dropping
     // frames. This is the whole reason the ladder exists, so it has to be
     // demonstrated rather than assumed.

@@ -100,7 +100,8 @@ const WorldCanvas = ({ children }) => {
         live: status === 'ready' || status === 'static',
         // Only the animated world runs a loop worth driving per frame.
         ready: status === 'ready',
-        setAnchor: (rect) => world.current?.setAnchor(rect),
+        registerAnchor: (id, el) => world.current?.registerAnchor(id, el) ?? (() => {}),
+        anchorRect: (id) => world.current?.anchorRect(id) ?? null,
         setScroll: (progress) => world.current?.setScroll(progress),
         setVisible: (value) => world.current?.setVisible(value),
         setAssembly: (progress) => world.current?.setAssembly(progress),
