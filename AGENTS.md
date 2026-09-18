@@ -3,6 +3,10 @@
 - Run `npm run verify` for lint, production build, metadata, palette, asset and SSR checks. Browser audits are separate; `verify` does not run them.
 - Run `node scripts/audit-headings.mjs <BASE> <WIDTH> <MODE> [HEIGHT]` against the portfolio server. Modes: `normal`, `reduced`, `font-blocked`. Check widths 360, 390, 768 and 1440, including a short 1440x700 viewport.
 - Run `node scripts/audit-reveals.mjs <BASE> <WIDTH>`, `node scripts/audit-work.mjs <BASE> 1440`, and `node scripts/audit-intro.mjs <BASE> <WIDTH> full` / `short` for related regressions.
+- WebGL layer: `node scripts/audit-figure.mjs <BASE> <WIDTH> normal|reduced|fallback`, `node scripts/audit-world.mjs <BASE> <WIDTH>`, `node scripts/audit-occlusion.mjs <BASE> <WIDTH>`.
+- Frame cost is the metric, never frame rate: headless Chromium caps rAF at ~19/sec, so an absolute fps assertion measures the runner. Audits compare draws against the browser's own rAF count and read the app's published `data-frame-p95` for cost.
+- Measure figure geometry only from a known pose: wait for `data-figure-waving === 'false'`. A raised arm roughly doubles the projected bounding box and reads as a huge phantom centre offset.
+- `src/three/quality.js` has a 120-frame hysteresis (60-sample window plus 60 settling frames), so "has the ladder stopped moving" must be measured in frames, not wall-clock seconds.
 - Confirm the server is this repository before interpreting browser failures. An occupied default port can belong to a different application. Use an explicitly selected Vite port rather than stopping unrelated Node processes.
 
 # Heading motion
@@ -14,7 +18,7 @@
 - Preserve final text geometry during variable-weight animation, and remove temporary split-flap copies when the animation settles.
 - Display typography is self-hosted Space Grotesk (`public/fonts`, refreshed by `scripts/fetch-fonts.mjs`, preloaded in `index.html`). Font-dependent motion must read the `--font-display` token rather than naming a family. The face tops out at wght 700 and has no optical-size axis, so display styles must not pin `opsz` or ask for 800.
 - The Process arc is contained: every visible glyph must stay inside the screen and its stage, not travel through clipped side edges. Mobile uses two curved lines with one accessible full heading. Test simultaneous readability, safe horizontal bounds and reversible motion.
-- The personal portrait appears only in the hero. About and Contact must not repeat it; the SSR check enforces a single portrait in the hero.
+- The hero ships a `data-hero-figure-slot` and no portrait images; `check:render` enforces zero `/photos/` images in the hero. The photo data in `src/data/profile.js` is deliberately retained but currently unrendered.
 - The six non-arc section headings also follow reversible scroll progress via AnimatedHeading, with opposed/layers/unfold/connect/press/converge treatments. They are not one-time reveals. Keep stationary section labels and readable centre states. Do not wrap those labels in Reveal: its rise-in shifts their geometry during heading entry.
 - audit-reveals verifies these headings at their reading positions before excluding their offstage decorative spans from the final one-shot scan. Do not replace this with a blanket aria-hidden exclusion. audit-headings additionally verifies the trajectories, reversal, stopped-scroll state, actual glyph bounds and static fallbacks.
 - Shared scroll smoothing lives in useGlideProgress and SCROLL_GLIDE; navigation-sized jumps snap rather than slowly catching up. Heading audits allow bounded settling (900ms maximum), then require exact stillness. Do not replace those checks with unbounded sleeps.

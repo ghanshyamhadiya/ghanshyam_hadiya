@@ -39,19 +39,54 @@ const state = () => layer.evaluate((el) => {
         yaw: Number(el.dataset.figureYaw),
         headYaw: Number(el.dataset.figureHeadYaw),
         waving: el.dataset.figureWaving === 'true',
+        squash: Number(el.dataset.figureSquash ?? 0),
+        source: el.dataset.figureSource,
         box: box.length === 4 ? { left: box[0], top: box[1], right: box[2], bottom: box[3] } : null,
     };
 });
-const drawn = async (ms = 500) => {
-    const before = await state();
-    await page.waitForTimeout(ms);
-    const after = await state();
-    return { frames: after.frames - before.frames, after, before };
-};
+// Counts our draws AND the browser's own requestAnimationFrame callbacks over
+// the same window.
+//
+// Absolute frame counts are useless here: headless Chromium without a GPU only
+// delivers around 19 rAF callbacks a second, so an "is it 60fps" assertion
+// measures the test environment rather than the site. What is meaningful is
+// whether we draw on essentially every frame the browser offers, and whether
+// we correctly draw nothing when we should be idle.
+const drawn = async (ms = 600) => page.evaluate((duration) => new Promise((resolve) => {
+    const layer = document.querySelector('[data-world-layer]');
+    const canvas = layer.querySelector('canvas');
+    const start = Number(canvas?.dataset.renderCount ?? 0);
+    const began = performance.now();
+    let rafs = 0;
+    const step = () => {
+        rafs += 1;
+        if (performance.now() - began < duration) requestAnimationFrame(step);
+        else resolve({ frames: Number(canvas?.dataset.renderCount ?? 0) - start, rafs, quality: canvas?.dataset.qualityLevel });
+    };
+    requestAnimationFrame(step);
+}), ms);
+
 const parkAtHero = async () => {
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
     await page.mouse.move(2, 2);
     await page.waitForTimeout(500);
+};
+// Pointer at the horizontal centre means pointerX is 0, so the figure faces
+// straight ahead, AND the greeting wave must have finished. Geometry has to be
+// measured from a known pose: the cursor turns the body and a raised arm makes
+// the projected box roughly twice as wide, so measuring during either reads as
+// a huge phantom offset.
+const parkNeutral = async () => {
+    const height = WIDTH < 768 ? 844 : 900;
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+    await page.mouse.move(WIDTH / 2, height / 2);
+    await page.waitForFunction(
+        () => document.querySelector('[data-world-layer]')?.dataset.figureWaving === 'false',
+        undefined,
+        { timeout: 8000 },
+    ).catch(() => {});
+    // Let the arm spring settle after the wave flag clears.
+    await page.waitForTimeout(900);
 };
 
 try {
@@ -84,6 +119,7 @@ try {
         assert(await layer.locator('canvas').count() === 1, 'exactly one canvas for the whole page');
         assert(await layer.locator('canvas').getAttribute('aria-hidden') === 'true', 'canvas is hidden from assistive tech');
 
+        await parkNeutral();
         const parked = await state();
         assert(parked.box !== null, 'figure publishes its projected screen box');
         // Perspective makes the projected box a little larger than the slot;
@@ -97,14 +133,15 @@ try {
 
         if (MODE === 'reduced') {
             const still = await drawn(700);
-            assert(still.frames === 0, `reduced motion runs no render loop (${still.frames} frames / 700ms)`);
-            assert(still.after.quality === 'static', `reduced motion pins the static quality rung (${still.after.quality})`);
+            assert(still.frames === 0, `reduced motion runs no render loop (${still.frames} draws over ${still.rafs} browser frames)`);
+            assert(still.quality === 'static', `reduced motion pins the static quality rung (${still.quality})`);
             await page.mouse.move(WIDTH - 40, 300);
             await page.waitForTimeout(400);
             assert(Math.abs((await state()).headYaw) < 0.01, 'reduced motion does not track the cursor');
         } else {
             const idle = await drawn();
-            assert(idle.frames > 20, `scene renders continuously while the hero is visible (${idle.frames} frames / 500ms)`);
+            assert(idle.frames / idle.rafs > 0.9,
+                `draws on every frame the browser offers (${idle.frames}/${idle.rafs}, quality ${idle.quality})`);
 
             // Cursor tracking: the head turns toward the pointer and back.
             await page.mouse.move(WIDTH - 40, 300);
@@ -127,24 +164,33 @@ try {
             const dragged = (await state()).yaw - beforeDrag;
             assert(dragged > 0.4, `dragging the figure spins it (${dragged.toFixed(3)} rad)`);
 
-            // Click reaction: a brief squash, so the box height dips and recovers.
-            await parkAtHero();
-            const restHeight = (await state()).box.bottom - (await state()).box.top;
+            // Click reaction. Read the published squash value rather than
+            // inferring it from the bounding box: the box also moves with
+            // breathing and the cursor, so it cannot isolate one impulse.
+            await parkNeutral();
+            assert((await state()).squash === 0, 'figure is at rest before the click');
             await page.locator('[data-hero-figure-slot]').click({ position: { x: slot.width / 2, y: slot.height / 2 } });
-            await page.waitForTimeout(140);
-            const squashed = (await state()).box.bottom - (await state()).box.top;
+            // The impulse is only half a second long and click dispatch itself
+            // costs a chunk of that, so poll for the peak instead of sampling
+            // once and hoping to land on it.
+            let reacting = 0;
+            for (let i = 0; i < 12; i += 1) {
+                reacting = Math.max(reacting, (await state()).squash);
+                await page.waitForTimeout(45);
+            }
             await page.waitForTimeout(900);
-            const recovered = (await state()).box.bottom - (await state()).box.top;
-            assert(squashed < restHeight - 1, `clicking squashes the figure (${restHeight.toFixed(0)} to ${squashed.toFixed(0)}px)`);
-            assert(Math.abs(recovered - restHeight) < 6, `the squash springs back (${recovered.toFixed(0)}px vs ${restHeight.toFixed(0)}px)`);
+            const recovered = (await state()).squash;
+            assert(reacting > 0.3, `clicking the figure triggers a squash (peak ${reacting.toFixed(3)})`);
+            assert(recovered === 0, `the squash settles back to rest (${recovered.toFixed(3)})`);
 
             // Offscreen work is wasted work and drains battery.
             await page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }));
-            await page.waitForTimeout(700);
+            await page.waitForTimeout(800);
             const away = await drawn();
-            assert(away.frames === 0, `render loop stops once the hero is scrolled away (${away.frames} frames)`);
+            assert(away.frames === 0, `render loop stops once the hero is scrolled away (${away.frames} draws over ${away.rafs} frames)`);
             await parkAtHero();
-            assert((await drawn()).frames > 20, 'render loop resumes when the hero returns');
+            const back = await drawn();
+            assert(back.frames / back.rafs > 0.9, `render loop resumes when the hero returns (${back.frames}/${back.rafs})`);
         }
         assert(errors.length === 0, `no browser runtime errors (${errors.join('; ') || 'none'})`);
     }

@@ -39,6 +39,7 @@ export function createQuality({ onChange, budget } = {}) {
     let count = 0;
     let cursor = 0;
     let sinceChange = 0;
+    let p95 = 0;
 
     const level = () => LEVELS[index];
     const step = (next) => {
@@ -55,18 +56,24 @@ export function createQuality({ onChange, budget } = {}) {
         get level() { return level(); },
         get index() { return index; },
         get budget() { return ceiling; },
+        // The last measured p95, published so the perf bar is checkable from
+        // outside. Frame RATE cannot stand in for it: headless and vsynced
+        // browsers both cap rAF regardless of how cheap a frame really is.
+        get p95() { return p95; },
         // Returns true when the caller should re-read the level.
         sample(frameMs) {
             window_[cursor] = frameMs;
             cursor = (cursor + 1) % window_.length;
             count = Math.min(count + 1, window_.length);
             sinceChange += 1;
-            // Ignore the first second after a change: the frame right after a
-            // pixel-ratio change is always expensive and would cascade all the
-            // way down to static on a perfectly capable machine.
-            if (count < window_.length || sinceChange < window_.length) return false;
+            if (count < window_.length) return false;
             const sorted = Array.from(window_.slice(0, count)).sort((a, b) => a - b);
-            const p95 = sorted[Math.floor(sorted.length * 0.95)];
+            p95 = sorted[Math.floor(sorted.length * 0.95)];
+            // Measure always, but ignore the first full window after a change
+            // when deciding: the frame right after a pixel-ratio change is
+            // always expensive and would cascade all the way down to static on
+            // a perfectly capable machine.
+            if (sinceChange < window_.length) return false;
             if (p95 > ceiling) return step(index + 1);
             return false;
         },

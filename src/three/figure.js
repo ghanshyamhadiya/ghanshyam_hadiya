@@ -192,6 +192,7 @@ export function createFigure(stage, { segments = 4 } = {}) {
     let scrollPose = 0;
     let waveUntil = 0;
     let reactUntil = 0;
+    let squashAmount = 0;
     let clock = 0;
     let headYaw = 0;
     let headPitch = 0;
@@ -233,6 +234,8 @@ export function createFigure(stage, { segments = 4 } = {}) {
 
     return {
         root,
+        source: 'figure',
+        rigged: false,
         parts: parts.length,
         height: naturalSize.y,
         width: naturalSize.x,
@@ -264,6 +267,7 @@ export function createFigure(stage, { segments = 4 } = {}) {
         get yaw() { return bodyYaw; },
         get headYaw() { return headYaw; },
         get assembly() { return assembly; },
+        get squash() { return squashAmount; },
         update(dt) {
             clock += dt;
             const settled = assembly > 0.995;
@@ -286,7 +290,8 @@ export function createFigure(stage, { segments = 4 } = {}) {
             // owned by the world's DOM-rect layout and must not be touched
             // here, or the figure snaps to unit size on the next frame.
             const breath = Math.sin(clock * 1.15) * 0.5 + 0.5;
-            const squash = clock < reactUntil ? Math.sin(((reactUntil - clock) / 0.5) * Math.PI) : 0;
+            squashAmount = clock < reactUntil ? Math.sin(((reactUntil - clock) / 0.5) * Math.PI) : 0;
+            const squash = squashAmount;
             const wide = (1 + breath * 0.012) * (1 + squash * 0.06);
             body.scale.set(wide, (1 - breath * 0.01) * (1 - squash * 0.08), wide);
             body.position.y = breath * 0.04;

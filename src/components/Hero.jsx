@@ -54,6 +54,20 @@ const Hero = () => {
         return unsubscribe;
     }, [world, scrollYProgress]);
 
+    // Stop the render loop once the hero is off screen. A full-page RAF loop
+    // drawing something nobody can see is the main battery cost of this
+    // design. Phase 2 replaces this with per-station culling once other
+    // sections own 3D content.
+    useEffect(() => {
+        if (!world.live) return undefined;
+        const observer = new IntersectionObserver(
+            ([entry]) => world.setVisible(entry.isIntersecting),
+            { rootMargin: '10%' },
+        );
+        observer.observe(sectionRef.current);
+        return () => observer.disconnect();
+    }, [world]);
+
     const show = (delay, from = { opacity: 0, y: 16 }) => ({
         initial: instant ? false : from,
         animate: booted ? { opacity: 1, y: 0 } : from,

@@ -87,6 +87,7 @@ export function createStage(host, { onFailure, onQualityChange } = {}) {
         canvas.dataset.renderCount = String(frames);
         canvas.dataset.qualityLevel = quality.level.name;
         if (quality.level.animate) quality.sample(performance.now() - started);
+        canvas.dataset.frameP95 = quality.p95.toFixed(1);
     }
 
     function tick(time) {

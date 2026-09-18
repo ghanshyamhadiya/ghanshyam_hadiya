@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
 import useSectionSurface from '../hooks/useSectionSurface';
-import { Github, Linkedin, Mail, Download, ArrowUpRight, Phone } from 'lucide-react';
+import { Github, Linkedin, Mail, Download, ArrowUpRight } from 'lucide-react';
 import Button from './Button';
 import CopyButton from './CopyButton';
 import Reveal from './Reveal';

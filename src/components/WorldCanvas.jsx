@@ -35,7 +35,7 @@ const WorldCanvas = ({ children }) => {
             try {
                 const { createWorld } = await import('../three/world');
                 if (cancelled) return;
-                api = createWorld(host.current, {
+                api = await createWorld(host.current, {
                     onFailure: fail,
                     staticMode: reducedMotion,
                     // Only start scattered when an intro is actually going to
@@ -43,6 +43,8 @@ const WorldCanvas = ({ children }) => {
                     // curtain must find the figure already standing.
                     assembled: reducedMotion || getIntroComplete(),
                 });
+                // The avatar is fetched, so this can resolve after unmount.
+                if (cancelled) return api?.destroy();
                 if (!api) return fail();
                 world.current = api;
                 setStatus(reducedMotion ? 'static' : 'ready');
@@ -96,6 +98,7 @@ const WorldCanvas = ({ children }) => {
         ready: status === 'ready',
         setAnchor: (rect) => world.current?.setAnchor(rect),
         setScroll: (progress) => world.current?.setScroll(progress),
+        setVisible: (value) => world.current?.setVisible(value),
         setAssembly: (progress) => world.current?.setAssembly(progress),
         wave: () => world.current?.wave(),
         react: () => world.current?.react(),

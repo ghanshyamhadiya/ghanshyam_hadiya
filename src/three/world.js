@@ -1,6 +1,12 @@
 import * as THREE from 'three';
 import { createStage } from './renderer';
 import { createFigure } from './figure';
+import { createAvatar } from './avatar';
+
+// A real modelled avatar is the intended hero body; the hand-built figure in
+// figure.js is the fallback when the asset is absent or fails to parse, so the
+// hero is never an empty hole.
+const AVATAR_URL = '/models/avatar.glb';
 
 // The world: one stage, one light rig, and the content that lives in it.
 //
@@ -8,7 +14,7 @@ import { createFigure } from './figure';
 // later, which is why the camera and light rig live here rather than inside
 // the figure.
 
-export function createWorld(host, { onFailure, staticMode = false, assembled = true } = {}) {
+export async function createWorld(host, { onFailure, staticMode = false, assembled = true } = {}) {
     // Declared before the stage so the quality callback can reach it without
     // tripping over the temporal dead zone of a const.
     let figure = null;
@@ -36,7 +42,16 @@ export function createWorld(host, { onFailure, staticMode = false, assembled = t
     // nothing animates. An empty hole would be worse than a still image.
     if (staticMode) stage.quality.force('static');
 
-    figure = createFigure(stage, { segments: stage.quality.level.segments });
+    // Try the modelled avatar, fall back to the procedural figure. A missing
+    // or broken asset must degrade to a body, not to nothing.
+    try {
+        figure = await createAvatar(stage, { url: AVATAR_URL });
+    } catch {
+        figure = createFigure(stage, { segments: stage.quality.level.segments });
+    }
+    host.dataset.figureSource = figure.source ?? 'figure';
+    host.dataset.figureNatural = [figure.width, figure.height, figure.centreY].map((v) => v.toFixed(3)).join(',');
+    host.dataset.figureRigged = String(figure.rigged ?? false);
     figure.applyQuality(stage.quality.level);
     figure.setAssembly(assembled ? 1 : 0);
 
@@ -101,6 +116,7 @@ export function createWorld(host, { onFailure, staticMode = false, assembled = t
         host.dataset.figureYaw = figure.yaw.toFixed(3);
         host.dataset.figureHeadYaw = figure.headYaw.toFixed(3);
         host.dataset.figureWaving = String(figure.waving);
+        host.dataset.figureSquash = (figure.squash ?? 0).toFixed(3);
     };
 
     const stopFrame = stage.onFrame((dt) => {
