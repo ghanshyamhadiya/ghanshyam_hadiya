@@ -32,6 +32,11 @@ const BONE_PATTERNS = {
     rightForeArm: /^(mixamorig)?rightforearm$/,
     leftArm: /^(mixamorig)?leftarm$/,
     leftForeArm: /^(mixamorig)?leftforearm$/,
+    // Not animated; the presence of legs is the structural test that
+    // distinguishes a full-body rig from a bust, where measuring proportions
+    // fails (a T-pose is as wide as it is tall).
+    leftUpLeg: /^(mixamorig)?leftupleg$/,
+    rightUpLeg: /^(mixamorig)?rightupleg$/,
 };
 
 // Geometry detail comes baked into the asset, so unlike the procedural figure
@@ -64,6 +69,11 @@ export async function createAvatar(stage, { url } = {}) {
                 mat.metalness = Math.min(mat.metalness ?? 0, 0.05);
                 mat.envMapIntensity = 0.4;
                 disposables.add(mat);
+                // GLB textures dominate GPU memory and the world is torn down
+                // and rebuilt on every reduced-motion toggle.
+                for (const value of Object.values(mat)) {
+                    if (value?.isTexture) disposables.add(value);
+                }
             }
         }
     });
@@ -76,13 +86,33 @@ export async function createAvatar(stage, { url } = {}) {
         bone.rotation.set(x, y, z);
         rest.set(bone, bone.rotation.clone());
     };
-    restPose(bones.rightArm, 0, 0, -1.25);
-    restPose(bones.leftArm, 0, 0, 1.25);
-    restPose(bones.rightForeArm, 0, 0, -0.12);
-    restPose(bones.leftForeArm, 0, 0, 0.12);
+    // Mixamo arm bones lower with opposite z signs; positive lowers the
+    // figure's right arm, negative the left. Verified against the rig — the
+    // mirror of this raises both arms overhead.
+    restPose(bones.rightArm, 0, 0, 1.25);
+    restPose(bones.leftArm, 0, 0, -1.25);
+    restPose(bones.rightForeArm, 0, 0, 0.12);
+    restPose(bones.leftForeArm, 0, 0, -0.12);
     for (const bone of [bones.head, bones.neck, bones.spine]) {
         if (bone) rest.set(bone, bone.rotation.clone());
     }
+
+    // Box3.setFromObject measures base geometry, which is not skinning-aware:
+    // after the rest pose brings the arms down it would still report the
+    // A/T-pose span, and the wider box would wrongly win the slot fit.
+    // SkinnedMesh.computeBoundingBox measures the posed vertices instead.
+    const posedBox = (object) => {
+        object.updateMatrixWorld(true);
+        const box = new THREE.Box3();
+        let skinned = false;
+        object.traverse((node) => {
+            if (!node.isSkinnedMesh || typeof node.computeBoundingBox !== 'function') return;
+            node.computeBoundingBox();
+            box.union(node.boundingBox.clone().applyMatrix4(node.matrixWorld));
+            skinned = true;
+        });
+        return skinned ? box : new THREE.Box3().setFromObject(object);
+    };
 
     const root = new THREE.Group();
     const body = new THREE.Group();
@@ -92,12 +122,12 @@ export async function createAvatar(stage, { url } = {}) {
     // Normalise the model so a 1.8m avatar and a stylised bust both fill their
     // slot: measure it, then move it so its own centre sits on the group
     // origin and scale it to a known height.
-    const raw = new THREE.Box3().setFromObject(model);
+    const raw = posedBox(model);
     const rawSize = raw.getSize(new THREE.Vector3());
     const rawCentre = raw.getCenter(new THREE.Vector3());
     // Frame the upper body: a full-body avatar in a hero slot is a distant
     // doll, so the crop keeps head-to-waist and lets the slot do the rest.
-    const fullBody = rawSize.y > rawSize.x * 2.2;
+    const fullBody = Boolean(bones.leftUpLeg || bones.rightUpLeg);
     const targetHeight = 3.6;
     const modelScale = targetHeight / (fullBody ? rawSize.y * 0.52 : rawSize.y);
     model.scale.setScalar(modelScale);
@@ -188,7 +218,7 @@ export async function createAvatar(stage, { url } = {}) {
     };
     applyAssembly();
 
-    const natural = new THREE.Box3().setFromObject(body);
+    const natural = posedBox(body);
     const naturalSize = natural.getSize(new THREE.Vector3());
     const naturalCentre = natural.getCenter(new THREE.Vector3());
 
@@ -274,8 +304,10 @@ export async function createAvatar(stage, { url } = {}) {
             waveAmount += (target - waveAmount) * (1 - Math.exp(-dt * 6));
             if (waveAmount > 0.001) {
                 const flap = Math.sin(clock * 9) * 0.34 * waveAmount;
-                applyBone(bones.rightArm, 0, 0, waveAmount * 1.05);
-                applyBone(bones.rightForeArm, 0, flap, waveAmount * 0.5);
+                // Negative z raises the resting right arm back up; the forearm
+                // bend plus the y flap do the actual waving.
+                applyBone(bones.rightArm, 0, 0, waveAmount * -1.6);
+                applyBone(bones.rightForeArm, 0, flap, waveAmount * -1.0);
             } else {
                 applyBone(bones.rightArm, 0, 0, 0);
                 applyBone(bones.rightForeArm, 0, 0, 0);

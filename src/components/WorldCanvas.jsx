@@ -35,9 +35,13 @@ const WorldCanvas = ({ children }) => {
             try {
                 const { createWorld } = await import('../three/world');
                 if (cancelled) return;
+                const override = import.meta.env.DEV
+                    ? new URLSearchParams(window.location.search).get('avatar')
+                    : null;
                 api = await createWorld(host.current, {
                     onFailure: fail,
                     staticMode: reducedMotion,
+                    avatarUrl: override ?? undefined,
                     // Only start scattered when an intro is actually going to
                     // play it in. A deep link or a repeat visit that skips the
                     // curtain must find the figure already standing.

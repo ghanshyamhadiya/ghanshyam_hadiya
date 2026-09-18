@@ -14,7 +14,7 @@ const AVATAR_URL = '/models/avatar.glb';
 // later, which is why the camera and light rig live here rather than inside
 // the figure.
 
-export async function createWorld(host, { onFailure, staticMode = false, assembled = true } = {}) {
+export async function createWorld(host, { onFailure, staticMode = false, assembled = true, avatarUrl = AVATAR_URL } = {}) {
     // Declared before the stage so the quality callback can reach it without
     // tripping over the temporal dead zone of a const.
     let figure = null;
@@ -45,7 +45,7 @@ export async function createWorld(host, { onFailure, staticMode = false, assembl
     // Try the modelled avatar, fall back to the procedural figure. A missing
     // or broken asset must degrade to a body, not to nothing.
     try {
-        figure = await createAvatar(stage, { url: AVATAR_URL });
+        figure = await createAvatar(stage, { url: avatarUrl });
     } catch {
         figure = createFigure(stage, { segments: stage.quality.level.segments });
     }
