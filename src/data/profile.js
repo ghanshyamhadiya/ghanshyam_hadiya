@@ -44,9 +44,9 @@ export const profile = {
     phone: '+91 76229 08854',
 
     resume: {
-        // public/resume.pdf is your real CV. Overwrite that file when you
+        // public/GhanshyamHadiya.pdf is your real CV. Overwrite that file when you
         // update it — no code change needed.
-        href: '/resume.pdf',
+        href: '/GhanshyamHadiya.pdf',
         label: 'Download CV',
         updated: 'Sept 2026',
     },

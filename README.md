@@ -122,7 +122,7 @@ Currently outstanding:
 
 | Asset | Notes |
 |---|---|
-| `public/resume.pdf` | Your real CV. Overwrite this file to update it |
+| `public/GhanshyamHadiya.pdf` | Your real CV. Overwrite this file to update it |
 | `public/photos/portrait-src.jpg` | Master portrait. Everything else is derived from it |
 | `public/photos/portrait-*.webp` | Generated crops — see below |
 | `public/og.png` | 1200×630 link preview, with your photo |
