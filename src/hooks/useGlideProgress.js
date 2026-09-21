@@ -5,10 +5,10 @@ import { SCROLL_GLIDE } from '../utils/motion';
 
 const DEFAULT_OFFSET = ['start 90%', 'end 15%'];
 
-const useGlideProgress = (ref, offset = DEFAULT_OFFSET) => {
+const useGlideProgress = (ref, offset = DEFAULT_OFFSET, spring = SCROLL_GLIDE) => {
     const reducedMotion = usePrefersReducedMotion();
     const { scrollYProgress } = useScroll({ target: ref, offset });
-    const progress = useSpring(scrollYProgress, SCROLL_GLIDE);
+    const progress = useSpring(scrollYProgress, spring);
     const still = useMotionValue(0);
     const previous = useRef(0);
 

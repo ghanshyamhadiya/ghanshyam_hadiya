@@ -7,13 +7,15 @@ const WIDTH = Number(process.argv[3] ?? 1440);
 const MODE = process.argv[4] ?? 'normal';
 const HEIGHT = Number(process.argv[5] ?? (WIDTH < 768 ? 844 : 900));
 const ONLY = process.argv[6];
+const PRESET = new URL(BASE).searchParams.get('motion') ?? 'curtain';
 const TITLES = {
     about: 'What I actually do', process: 'Four steps, every time', skills: 'The stack, layer by layer',
     experience: "Where I've done it", work: "Pipelines I've built",
     credentials: certifications.length ? 'Certifications & education' : 'Education', contact: 'Let’s talk',
 };
 if (!Number.isInteger(WIDTH) || WIDTH < 320 || !Number.isInteger(HEIGHT) || HEIGHT < 400
-    || !['normal', 'reduced', 'font-blocked'].includes(MODE) || (ONLY && !(ONLY in TITLES))) {
+    || !['normal', 'reduced', 'font-blocked'].includes(MODE) || (ONLY && !(ONLY in TITLES))
+    || !['cinema', 'lateral', 'curtain', 'depth'].includes(PRESET)) {
     throw new Error('Usage: node scripts/audit-cinematic-sections.mjs BASE WIDTH normal|reduced|font-blocked [HEIGHT] [SECTION]');
 }
 const STATIC = MODE === 'reduced' || HEIGHT <= 600;
@@ -51,7 +53,10 @@ const sample = (id) => page.locator(`#${id}`).evaluate((section) => {
         return [...range.getClientRects()].map((r) => ({ left: r.left, right: r.right, top: r.top, bottom: r.bottom, width: r.width, height: r.height }));
     });
     return {
-        mode: section.dataset.sceneMotion, title: matrix(title), content: matrix(content),
+        mode: section.dataset.sceneMotion, preset: section.dataset.motionPreset,
+        clip: getComputedStyle(title).clipPath,
+        titleTransform: getComputedStyle(title).transform,
+        title: matrix(title), content: matrix(content),
         contentTransform: getComputedStyle(content).transform,
         opacity: Number(getComputedStyle(content).opacity),
         rule: matrix(section.querySelector('[data-scene-rule]')).scale,
@@ -67,7 +72,8 @@ const sample = (id) => page.locator(`#${id}`).evaluate((section) => {
     };
 });
 const samePose = (a, b) => Math.abs(a.title.scale - b.title.scale) < .005 && Math.abs(a.title.x - b.title.x) < .5
-    && Math.abs(a.title.y - b.title.y) < .5 && Math.abs(a.content.y - b.content.y) < .5 && Math.abs(a.opacity - b.opacity) < .005;
+    && Math.abs(a.title.y - b.title.y) < .5 && Math.abs(a.content.y - b.content.y) < .5 && Math.abs(a.opacity - b.opacity) < .005
+    && a.clip === b.clip;
 const inkFits = (state) => state.lines.length > 0 && state.lines.every((line) => line.width > 0 && line.height > 0
     && line.left >= -1 && line.right <= state.viewportWidth + 1 && line.top >= -1 && line.bottom <= state.viewportHeight + 1);
 
@@ -93,6 +99,7 @@ try {
         await seek(id, 0);
         const start = await sample(id);
         assert(start.mode === (STATIC ? 'static' : 'cinematic'), `${id}: correct ${STATIC ? 'static' : 'cinematic'} mode`);
+        assert(start.preset === PRESET, `${id}: selected ${PRESET} direction is applied`);
         assert(start.visualText === title, `${id}: visual line layout retains exact heading copy`);
         if (STATIC) {
             assert(start.pinPosition === 'static' && start.runway === 0, `${id}: static layout removes pinning and extra runway`);
@@ -116,12 +123,29 @@ try {
             const middle = phases[2];
             const end = phases[4];
             assert(Math.abs(start.pinTop - middle.pinTop) < 2, `${id}: heading holds through the middle of the scene`);
-            assert(start.title.scale - end.title.scale > (WIDTH >= 768 ? .4 : .08), `${id}: noticeable large-to-settled scale transition`);
-            assert(start.title.scale > middle.title.scale && middle.title.scale > end.title.scale, `${id}: heading is continuously scroll-linked`);
+            if (PRESET === 'cinema') {
+                assert(start.title.scale - end.title.scale > (WIDTH >= 768 ? .4 : .08), `${id}: noticeable large-to-settled scale transition`);
+                assert(start.title.scale > middle.title.scale && middle.title.scale > end.title.scale, `${id}: heading is continuously scroll-linked`);
+            } else if (PRESET === 'lateral') {
+                assert(start.title.x - end.title.x > (WIDTH >= 768 ? 40 : 8), `${id}: noticeable lateral travel`);
+                assert(start.title.x > middle.title.x && middle.title.x > end.title.x, `${id}: lateral travel is continuously scroll-linked`);
+            } else if (PRESET === 'curtain') {
+                assert(start.clip !== 'none' && start.clip !== middle.clip && middle.clip !== end.clip, `${id}: whole-title curtain opens with scroll`);
+            } else {
+                assert(end.title.scale - start.title.scale > (WIDTH >= 768 ? .1 : .04), `${id}: noticeable far-to-near depth change`);
+                assert(start.titleTransform.startsWith('matrix3d(') && start.title.scale < middle.title.scale && middle.title.scale < end.title.scale,
+                    `${id}: perspective advances continuously without a flip`);
+            }
             assert(start.content.y > middle.content.y && middle.content.y > end.content.y && end.opacity >= .99, `${id}: content enters with the heading`);
             assert(Math.abs(end.title.scale - 1) < .001 && Math.abs(end.title.y) < .1 && Math.abs(end.title.x) < .1
                 && end.contentTransform === 'none', `${id}: reading state removes all residual content transforms`);
+            assert(end.clip === 'none', `${id}: reading state has no title clipping`);
             assert(end.rule > start.rule + .7, `${id}: divider shares the scene timeline`);
+            if (id === 'about' && process.env.CAPTURE_MOTION === '1') {
+                await seek(id, .5);
+                await page.screenshot({ path: `refs/motion-${PRESET}-${WIDTH}-${MODE}.png` });
+                await seek(id, 1);
+            }
             await page.waitForTimeout(350);
             assert(samePose(end, await sample(id)), `${id}: scene is still after scrolling stops`);
             await page.evaluate(() => window.scrollBy({ top: 150, behavior: 'instant' }));
@@ -171,5 +195,5 @@ try {
 } finally {
     await browser.close();
 }
-console.log(`\nCinematic sections ${WIDTH}x${HEIGHT} ${MODE}${ONLY ? ` (${ONLY})` : ''}: ${failures ? `${failures} failure(s)` : 'PASS'}`);
+console.log(`\nCinematic sections ${WIDTH}x${HEIGHT} ${MODE} ${PRESET}${ONLY ? ` (${ONLY})` : ''}: ${failures ? `${failures} failure(s)` : 'PASS'}`);
 process.exitCode = failures ? 1 : 0;

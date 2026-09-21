@@ -13,6 +13,7 @@ import Projects from './components/Projects';
 import Credentials from './components/Credentials';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
+import MotionLab from './components/MotionLab';
 import Preloader from './components/Preloader';
 import SkipLink from './components/SkipLink';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -129,6 +130,7 @@ function App() {
                         <Contact />
                     </main>
                     <Footer />
+                    <MotionLab />
                 </div>
             </MotionConfig>
         </ErrorBoundary>

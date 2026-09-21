@@ -7,6 +7,9 @@ import { EASE_GLIDE } from '../utils/motion';
 import { scrollToSection } from '../utils/smoothScroll';
 import useGlideProgress from '../hooks/useGlideProgress';
 import useBooted, { useIntroComplete } from '../hooks/useBooted';
+import { useBackgroundPreset } from '../hooks/useBackgroundPreview';
+import { useMediaQuery } from '../hooks/useMediaQuery';
+import BackgroundArt from './BackgroundArt';
 
 const DataHero = () => {
     const ref = useRef(null);
@@ -15,6 +18,8 @@ const DataHero = () => {
     const arrowRotate = useTransform(progress, [0, 1], [0, 45]);
     const booted = useBooted();
     const introComplete = useIntroComplete();
+    const background = useBackgroundPreset();
+    const shortViewport = useMediaQuery('(max-height: 600px)');
     const instant = reducedMotion || introComplete;
 
     const show = (delay, from = { opacity: 0, y: 16 }) => ({
@@ -24,8 +29,9 @@ const DataHero = () => {
     });
 
     return (
-        <section ref={ref} id="home" aria-label="Introduction" data-editorial-hero className="editorial-hero bg-canvas text-ink">
-            <div className="mx-auto w-full max-w-6xl px-5 sm:px-8" data-hero-content>
+        <section ref={ref} id="home" aria-label="Introduction" data-editorial-hero data-background-preset={background} className="editorial-hero background-surface bg-canvas text-ink">
+            <BackgroundArt preset={background} progress={progress} still={reducedMotion || shortViewport} />
+            <div className="relative z-[1] mx-auto w-full max-w-6xl px-5 sm:px-8" data-hero-content>
                 <motion.div {...show(0.05)} className="flex flex-wrap items-center justify-between gap-x-5 gap-y-2 border-b border-line pb-4">
                     <span className="font-mono text-[0.7rem] uppercase tracking-[0.12em] text-subtle">
                         {profile.role} / {profile.location}

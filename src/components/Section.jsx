@@ -3,6 +3,10 @@ import { motion, useTransform } from 'framer-motion';
 import { cn } from '../utils/cn';
 import useGlideProgress from '../hooks/useGlideProgress';
 import { useMediaQuery } from '../hooks/useMediaQuery';
+import { useMotionPreset } from '../hooks/useMotionPreview';
+import { useBackgroundPreset } from '../hooks/useBackgroundPreview';
+import BackgroundArt from './BackgroundArt';
+import { SECTION_GLIDE, getSectionPose } from '../utils/sectionMotion';
 
 // Section shell. Owns rhythm and the heading block so spacing cannot drift.
 //
@@ -37,18 +41,19 @@ const Section = ({
     const trackRef = useRef(null);
     const desktop = useMediaQuery('(min-width: 768px)');
     const shortViewport = useMediaQuery('(max-height: 600px)');
-    const { progress, reducedMotion } = useGlideProgress(trackRef, desktop ? ['start 112px', 'end 112px'] : ['start 88px', 'end 88px']);
+    const { progress, reducedMotion } = useGlideProgress(trackRef, desktop ? ['start 112px', 'end 112px'] : ['start 88px', 'end 88px'], SECTION_GLIDE);
     const still = reducedMotion || shortViewport;
+    const preset = useMotionPreset();
+    const background = useBackgroundPreset();
     const scene = useTransform(progress, (value) => {
         const t = Math.max(0, Math.min(1, value));
         return t * t * (3 - 2 * t);
     });
-    const scale = useTransform(scene, [0, 1], [desktop ? 1.6 : 1.12, 1]);
-    const x = useTransform(scene, [0, 1], [desktop ? '22%' : '0%', '0%']);
-    const y = useTransform(scene, [0, 1], [desktop ? 24 : 12, 0]);
-    const contentTransform = useTransform(scene, (value) => (value === 1 ? 'none' : `translate3d(0,${(desktop ? 80 : 44) * (1 - value)}px,0)`));
-    const contentOpacity = useTransform(scene, [0, 0.35, 0.8, 1], [0.3, 0.3, 1, 1]);
-    const ruleScale = useTransform(scene, [0, 1], [0.18, 1]);
+    const headingTransform = useTransform(scene, (value) => getSectionPose(preset, value, desktop).heading);
+    const headingClip = useTransform(scene, (value) => getSectionPose(preset, value, desktop).clip);
+    const contentTransform = useTransform(scene, (value) => getSectionPose(preset, value, desktop).content);
+    const contentOpacity = useTransform(scene, (value) => getSectionPose(preset, value, desktop).opacity);
+    const ruleScale = useTransform(scene, (value) => getSectionPose(preset, value, desktop).rule);
     const lines = titleLines?.join(' ') === title ? titleLines : [title];
     const titleId = `${id}-title`;
     const invert = tone === 'indigo' || tone === 'indigoDeep';
@@ -60,8 +65,10 @@ const Section = ({
             aria-labelledby={titleId}
             data-cinematic-section={id}
             data-scene-motion={still ? 'static' : 'cinematic'}
+            data-motion-preset={preset}
+            data-background-preset={background}
             className={cn(
-                'cinematic-section relative scroll-mt-24',
+                'cinematic-section background-surface relative scroll-mt-24',
                 TONES[tone] ?? TONES.canvas,
                 // Large rounded top corners plus a negative pull, so the
                 // section lifts over the one above rather than butting against
@@ -71,7 +78,8 @@ const Section = ({
                 className
             )}
         >
-            <div className="relative mx-auto max-w-6xl px-5 py-16 sm:px-8 md:py-24">
+            <BackgroundArt preset={background} progress={scene} still={still} inverted={invert} alternate={Number(index) % 2 === 1} />
+            <div className="relative z-[1] mx-auto max-w-6xl px-5 py-16 sm:px-8 md:py-24">
                 <div data-scene-lead className={cn('cinematic-lead', headerClassName)}>
                     <div ref={trackRef} data-scene-track className="cinematic-track" aria-hidden="true" />
                     <div data-scene-pin className="cinematic-pin">
@@ -79,7 +87,7 @@ const Section = ({
                             data-scene-rule
                             aria-hidden="true"
                             className={cn('mb-6 block h-px origin-left', invert ? 'bg-line-invert' : 'bg-line-strong')}
-                            style={still ? undefined : { scaleX: ruleScale }}
+                            style={still ? undefined : { scaleX: ruleScale, transformOrigin: preset === 'lateral' ? '100% 50%' : preset === 'curtain' ? '50% 50%' : '0% 50%' }}
                         />
                         <div className={cn('mb-5 flex items-center gap-3 font-mono text-[11px] uppercase tracking-[.16em]', invert ? 'text-canvas/70' : 'text-subtle')}>
                             {index && <span>{index}</span>}
@@ -89,7 +97,7 @@ const Section = ({
                             id={titleId}
                             data-cinematic-heading
                             className="cinematic-title"
-                            style={still ? undefined : { scale, x, y, transformOrigin: '0% 0%' }}
+                            style={still ? undefined : { transform: headingTransform, clipPath: headingClip, transformOrigin: preset === 'depth' ? '50% 50%' : '0% 0%' }}
                         >
                             <span className="sr-only">{title}</span>
                             <span aria-hidden="true">

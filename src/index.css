@@ -403,3 +403,29 @@
 [data-scene-motion="static"] .cinematic-pin { position:static; min-height:0; padding-bottom:32px; }
 [data-scene-motion="static"] .cinematic-runway { display:none; }
 [data-scene-motion="static"] .cinematic-track { height:1px; }
+
+.motion-lab { position:fixed; z-index:40; left:50%; bottom:max(12px,env(safe-area-inset-bottom)); transform:translateX(-50%); width:min(620px,calc(100% - 24px)); padding:4px 14px 12px; border:1px solid var(--color-line-strong); border-radius:16px; background:var(--color-canvas); color:var(--color-ink); box-shadow:0 10px 40px #242b271a; }
+.motion-lab--collapsed { width:max-content; max-width:calc(100% - 24px); padding-bottom:4px; }
+.motion-lab-header { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:40px; }
+.motion-lab-toggle { display:flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; border-radius:8px; }
+.motion-lab-options { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; }
+.motion-lab-options button { display:flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:8px; border:1px solid var(--color-line); border-radius:8px; font-size:13px; font-weight:600; }
+.motion-lab-options button[aria-pressed="true"] { background:var(--color-ink); border-color:var(--color-ink); color:var(--color-canvas); }
+.motion-lab-options button:not([aria-pressed="true"]):hover,.motion-lab-toggle:hover { background:var(--color-surface); }
+.motion-lab-description { margin:10px 0 6px; font-size:12px; line-height:1.4; }
+.motion-lab-footer { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:4px 12px; font-size:10px; color:var(--color-subtle); }
+.motion-lab-footer button { display:inline-flex; align-items:center; gap:6px; min-height:44px; font-size:12px; color:var(--color-ink); }
+.motion-lab button:focus-visible { outline:2px solid var(--color-pink-deep); outline-offset:3px; }
+@media (max-width:479px) { .motion-lab { padding-left:10px; padding-right:10px; } .motion-lab-options button { flex-direction:column; gap:2px; padding:6px 2px; font-size:12px; } }
+
+.background-surface { position:relative; isolation:isolate; }
+.section-backdrop { position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none; --backdrop-glow:#e7eee4; --backdrop-warm:#f4f0e7; --backdrop-line:#e8ede7; --backdrop-paper:#fbfaf7; --backdrop-paper-top:var(--color-canvas); }
+.section-backdrop[data-background-alternate="true"] { --backdrop-paper:#eef1eb; }
+.section-backdrop[data-background-inverted="true"] { --backdrop-glow:#304336; --backdrop-warm:#293a30; --backdrop-line:#35433a; --backdrop-paper:#28332b; --backdrop-paper-top:var(--color-indigo); }
+.backdrop-ambient { position:absolute; top:-48px; left:-48px; right:-48px; height:720px; max-height:calc(100% + 96px); background:radial-gradient(ellipse at 85% 25%,var(--backdrop-glow),transparent 62%),radial-gradient(ellipse at 8% 55%,var(--backdrop-warm),transparent 60%); mask-image:linear-gradient(#000 35%,transparent 100%); }
+.backdrop-grain { position:absolute; inset:0; max-height:720px; opacity:.008; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); mask-image:linear-gradient(#000 40%,transparent 100%); }
+.backdrop-contours { position:absolute; top:-36px; right:-36px; width:calc(100% + 72px); max-width:none; height:660px; color:var(--backdrop-line); mask-image:linear-gradient(#000 35%,transparent 100%); }
+.backdrop-paper-wash { position:absolute; inset:0; background:var(--backdrop-paper); }
+.backdrop-paper-sheet { position:absolute; top:-260px; left:-12%; width:124%; height:clamp(440px,55vw,680px); border-radius:0 0 48% 48% / 0 0 22% 22%; border-bottom:1px solid var(--backdrop-line); background:var(--backdrop-paper-top); }
+.background-lab-options { grid-template-columns:repeat(3,minmax(0,1fr)); }
+@media (max-width:767px) { .backdrop-ambient { height:600px; } .backdrop-contours { height:540px; } .backdrop-paper-sheet { top:-240px; height:440px; } }

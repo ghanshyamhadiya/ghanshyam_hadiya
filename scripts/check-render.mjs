@@ -118,5 +118,14 @@ const headingSystems = editorialHeadings.length === 0 && cinematicHeadings.lengt
 if (!headingSystems) failures += 1;
 console.log(`${headingSystems ? 'ok   ' : 'FAIL '} seven cinematic headings and no legacy word treatments (${cinematicHeadings.length}/${editorialHeadings.length})`);
 
+const curtainScenes = html.match(/<section\b[^>]*data-motion-preset="curtain"/g) ?? [];
+const defaultMotion = curtainScenes.length === 7 && !html.includes('data-motion-lab');
+if (!defaultMotion) failures += 1;
+console.log(`${defaultMotion ? 'ok   ' : 'FAIL '} Curtain is the default for all seven sections without preview`);
+const paperSurfaces = html.match(/<section\b[^>]*data-background-preset="paper"/g) ?? [];
+const paperArt = html.match(/data-background-art="paper"/g) ?? [];
+const defaultBackground = paperSurfaces.length === 8 && paperArt.length === 8 && !html.includes('data-background-lab');
+if (!defaultBackground) failures += 1;
+console.log(`${defaultBackground ? 'ok   ' : 'FAIL '} Paper renders behind the hero and all seven sections without preview controls`);
 console.log(failures ? `\n${failures} failure(s)` : '\nrender OK');
 process.exit(failures ? 1 : 0);
