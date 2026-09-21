@@ -29,10 +29,9 @@ const Panel = ({
         as={as}
         delay={delay}
         className={cn(
-            'group relative rounded-2xl border',
+            'group relative rounded-md border',
             TONES[tone] ?? TONES.surface,
-            hover &&
-                'transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_18px_40px_-20px_rgba(20,18,37,0.35)]',
+            hover && 'transition-colors duration-300 hover:border-ink/40',
             className
         )}
         {...rest}

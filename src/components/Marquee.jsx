@@ -102,7 +102,7 @@ const Marquee = ({
                     >
                         {items.map((item, index) => (
                             <li key={`${item}-${index}`} className="flex shrink-0 items-center gap-6 sm:gap-8">
-                                <span data-marquee-item className="font-display text-lg leading-normal sm:text-xl">{item}</span>
+                                <span data-marquee-item className="font-mono text-[0.75rem] uppercase leading-normal tracking-[0.08em]">{item}</span>
                                 <span aria-hidden="true" className="text-sm leading-normal opacity-50">
                                     {separator}
                                 </span>

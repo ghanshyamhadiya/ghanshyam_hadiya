@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import Lenis from 'lenis';
+import { MotionConfig } from 'framer-motion';
 import Navbar from './components/Navbar';
-import Hero from './components/Hero';
+import Hero from './components/DataHero';
 import MarqueeBand from './components/MarqueeBand';
 import Stats from './components/Stats';
 import About from './components/About';
@@ -12,10 +13,8 @@ import Projects from './components/Projects';
 import Credentials from './components/Credentials';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
-import Cursor from './components/Cursor';
 import Preloader from './components/Preloader';
 import SkipLink from './components/SkipLink';
-import WorldCanvas from './components/WorldCanvas';
 import ErrorBoundary from './components/ErrorBoundary';
 import { registerLenis, scrollToSection } from './utils/smoothScroll';
 import { usePrefersReducedMotion } from './hooks/useMediaQuery';
@@ -105,18 +104,17 @@ function App() {
     return (
         <ErrorBoundary>
             <SkipLink />
-            <Cursor />
 
             {/* One WebGL layer for the page, mounted above the document so
                 geometry can occlude DOM text while the text stays real.
                 Preloader sits inside it because the welcome curtain drives the
                 figure's assembly through the world context. */}
-            <WorldCanvas>
+            <MotionConfig reducedMotion="user">
                 {/* Boot state lives in utils/bootState.js rather than here:
                     almost every component reads it via useReveal, so it goes
                     through a store instead of being threaded down as a prop. */}
                 <Preloader />
-                <div className="min-h-screen overflow-x-clip">
+                <div className="min-h-screen overflow-x-clip" data-design="editorial">
                     <Navbar />
                     <main id="main">
                         <Hero />
@@ -132,7 +130,7 @@ function App() {
                     </main>
                     <Footer />
                 </div>
-            </WorldCanvas>
+            </MotionConfig>
         </ErrorBoundary>
     );
 }

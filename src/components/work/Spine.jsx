@@ -28,9 +28,7 @@ const Spine = ({ progress }) => {
 
             {!reducedMotion && (
                 <motion.span style={{ top }} className="absolute left-1/2 -translate-x-1/2">
-                    <span className="relative block h-3 w-3 -translate-y-1/2 rounded-full bg-amber shadow-[0_0_14px_4px_rgba(255,201,60,0.55)]">
-                        <span className="absolute inset-0 animate-ping rounded-full bg-amber/70" />
-                    </span>
+                    <span className="relative block h-3 w-3 -translate-y-1/2 rounded-full bg-amber" />
                 </motion.span>
             )}
         </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
-import { Download, ArrowUpRight } from 'lucide-react';
+import { Download, ArrowUpRight, X } from 'lucide-react';
 import Button from './Button';
 import { cn } from '../utils/cn';
 import { EASE_OUT_EXPO } from '../utils/motion';
@@ -51,7 +51,7 @@ const Navbar = () => {
         <>
             <motion.div
                 style={{ scaleX: progress }}
-                className="pointer-events-none fixed left-0 right-0 top-0 z-[60] h-1 origin-left bg-pink"
+                className="pointer-events-none fixed left-0 right-0 top-0 z-[60] h-0.5 origin-left bg-pink-deep"
             />
 
             <motion.header
@@ -59,13 +59,13 @@ const Navbar = () => {
                 animate={{ y: introComplete && hidden && !isOpen ? -140 : 0, opacity: booted ? 1 : 0 }}
                 transition={{ duration: 0.55, ease: EASE_OUT_EXPO, opacity: { duration: introComplete ? 0 : 0.55 } }}
                 inert={!introComplete}
-                className="pointer-events-none fixed left-0 right-0 top-0 z-50 px-4 pt-3 sm:px-6 sm:pt-4"
+                className="pointer-events-none fixed left-0 right-0 top-0 z-50 px-5 pt-0 sm:px-8 sm:pt-0"
             >
                 <div
                     className={cn(
                         'pointer-events-auto mx-auto flex max-w-6xl items-center justify-between gap-4',
-                        'rounded-full border border-ink/10 px-3 py-2 transition-all duration-400 sm:px-4',
-                        scrolled ? 'bg-canvas/90 shadow-[0_8px_30px_-14px_rgba(20,18,37,0.4)] backdrop-blur-xl' : 'bg-transparent'
+                        'border-b border-line py-4 transition-colors duration-300',
+                        scrolled ? 'bg-canvas/95 backdrop-blur-lg' : 'bg-canvas'
                     )}
                 >
                     {/* Wordmark */}
@@ -106,7 +106,7 @@ const Navbar = () => {
                                                 stiffness: 400,
                                                 damping: 34,
                                             }}
-                                            className="absolute inset-0 rounded-full bg-amber"
+                                            className="absolute inset-x-3 bottom-1 h-px bg-ink"
                                         />
                                     )}
                                     <span className="relative">{link.title}</span>
@@ -120,7 +120,7 @@ const Navbar = () => {
                             as="a"
                             href={profile.resume.href}
                             download
-                            variant="pink"
+                            variant="outline"
                             size="sm"
                             data-cursor="download cv"
                             icon={<Download size={13} />}
@@ -168,8 +168,17 @@ const Navbar = () => {
                         animate={{ clipPath: 'circle(150% at calc(100% - 3rem) 3rem)' }}
                         exit={{ clipPath: 'circle(0% at calc(100% - 3rem) 3rem)' }}
                         transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
-                        className="fixed inset-0 z-[65] bg-amber lg:hidden"
+                        className="fixed inset-0 z-[65] bg-canvas lg:hidden"
                     >
+                        <button
+                            type="button"
+                            aria-label="Close menu"
+                            onClick={() => setIsOpen(false)}
+                            className="absolute right-5 top-4 z-10 inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-md border border-line bg-canvas px-3 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-canvas sm:right-8"
+                        >
+                            <span>Close</span>
+                            <X size={18} aria-hidden="true" />
+                        </button>
                         <nav className="flex h-full w-full flex-col justify-center px-6 pb-16 pt-24 sm:px-10">
                             {navLinks.map((link, index) => (
                                 <motion.a

@@ -1,7 +1,7 @@
 import React, { useId, useRef, useState } from 'react';
 import { motion, useMotionValueEvent, useTransform } from 'framer-motion';
 import { ArrowUpRight, Github, Plus } from 'lucide-react';
-import Starburst from '../Starburst';
+
 import Button from '../Button';
 import PipelineFlow from './PipelineFlow';
 import RunLog from './RunLog';
@@ -86,7 +86,7 @@ const Stage = ({ project, index, total }) => {
                         {project.tagline}
                     </p>
                 </div>
-                <Starburst label={project.year} size={54} className="shrink-0" />
+                <span className="shrink-0 font-mono text-[0.7rem] text-canvas/70">{project.year}</span>
             </div>
 
             <p className="mt-4 max-w-2xl text-[0.92rem] leading-relaxed text-canvas/75">

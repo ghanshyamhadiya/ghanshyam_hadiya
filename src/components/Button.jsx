@@ -35,7 +35,7 @@ const Button = ({
     return (
         <Component
             className={cn(
-                'group inline-flex items-center justify-center gap-2.5 rounded-full font-display font-semibold',
+                'group inline-flex items-center justify-center gap-2.5 rounded-md font-display font-semibold',
                 'transition-all duration-300 ease-out active:scale-[0.97]',
                 VARIANTS[variant] ?? VARIANTS.pink,
                 SIZES[size] ?? SIZES.md,
@@ -45,7 +45,7 @@ const Button = ({
         >
             {children}
             {icon && (
-                <span className="transition-transform duration-300 group-hover:translate-x-0.5">
+                <span className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-1">
                     {icon}
                 </span>
             )}

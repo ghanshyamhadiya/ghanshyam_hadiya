@@ -11,9 +11,9 @@ import { stagger } from '../utils/motion';
 const Chip = ({ item }) => (
     <span
         className={cn(
-            'rounded-full border px-3 py-1.5 font-mono text-[0.7rem] transition-colors duration-200',
+            'rounded-md border px-3 py-1.5 font-mono text-[0.7rem] transition-colors duration-200',
             item.primary
-                ? 'border-transparent bg-indigo text-canvas'
+                ? 'border-transparent bg-ink text-canvas'
                 : 'border-line-strong bg-transparent text-muted hover:border-ink hover:text-ink'
         )}
     >
@@ -55,14 +55,14 @@ const Skills = () => (
         index="03"
         eyebrow="Toolkit"
         title="The stack, layer by layer"
-        titleMotion="layers"
+        titleLines={['The stack,', 'layer by layer']}
         intro="Grouped the way data moves through a platform rather than as a flat keyword list. Filled chips are tools I have owned in production."
         tone="canvas"
         curved
     >
         <div className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-[0.66rem] uppercase tracking-[0.1em] text-subtle">
             <span className="flex items-center gap-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-indigo" />
+                <span className="h-2.5 w-2.5 rounded-full bg-ink" />
                 Production ownership
             </span>
             <span className="flex items-center gap-2">
@@ -78,7 +78,7 @@ const Skills = () => (
         </ol>
 
         {exploring?.items?.length > 0 && (
-            <Reveal className="mt-8 rounded-2xl border border-dashed border-line-strong p-5">
+            <Reveal className="mt-8 rounded-none border-x-0 border-b-0 border-t border-line-strong p-0 pt-6">
                 <h3 className="label text-subtle">{exploring.layer}</h3>
                 {exploring.blurb && (
                     <p className="mt-2 text-[0.82rem] leading-relaxed text-subtle">
@@ -89,7 +89,7 @@ const Skills = () => (
                     {exploring.items.map((item) => (
                         <span
                             key={item.name}
-                            className="rounded-full border border-dashed border-line-strong px-3 py-1.5 font-mono text-[0.7rem] text-subtle"
+                            className="rounded-md border border-line-strong px-3 py-1.5 font-mono text-[0.7rem] text-subtle"
                         >
                             {item.name}
                         </span>

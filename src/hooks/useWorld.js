@@ -12,6 +12,8 @@ export const WorldContext = createContext({
     ready: false,
     registerAnchor: () => () => {},
     anchorRect: () => null,
+    paused: false,
+    setPaused: () => {},
     setScroll: () => {},
     setVisible: () => {},
     setAssembly: () => {},

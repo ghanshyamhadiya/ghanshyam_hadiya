@@ -6,11 +6,11 @@ import { useWorld } from '../hooks/useWorld';
 // scroll) and projects the matching geometry into it per frame.
 const Station = ({ id, className, style }) => {
     const ref = useRef(null);
-    const world = useWorld();
+    const { live, registerAnchor } = useWorld();
     useEffect(() => {
-        if (!world.live || !ref.current) return undefined;
-        return world.registerAnchor(id, ref.current);
-    }, [world, id]);
+        if (!live || !ref.current) return undefined;
+        return registerAnchor(id, ref.current);
+    }, [live, registerAnchor, id]);
     return <div ref={ref} data-station={id} aria-hidden="true" className={className} style={style} />;
 };
 

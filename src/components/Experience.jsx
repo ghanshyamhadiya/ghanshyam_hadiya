@@ -5,6 +5,7 @@ import Section from './Section';
 import Reveal from './Reveal';
 import { experience } from '../data';
 import { stagger } from '../utils/motion';
+import { usePrefersReducedMotion } from '../hooks/useMediaQuery';
 
 const TimelineItem = ({ item, index }) => (
     <Reveal
@@ -13,7 +14,7 @@ const TimelineItem = ({ item, index }) => (
         className="group relative pb-12 pl-7 last:pb-0 sm:pl-12"
     >
         <span
-            className="absolute left-0 top-1 flex h-4 w-4 -translate-x-1/2 items-center justify-center rounded-full border-2 border-ink bg-canvas transition-colors duration-300 group-hover:bg-pink"
+            className="absolute left-0 top-1 flex h-4 w-4 -translate-x-1/2 items-center justify-center rounded-full border-2 border-ink bg-canvas transition-colors duration-300 group-hover:bg-pink-deep"
             aria-hidden="true"
         >
             {item.current && <span className="h-1.5 w-1.5 rounded-full bg-ink" />}
@@ -25,7 +26,7 @@ const TimelineItem = ({ item, index }) => (
                     {item.start} → {item.current ? 'Present' : item.end}
                 </p>
                 {item.current && (
-                    <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-pink px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-[0.1em] text-ink">
+                    <span className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-pink-deep px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-[0.1em] text-canvas">
                         Current
                     </span>
                 )}
@@ -62,7 +63,7 @@ const TimelineItem = ({ item, index }) => (
                                 className="flex gap-3 text-[0.9rem] leading-relaxed text-muted"
                             >
                                 <span
-                                    className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-pink"
+                                    className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-pink-deep"
                                     aria-hidden="true"
                                 />
                                 {achievement}
@@ -90,6 +91,7 @@ const TimelineItem = ({ item, index }) => (
 
 const Experience = () => {
     const listRef = useRef(null);
+    const reducedMotion = usePrefersReducedMotion();
     const { scrollYProgress } = useScroll({
         target: listRef,
         offset: ['start 65%', 'end 65%'],
@@ -102,7 +104,7 @@ const Experience = () => {
             index="04"
             eyebrow="Career"
             title="Where I've done it"
-            titleMotion="unfold"
+            titleLines={["Where I've", 'done it']}
             intro="Roles, scope and the outcomes that came out of them."
             tone="surface"
             curved
@@ -113,7 +115,7 @@ const Experience = () => {
                     aria-hidden="true"
                 />
                 <motion.span
-                    style={{ scaleY: lineScale }}
+                    style={{ scaleY: reducedMotion ? 1 : lineScale }}
                     className="absolute bottom-0 left-0 top-1 w-0.5 origin-top rounded-full bg-indigo"
                     aria-hidden="true"
                 />

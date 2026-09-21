@@ -36,7 +36,7 @@ const RunLog = ({ project, progress, className }) => {
         <ul
             aria-hidden="true"
             className={cn(
-                'space-y-1 rounded-2xl bg-indigo-deep/50 p-4 font-mono text-[0.68rem] leading-relaxed',
+                'space-y-1 rounded-md bg-indigo-deep/50 p-4 font-mono text-[0.68rem] leading-relaxed',
                 className
             )}
         >

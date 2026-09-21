@@ -17,7 +17,7 @@ import { usePrefersReducedMotion } from '../hooks/useMediaQuery';
 const Band = ({ className, children }) => (
     <div
         data-marquee-band
-        className={`relative w-full min-w-0 border-y border-ink ${className}`}
+        className={`relative w-full min-w-0 border-y border-line ${className}`}
     >
         {children}
     </div>
@@ -28,16 +28,11 @@ const MarqueeBand = () => {
     const reducedMotion = usePrefersReducedMotion();
     const id = useId();
     const firstId = `${id}-tools-left`;
-    const secondId = `${id}-tools-right`;
 
     return (
-        <div data-marquee-wrapper className="relative flex flex-col gap-3 bg-canvas py-3 sm:py-4">
-            <Band className="bg-pink text-ink">
-                <Marquee id={firstId} items={marqueeItems} paused={paused} label={reducedMotion ? 'Tools I work with' : 'Tools I work with, moving left'} separator="✦" />
-            </Band>
-
-            <Band className="bg-indigo text-canvas">
-                <Marquee id={secondId} items={marqueeItems} paused={paused} label={reducedMotion ? 'Tools I work with' : 'Tools I work with, moving right'} reverse separator="◆" />
+        <div data-marquee-wrapper className="relative flex flex-col gap-3 bg-canvas py-4">
+            <Band className="bg-canvas text-muted">
+                <Marquee id={firstId} items={marqueeItems} paused={paused} label={reducedMotion ? 'Tools I work with' : 'Tools I work with, moving left'} separator="/" />
             </Band>
 
             {!reducedMotion && (
@@ -45,7 +40,7 @@ const MarqueeBand = () => {
                     <button
                         type="button"
                         data-marquee-toggle
-                        aria-controls={`${firstId} ${secondId}`}
+                        aria-controls={firstId}
                         aria-pressed={paused}
                         onClick={() => setPaused((value) => !value)}
                         className="min-h-11 rounded-full border border-line px-4 text-xs font-medium text-muted transition-colors hover:border-ink hover:text-ink focus-visible:outline-offset-2"

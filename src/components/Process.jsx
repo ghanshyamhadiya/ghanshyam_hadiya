@@ -4,39 +4,29 @@ import Section from './Section';
 import { process } from '../data';
 import useGlideProgress from '../hooks/useGlideProgress';
 
-const TONES = [
-    'bg-surface',
-    'bg-canvas',
-    'bg-surface',
-    'bg-canvas',
-];
-
 const Step = ({ step, index }) => {
     const ref = useRef(null);
     const { progress, reducedMotion } = useGlideProgress(ref, ['start 85%', 'start 40%']);
-    const scale = useTransform(progress, [0, 1], [0.86, 1]);
-    const rotate = useTransform(progress, [0, 1], [-8, 0]);
-    return <motion.li
-        ref={ref}
-        data-process-step={index + 1}
-        className={`group relative flex flex-col overflow-hidden rounded-2xl border border-line p-6 sm:p-7 ${TONES[index % TONES.length]}`}
-    >
-        <motion.span aria-hidden="true" data-process-progress className="absolute inset-x-0 top-0 h-1 origin-left bg-indigo" style={{ scaleX: reducedMotion ? 1 : progress }} />
-        <div className="flex items-center justify-between gap-3">
-            <span className="label text-pink-deep">Step {String(index + 1).padStart(2, '0')}</span>
-            <motion.span aria-hidden="true" className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo font-display text-xl text-canvas" style={reducedMotion ? undefined : { scale, rotate }}>{index + 1}</motion.span>
-        </div>
-
-        <h3 className="mt-4 font-display text-xl leading-tight sm:text-2xl">{step.title}</h3>
-
-        <p className="mt-3 flex-1 text-[0.9rem] leading-relaxed text-muted">{step.body}</p>
-
-        {step.aside && (
-            <span className="mt-5 inline-flex w-max rounded-full bg-amber-soft px-3 py-1.5 font-mono text-[0.65rem] tracking-[0.06em] text-ink">
-                {step.aside}
-            </span>
-        )}
-    </motion.li>;
+    const rotateX = useTransform(progress, [0, 1], [12, 0]);
+    const y = useTransform(progress, [0, 1], [28, 0]);
+    return (
+        <motion.li
+            ref={ref}
+            data-process-step={index + 1}
+            className="relative grid gap-4 border-t border-line py-8 md:grid-cols-[64px_minmax(0,1fr)_minmax(0,1.4fr)] md:gap-8"
+            style={reducedMotion ? undefined : { y, rotateX, transformPerspective: 900 }}
+        >
+            <span aria-hidden="true" className="font-display text-3xl font-normal text-subtle">{String(index + 1).padStart(2, '0')}</span>
+            <h3 className="font-display text-2xl leading-tight">{step.title}</h3>
+            <div>
+                <p className="text-[0.95rem] leading-relaxed text-muted">{step.body}</p>
+                {step.aside && (
+                    <p className="mt-4 font-mono text-[0.65rem] uppercase tracking-wider text-pink-deep">{step.aside}</p>
+                )}
+            </div>
+            <motion.span data-process-progress aria-hidden="true" className="absolute inset-x-0 bottom-0 h-px origin-left bg-pink-deep" style={{ scaleX: reducedMotion ? 1 : progress }} />
+        </motion.li>
+    );
 };
 
 // "How I work" — the reference site's numbered How-it-works pattern, which for
@@ -48,12 +38,12 @@ const Process = () => (
         index="02"
         eyebrow="How I work"
         title="Four steps, every time"
-        titleMotion="arc"
+        titleLines={['Four steps,', 'every time']}
         intro="The same sequence whether it is an ODI mapping or a Databricks notebook. Most pipeline failures are decisions skipped in the first two steps."
         tone="soft"
         curved
     >
-        <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <ol>
             {process.map((step, index) => (
                 <Step key={step.title} step={step} index={index} />
             ))}

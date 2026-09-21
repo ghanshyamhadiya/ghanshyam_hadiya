@@ -1,7 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { animate, motion, useMotionValue, useTransform } from 'framer-motion';
 import { profile } from '../data';
-import SystemBackdrop from './SystemBackdrop';
 import { shouldPlayIntro, introDuration, markIntroPlayed, setBooted, finishIntro } from '../utils/bootState';
 import { EASE_GLIDE, INTRO_TIMING } from '../utils/motion';
 import { useIntroComplete } from '../hooks/useBooted';
@@ -66,7 +65,7 @@ const MarkFlight = ({ item, progress, initials }) => {
     const width = useTransform(progress, [0, 1], [item.from.width, item.to.width]);
     const height = useTransform(progress, [0, 1], [item.from.height, item.to.height]);
     const fontSize = useTransform(progress, [0, 1], [item.from.fontSize, item.to.fontSize]);
-    const backgroundColor = useTransform(progress, [0, 1], ['#332c81', item.to.backgroundColor]);
+    const backgroundColor = useTransform(progress, [0, 1], ['#242b27', item.to.backgroundColor]);
     const borderWidth = useTransform(progress, [0, 1], [2, 0]);
     return (
         <motion.span
@@ -205,21 +204,14 @@ const Preloader = () => {
                 // finishes moving; a slower curtain ate most of the hero's
                 // entrance on narrow screens.
             >
-                <SystemBackdrop dark variant="welcome" />
                 {/* Amber shapes sweep in from opposite corners, then leave
                     with the curtain — the reference site's signature move. */}
-                <motion.span
-                    className="pointer-events-none absolute -bottom-24 -left-20 h-72 w-72 rounded-full bg-pink"
-                    initial={{ scale: 0.6 }}
-                    animate={{ scale: 1 }}
-                    // Settled shortly before the peel, so the shapes read as
-                    // arriving rather than being yanked away mid-entrance.
-                    transition={{ duration: 1.2 / timing.rate, ease: EASE_GLIDE }}
-                />
+                {/* Settled shortly before the peel, so the shapes read as
+                    arriving rather than being yanked away mid-entrance. */}
                 {flight?.names.map((item, index) => <NameFlight key={index} item={item} index={index} progress={progress} tone="light" />)}
                 {/* Name */}
                 <div className="relative flex h-full flex-col items-center justify-center px-5 text-center" style={{ visibility: flight ? 'hidden' : undefined }}>
-                    <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 / timing.rate }} className="font-hand mb-5 text-2xl text-amber">Welcome</motion.span>
+                    <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 / timing.rate }} className="label mb-5 text-canvas/70">Welcome</motion.span>
                     <motion.span
                         ref={mark}
                         data-intro-mark

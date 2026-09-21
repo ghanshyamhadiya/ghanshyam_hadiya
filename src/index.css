@@ -35,25 +35,25 @@
   --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 
   /* Surfaces */
-  --color-canvas: #fff7ec;
+  --color-canvas: #f7f6f2;
   --color-surface: #ffffff;
-  --color-amber: #ffc93c;
-  --color-amber-soft: #ffe9a8;
-  --color-indigo: #332c81;
-  --color-indigo-deep: #221c5c;
-  --color-pink: #ff1e8e;
-  --color-pink-deep: #d6006f;
+  --color-amber: #dfe9e1;
+  --color-amber-soft: #eeefea;
+  --color-indigo: #242b27;
+  --color-indigo-deep: #18201b;
+  --color-pink: #dfe9e1;
+  --color-pink-deep: #365d49;
 
   /* Text. Worst-case ratios against the lightest surface they sit on:
      ink 17.29 · muted 8.55 · subtle 4.96 — all clear WCAG AA for body copy. */
-  --color-ink: #141225;
-  --color-muted: #4a4560;
-  --color-subtle: #6e6885;
+  --color-ink: #1d211e;
+  --color-muted: #4d5650;
+  --color-subtle: #626c65;
 
   /* Hairlines */
-  --color-line: rgba(20, 18, 37, 0.12);
-  --color-line-strong: rgba(20, 18, 37, 0.26);
-  --color-line-invert: rgba(255, 247, 236, 0.18);
+  --color-line: rgba(29, 33, 30, 0.14);
+  --color-line-strong: rgba(29, 33, 30, 0.3);
+  --color-line-invert: rgba(247, 246, 242, 0.2);
 
   /* Fluid type. Display is SENTENCE CASE — the friendliness of this direction
      comes from rounded lowercase forms, not from caps.
@@ -112,7 +112,7 @@
   .font-display {
     font-family: var(--font-display);
     font-weight: 700;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.045em;
     line-height: 0.92;
   }
 
@@ -124,7 +124,7 @@
 
   ::selection {
     background-color: var(--color-pink);
-    color: var(--color-canvas);
+    color: var(--color-ink);
   }
 
   :focus-visible {
@@ -148,7 +148,7 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: var(--color-indigo);
+    background: var(--color-ink);
     border: 3px solid var(--color-canvas);
     border-radius: 999px;
   }
@@ -285,3 +285,121 @@
     scroll-behavior: auto !important;
   }
 }
+
+.data-hero {
+  padding: 112px 0 36px;
+}
+@media (min-width: 1024px) {
+  .data-hero {
+    padding: 124px 0 48px;
+  }
+}
+.data-hero-grid {
+  display: grid;
+  gap: 32px;
+}
+@media (min-width: 1024px) {
+  .data-hero-grid {
+    grid-template-columns: 1.15fr 1fr;
+    gap: 40px;
+    align-items: center;
+  }
+}
+.data-scene {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  isolation: isolate;
+}
+.data-scene-panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 2rem;
+  border: 1px solid rgba(255, 247, 236, 0.15);
+  background:
+    radial-gradient(60% 50% at 78% 18%, rgba(255, 201, 60, 0.16), transparent 70%),
+    radial-gradient(55% 55% at 18% 85%, rgba(255, 30, 142, 0.14), transparent 70%),
+    linear-gradient(rgba(255, 247, 236, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 247, 236, 0.045) 1px, transparent 1px),
+    linear-gradient(165deg, #3a338f 0%, var(--color-indigo-deep) 70%);
+  background-size:
+    100% 100%,
+    100% 100%,
+    26px 26px,
+    26px 26px,
+    100% 100%;
+}
+
+.editorial-hero {
+  padding: 100px 0 32px;
+}
+@media (min-width: 1024px) {
+  .editorial-hero {
+    padding: 110px 0 40px;
+  }
+}
+.editorial-name {
+  font-weight: 600;
+  font-size: clamp(3.2rem, 9.6vw, 8.5rem);
+  line-height: 0.94;
+  letter-spacing: -0.065em;
+}
+.editorial-name-row {
+  display: block;
+  padding-bottom: 0.07em;
+}
+.editorial-name-row--end {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 24px;
+}
+.editorial-name-arrow {
+  width: clamp(2rem, 7vw, 6rem);
+  height: auto;
+  flex-shrink: 0;
+}
+.editorial-heading {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 5.8vw, 5.25rem);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.05em;
+  margin: 0;
+}
+.editorial-contact-title {
+  font-size: clamp(4rem, 13vw, 11rem);
+}
+.editorial-contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 2.4vw, 1.9rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--color-ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-line-strong);
+  padding-bottom: 0.15em;
+  transition: color 0.25s var(--ease-out-expo), border-color 0.25s var(--ease-out-expo);
+}
+.editorial-contact-link:hover {
+  color: var(--color-pink-deep);
+  border-color: var(--color-pink-deep);
+}
+
+.cinematic-section { --scene-travel: 140px; --scene-pin-top: 88px; }
+.cinematic-lead { position: relative; }
+.cinematic-track { position: absolute; top: 0; left: 0; width: 1px; height: var(--scene-travel); pointer-events: none; }
+.cinematic-pin { position: sticky; top: var(--scene-pin-top); min-height: 200px; padding-bottom: 32px; }
+.cinematic-runway { height: var(--scene-travel); }
+.cinematic-title { display: inline-block; margin: 0; font-family: var(--font-display); font-size: clamp(2.5rem,10vw,3rem); font-weight: 600; line-height: 1.02; letter-spacing: -.055em; }
+@media (min-width:768px) {
+ .cinematic-section { --scene-travel: clamp(180px,27svh,260px); --scene-pin-top:112px; }
+ .cinematic-pin { min-height:240px; padding-bottom:40px; }
+ .cinematic-title { font-size:clamp(3.75rem,5.2vw,4.75rem); }
+}
+[data-scene-motion="static"] .cinematic-pin { position:static; min-height:0; padding-bottom:32px; }
+[data-scene-motion="static"] .cinematic-runway { display:none; }
+[data-scene-motion="static"] .cinematic-track { height:1px; }

@@ -13,7 +13,7 @@ const CopyButton = ({ value, label = 'Copy', className, invert = false }) => {
             data-cursor={copied ? 'copied' : 'copy'}
             aria-label={copied ? 'Copied to clipboard' : `${label} ${value}`}
             className={cn(
-                'inline-flex items-center gap-2 rounded-full border px-4 py-2',
+                'inline-flex items-center gap-2 rounded-md border px-4 py-2',
                 'font-display text-[0.8rem] font-semibold transition-colors duration-300',
                 invert
                     ? 'border-canvas/40 text-canvas hover:bg-canvas hover:text-indigo'

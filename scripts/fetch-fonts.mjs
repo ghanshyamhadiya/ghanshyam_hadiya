@@ -27,4 +27,23 @@ for (const { file, query } of FAMILIES) {
     await writeFile(`public/fonts/${file}.woff2`, bytes);
     console.log(`ok    ${file}.woff2 (${(bytes.length / 1024).toFixed(1)} KB)`);
 }
+
+// The 3D heading pipeline parses outlines with opentype.js, which cannot read
+// woff2. A legacy UA gets WOFF instead, served as four static weights — the
+// display face tops out at 700 — and the response carries no unicode-range
+// blocks. The file is a build-time intermediate under gitignored refs/: it is
+// parsed by build-heading-paths.mjs and never shipped.
+const LEGACY_UA = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.2 Safari/537.36';
+const legacyCss = await fetch('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&display=swap', { headers: { 'User-Agent': LEGACY_UA } });
+if (!legacyCss.ok) throw new Error(`woff: CSS request failed with ${legacyCss.status}`);
+const bold = (await legacyCss.text()).split('@font-face').find((block) => /font-weight:\s*700/.test(block));
+const woffUrl = bold?.match(/url\((https:[^)]+\.woff)\)/)?.[1];
+if (!woffUrl) throw new Error('woff: no 700-weight woff URL in the returned CSS');
+const woff = await fetch(woffUrl, { headers: { 'User-Agent': LEGACY_UA } });
+if (!woff.ok) throw new Error(`woff: download failed with ${woff.status}`);
+const woffBytes = Buffer.from(await woff.arrayBuffer());
+if (woffBytes.subarray(0, 4).toString('latin1') !== 'wOFF') throw new Error('woff: download is not a WOFF file');
+await mkdir('refs/fonts-src', { recursive: true });
+await writeFile('refs/fonts-src/space-grotesk-700.woff', woffBytes);
+console.log(`ok    refs/fonts-src/space-grotesk-700.woff (${(woffBytes.length / 1024).toFixed(1)} KB)`);
 console.log('\nfonts fetched');

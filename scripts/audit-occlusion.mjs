@@ -21,8 +21,8 @@ if (!['normal', 'reduced'].includes(MODE) || !Number.isInteger(WIDTH) || WIDTH <
 // A glyph sitting under a couple of percent of stray antialiasing is not
 // covered in any way a reader would notice.
 const CLEAR = 0.02;
-const NAME_MIN = 0.02;
-const NAME_MAX = 0.4;
+const NAME_MIN = 0;
+const NAME_MAX = CLEAR;
 
 let failures = 0;
 const assert = (ok, message) => {
@@ -97,7 +97,7 @@ try {
         const covered = name.reduce((total, entry) => total + entry.coverage, 0) / Math.max(1, name.length);
         assert(name.length > 0, `hero name is real measurable DOM text (${name.length} runs)`);
         assert(covered >= NAME_MIN && covered <= NAME_MAX,
-            `hero name is partly but not badly occluded (${(covered * 100).toFixed(1)}%, allowed ${NAME_MIN * 100}-${NAME_MAX * 100}%)`);
+            `hero name stays clear of geometry (${(covered * 100).toFixed(1)}%, allowed ${NAME_MIN * 100}-${NAME_MAX * 100}%)`);
     }
 
     // Walk the whole page: every station added later lands in one of these.
@@ -126,14 +126,14 @@ try {
         return {
             events: style.pointerEvents,
             fixed: style.position === 'fixed',
-            above: Number(style.zIndex) >= 9998,
+            above: Number(style.zIndex) > 10 && Number(style.zIndex) < 50,
             canvasEvents: canvas ? getComputedStyle(canvas).pointerEvents : 'none',
             hidden: layer.getAttribute('aria-hidden') === 'true',
         };
     });
     assert(passthrough.events === 'none' && passthrough.canvasEvents === 'none',
         `layer and canvas both ignore pointer events (${passthrough.events}/${passthrough.canvasEvents})`);
-    assert(passthrough.fixed && passthrough.above, 'layer is viewport-fixed and above the document');
+    assert(passthrough.fixed && passthrough.above, 'layer is viewport-fixed, above section surfaces and below navigation');
     assert(passthrough.hidden, 'layer is hidden from assistive technology');
 
     // Clicks and selection must reach the document underneath.

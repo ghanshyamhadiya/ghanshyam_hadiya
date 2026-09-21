@@ -38,7 +38,7 @@ const FlowNode = ({ node, index, count, progress, isEdge }) => {
         <motion.li
             style={{ opacity, scale, y }}
             className={cn(
-                'flex shrink-0 snap-start items-center gap-2 rounded-2xl px-3 py-2.5',
+                'flex shrink-0 snap-start items-center gap-2 rounded-md px-3 py-2.5',
                 'lg:min-w-0 lg:flex-1 lg:shrink lg:flex-col lg:items-stretch lg:px-3 lg:py-3.5 lg:text-center',
                 // Source and serve are amber so the direction of flow reads at
                 // a glance without needing to read a single label.

@@ -25,17 +25,17 @@ const ratio = (a, b) => {
 
 // Must mirror the @theme block in src/index.css.
 const C = {
-    canvas: '#fff7ec',
+    canvas: '#f7f6f2',
     surface: '#ffffff',
-    amber: '#ffc93c',
-    amberSoft: '#ffe9a8',
-    indigo: '#332c81',
-    indigoDeep: '#221c5c',
-    pink: '#ff1e8e',
-    pinkDeep: '#d6006f',
-    ink: '#141225',
-    muted: '#4a4560',
-    subtle: '#6e6885',
+    amber: '#dfe9e1',
+    amberSoft: '#eeefea',
+    indigo: '#242b27',
+    indigoDeep: '#18201b',
+    pink: '#dfe9e1',
+    pinkDeep: '#365d49',
+    ink: '#1d211e',
+    muted: '#4d5650',
+    subtle: '#626c65',
 };
 
 // BODY  4.5 — any text below 24px (or 18.66px bold)
@@ -73,9 +73,9 @@ const pairs = [
     [C.canvas, C.indigo, BODY, 'cream on indigo button'],
 
     // Large-display and decorative only
-    [C.pink, C.canvas, LARGE, 'pink on canvas (display only)'],
-    [C.pink, C.indigo, LARGE, 'pink on indigo (display only)'],
-    [C.amber, C.canvas, DECOR, 'amber on canvas (decoration only)'],
+    [C.pinkDeep, C.canvas, BODY, 'sage editorial accent on paper'],
+    [C.pink, C.indigo, LARGE, 'pale sage on charcoal (display)'],
+    [C.amber, C.canvas, DECOR, 'pale sage on paper (decoration only)'],
 ];
 
 // Pairings that must NEVER be used. Reported if someone widens the palette

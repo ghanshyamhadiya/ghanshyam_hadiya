@@ -1,10 +1,5 @@
 import React from 'react';
 import Section from './Section';
-import Panel from './Panel';
-import Reveal from './Reveal';
-import Signature, { Annotation } from './Signature';
-import AnimatedText from './AnimatedText';
-import Blob from './Blob';
 import { profile } from '../data';
 
 const Row = ({ term, value }) => (
@@ -20,50 +15,28 @@ const About = () => (
         index="01"
         eyebrow="Profile"
         title="What I actually do"
-        titleMotion="opposed"
-        tone="canvas"
-        className="overflow-hidden"
+        titleLines={['What I', 'actually do']}
+        contentClassName="grid gap-10 md:grid-cols-12 md:gap-10"
     >
-        <Blob
-            variant={0}
-            color="#FFE9A8"
-            className="-right-[18%] top-[10%] h-[50vh] w-[50vh] opacity-70"
-            duration={28}
-        />
+        <div className="space-y-5 md:col-span-7">
+            {profile.about.map((paragraph) => (
+                <p key={paragraph} className="text-base leading-relaxed text-muted sm:text-lg">{paragraph}</p>
+            ))}
+        </div>
 
-        <div className="relative grid gap-10 md:grid-cols-12 md:gap-10">
-            <div className="space-y-5 md:col-span-7">
-                {profile.about.map((paragraph, index) => (
-                    <AnimatedText
-                        key={index}
-                        text={paragraph}
-                        index={index}
-                        className="text-base leading-relaxed text-muted sm:text-lg"
-                    />
-                ))}
+        <div className="md:col-span-5 md:self-start">
+            <aside className="border-t border-line-strong pt-6" aria-labelledby="about-currently-title">
+                <h3 id="about-currently-title" className="label text-pink-deep">{profile.currently.label}</h3>
+                <p className="mt-3 text-[0.85rem] leading-relaxed text-ink/80">
+                    {profile.currently.text}
+                </p>
 
-                <Reveal delay={0.2} className="flex items-end gap-4 pt-2">
-                    <Signature className="text-indigo" />
-                    <Annotation className="mb-1 text-pink-deep" rotate={-4}>
-                        nice to meet you
-                    </Annotation>
-                </Reveal>
-            </div>
-
-            <div className="md:sticky md:top-28 md:col-span-5 md:self-start">
-                <Panel tone="soft" delay={0.12} hover={false} className="p-5 sm:p-7">
-                    <h3 className="label text-pink-deep">{profile.currently.label}</h3>
-                    <p className="mt-3 text-[0.85rem] leading-relaxed text-ink/80">
-                        {profile.currently.text}
-                    </p>
-
-                    <dl className="mt-5">
-                        <Row term="Role" value={profile.role} />
-                        <Row term="Based in" value={profile.location} />
-                        <Row term="Status" value={profile.availability} />
-                    </dl>
-                </Panel>
-            </div>
+                <dl className="mt-5">
+                    <Row term="Role" value={profile.role} />
+                    <Row term="Based in" value={profile.location} />
+                    <Row term="Status" value={profile.availability} />
+                </dl>
+            </aside>
         </div>
     </Section>
 );

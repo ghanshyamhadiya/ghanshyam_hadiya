@@ -13,6 +13,7 @@ dist-ssr
 *.local
 *.orig
 *.bak
+AGENTS.md
 
 # Playwright layout screenshots (scripts/shoot.mjs)
 shots
@@ -30,3 +31,4 @@ shots
 
 # Research captures and reference frames (scripts/shoot*.mjs, refs/)
 refs
+/nul
